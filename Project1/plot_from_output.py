@@ -1,3 +1,6 @@
+"""
+Plots the solutions from the general algorithm (b.cpp) for n=10, n=100 and n=1000, as well as the Analytical solution
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import exp
@@ -8,11 +11,12 @@ def f(x):
 for i in n:
     infile=open("oppb_%d.txt"%i);
     infile.readline();
+    infile.readline()
     allines=infile.readlines();
     x=[]
     sol=[]
     for line in allines:
-        nv,xv, accv,appv=line.split();
+        xv, accv,appv,relerr=line.split();
         x.append(float(xv));
         sol.append(float(appv));
     data.append([x,sol,i])
@@ -24,5 +28,5 @@ plt.plot(x,f(x),label="Analytical solution")
 plt.legend()
 plt.xlabel("x-value of function")
 plt.ylabel("y-value of function")
-plt.savefig("Plottings.png")
+plt.savefig("Plottings_plots.png")
 plt.show()
