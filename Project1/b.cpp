@@ -7,7 +7,6 @@
 using namespace std;
 int main(int argc, char** argv){
   clock_t start, finish;
-  start=clock();
   bool writeout=false; //If you want to write out a file containing the calculated solutions
   /*If argc=2, only an append is made to the time_info.txt file, if arc>=3, writeout is set to be true*/
   if (argc<2){
@@ -42,7 +41,10 @@ int main(int argc, char** argv){
   for (int i=0;i<n+2;i++){
     deriv[i]*=hh;
   }
-  double *solution=solve(a,b,c,deriv,n); //Solves and returns the system
+
+  double* solution=createArray(n+2);
+  start=clock();
+  solve(a,b,c,deriv,n,solution); //Solves, and does changes to the "solution"-array
   finish=clock();
   double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
   outfile_time <<"b n: "<<n<<" ellapsed time: "<<ellapsed_time<<endl;

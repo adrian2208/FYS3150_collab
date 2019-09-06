@@ -39,12 +39,12 @@ void fillArrayFunction(double * arr, int n,double *x,double (*func)(double)){
 double func(double x){
   return 100.0*exp(-10.0*x);
 }
-double* solve(double *a,double *b, double *c, double *deriv, int n){ 
-  double* solutions;
-  solutions=createArray(n+2); //First and last value are already set to zero
+void solve(double *a,double *b, double *c, double *deriv, int n, double *solutions){
+  double precalc;
   for(int i=1;i<n;i++){
-    b[i+1]=b[i+1]-a[i+1]*c[i]/b[i];
-    deriv[i+1]=deriv[i+1]-a[i+1]/b[i]*deriv[i];
+    precalc=a[i+1]/b[i];
+    b[i+1]=b[i+1]-precalc*c[i]; //b[i+1]=b[i+1]-a[i+1]*c[i]/b[i];
+    deriv[i+1]=deriv[i+1]-precalc*deriv[i];
   }
   solutions[n]=deriv[n]/b[n];
   delete [] a; // A not needed anymore (set to 0 anyways)
@@ -52,16 +52,9 @@ double* solve(double *a,double *b, double *c, double *deriv, int n){
     solutions[i]=(deriv[i]-c[i]*solutions[i+1])/b[i];
   }
   delete [] c; delete [] b; delete [] deriv; //c and b and deriv are not needed anymore
-  return solutions;
 }
 /* Oppgave c start*/
-double * improvedSolve(double *deriv, int n){
-  double *solutions; double *b;
-  solutions=createArray(n+2);
-  b=createArray(n+1); //First element is zero, but we don't care about first element
-  for(int i=1;i<=n;i++){
-    b[i]=((double)(i+1))/((double) i);
-  }
+void improvedSolve(double *deriv,double *b, int n, double *solutions){
   for(int i=2;i<=n;i++){
     deriv[i]=deriv[i]+deriv[i-1]/b[i-1];
   }
@@ -70,6 +63,5 @@ double * improvedSolve(double *deriv, int n){
     solutions[i]=(deriv[i]+solutions[i+1])/b[i];
   }
   delete [] b; delete [] deriv;
-  return solutions;
 }
 /* Oppgave c end*/

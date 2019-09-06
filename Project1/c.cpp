@@ -7,7 +7,6 @@
 using namespace std;
 int main(int argc, char** argv){
   clock_t start, finish;
-  start=clock();
   bool writeout=false;
   if (argc<2){
     cout << "You need to state a number n" << endl;
@@ -35,8 +34,14 @@ int main(int argc, char** argv){
   for (int i=0;i<n+2;i++){
     deriv[i]*=hh;
   }
-
-  double *solution=improvedSolve(deriv,n); //Solves using the improved algorithm
+  double *b;
+  b=createArray(n+1); //First element is zero, but we don't care about first element
+  for(int i=1;i<=n;i++){
+    b[i]=((double)(i+1))/((double) i);
+  }
+  double* solution=createArray(n+2);
+  start=clock();
+  improvedSolve(deriv,b,n,solution); //Solves using the improved algorithm
   finish=clock();
   double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
   outfile_time <<"c n: "<<n<<" ellapsed time: "<<ellapsed_time<<endl;

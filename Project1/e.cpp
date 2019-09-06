@@ -10,7 +10,6 @@ using namespace std;
 int main(int argc, char** argv){
   ofstream outfile;
   clock_t start, finish;
-  start=clock();
   bool writeout=false;
   if (argc<2){
     cout << "You need to state a number n" << endl;
@@ -51,10 +50,11 @@ int main(int argc, char** argv){
   // allocate space in memory
   indx = new int[n];
   col  = new double[n];
+  start=clock();
   ludcmp(A,n,indx,&d);
   lubksb(A,n,indx,deriv);
-  deleteNNMatrix(A,n);
   finish=clock();
+  deleteNNMatrix(A,n);
   double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
   outfile_time <<"e n: "<<n<<" ellapsed time: "<<ellapsed_time<<endl;
   outfile_time.close();
