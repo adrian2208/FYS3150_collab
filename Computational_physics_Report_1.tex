@@ -5,6 +5,7 @@
     {\MakeUppercase{\romannumeral #1}}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{float}
 \usepackage{verbatim}
 \usepackage{listings}
 \usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
@@ -12,7 +13,7 @@
 \definecolor{mylilas}{RGB}{170,55,241}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\graphicspath{{C:/Users/adria/Documents/MATLAB/}} 
+\graphicspath{{C:/Users/adria/Pictures/}} 
 \author{Adrian Martinsen Kleven, Simon Schrader}
 \title{INSERT TITLE!}
 
@@ -56,7 +57,11 @@ Currently:
 \section{Abstract}
 asdasdasdasd
 \section{Introduction}
-asdasdasdasd
+\subsection{Purpose} 
+The purpose of this report is to examine three different numerical algorithms for solving the one- dimensional Poisson equation with imposed Dirichelet boundary conditions. \\This equation can be rewritten as a set of linear equations and discretized for use in numerical approximations. Exploring the differences in computation time and relative error between the different algorithms will therefore also be a purpose of this report.\\\\
+Another purpose is to become familiar with writing projects in C++, dealing with error handling and understanding the usefulness of implementing dynamic memory allocation of arrays and matrices in C++. Also, to practice presenting meaningful figures and tables as well as a comprehensive list of references.
+\subsection{Approach}
+For this specific set of equations, the general algorithm for Gaussian elimination of tridiagonal matrices can be specialised to a more appropriate algorithm for use on Toeplitz matrices. In addition, LU- decomposition will be explored in relation to the other algorithms.\\ By iterating the different algorithms with different step sizes and thereby, different number of iterations, the difference in computing time between algorithms can be illustrated more clearly. \\These methods are implemented in the C++ programming language and their results visualized using the Matplotlib python library.
 \section{Methods}
 
 As written in the Introduction, the aim is to solve a second-order differential equation of the form
@@ -196,7 +201,7 @@ void solve(double *a,double *b, double *c, double *deriv, int n, double *solutio
   delete [] c; delete [] b; delete [] deriv; //c and b and deriv are not needed anymore
 }
 \end{lstlisting}
-Here $a$, and $b$ are arrays of length $n+1$ (the 0th value remains unused), $c$ is an arrayof length $n$, and $deriv$ (the discretized second derivative multiplied with $h^2$) is an array of length $n+2$. $n$ is the size of the $ n\cdot n$ matrix. $solutions$ is an array of length $n+2$ and the array that is changed, while the space for the other arrays is freed.\\\\
+Here $a$, and $b$ are arrays of length $n+1$ (the 0th value remains unused), $c$ is an array of length $n$, and $deriv$ (the discretized second derivative multiplied with $h^2$) is an array of length $n+2$. $n$ is the size of the $ n\cdot n$ matrix. $solutions$ is an array of length $n+2$ and the array that is changed, while the space for the other arrays is freed.\\\\
 The core of the algorithm for solving the specific matrix encountered is given by the following C++ code sniplet:
 \begin{lstlisting}[caption=Code for solving the specific triangular matrix]
 void improvedSolve(double *deriv,double *b, int n, double *solutions){
@@ -211,16 +216,41 @@ void improvedSolve(double *deriv,double *b, int n, double *solutions){
 }
 \end{lstlisting}
 Here, $deriv$ (the discretized second derivative multiplied with $h^2$) is an array of length $n+2$, b is an array of length $n+1$ (0th element is ommitted) and already filled with the changed values.  $n$ is the size of the $n\cdot n$ matrix. $solutions$ is an array of length $n+2$ and the array that is changed, while the space for the other arrays is freed.\\
-In all cases, the results were verified by comparing the calculated result using the algorithms to the analytical solution, which exists for our given problem. We printed out the matrices that were formed as an intermediate step in the terminal to assure that the algorithms were, in fact, implemented correctly. 
+In all cases, the results were verified by comparing the calculated result using the algorithms to the analytical solution, which exists for our given problem. The intermediate matrices were printed to the terminal to assure that the algorithms were, in fact, implemented correctly. 
 \subsection{Accuracy}
-For all algorithms, the results were verified by comparing the calculated result using the algorithms to the analytical solution, which exists for our given problem. We printed out the matrices that were formed as an intermediate step in the terminal to assure that the algorithms were, in fact, implemented correctly. For each algorithm, for each $x_i$, both the analytical result and the result using the algorithm were written to a .txt file. The analytical solution as well as the approximate solutions can be plotted to inspect wether the algorithm is generally right, while looking at the relative error as a function of the steplength $h$ is a more reliable and exact way to see how accurate our solution is. 
-\paragraph{Floating point operations}
+For all algorithms, the results were verified by comparing the calculated result using the algorithms to the analytical solution, which exists for our given problem. For each algorithm, for each $x_i$, both the analytical result and the result using the algorithm were written to a .txt file. The analytical solution as well as the approximate solutions can be plotted to inspect if the algorithm is generally right, while looking at the relative error as a function of the step length $h$ is a more reliable and exact way to see how accurate the solution is. 
+\section{Results}
 
-\paragraph{Time expenditure}
+\subsection{Precision}
 
+\begin{table}[H]
+\caption[Relative error of specialized algorithm]{Maximum relative error of specialized algorithm as a function of matrix size}
+\begin{tabular}{ll}
+n & $ Max_{\epsilon_i}$ \\
+10^1 & fill \\
+10^2 & fill \\
+10^3 & . \\
+10^4 & . \\
+10^5 & . \\
+10^6 & . \\
+10^7 & 
+\end{tabular}
+\end{table}
 
-\section{Methods}
-\subsection{Accuracy}
+\subsection{Time expenditure}
+
+\begin{center}
+\begin{figure}[H]
+\includegraphics[width =1.2\textwidth]{IMG1217.jpg} \label{Elapsed time comparison}
+	\caption[Comparing elapsed time]{Average elapsed time as measured by averaging 31 simulations of each algorithm. Plotted on a logarithmic scale.}
+\end{figure}
+\end{center}
+\begin{center}
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{IMG1218.jpg}
+	\caption[Comparing general and specialized (elapsed time)]{The ratio of time- expenditure between the specialized and general algorithm as a function of the size of matrix plotted logarithmically}
+\end{figure}
+\end{center}
 
 \section{Discussion}
 
