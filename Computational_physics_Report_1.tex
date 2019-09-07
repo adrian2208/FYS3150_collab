@@ -57,27 +57,181 @@ Currently:
 asdasdasdasd
 \section{Introduction}
 asdasdasdasd
-\section{Results}
+\section{Methods}
 
-\subsection{Methods}
+As written in the Introduction, the aim is to solve a second-order differential equation of the form
+
+\begin{equation*}
+\frac{d^2u(x)}{dx^2} = g(x).
+
+\end{equation*}
+Using the formula on page XXX in [1], this equation can be discretized to 
+\begin{equation*}
+\frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2} = g_{i}
+\end{equation*}
+where $u_{i}$ and $g_{i}$ stand for $u(x_{i})$ and $g(x_{i})$, respectively, and $x_{i}=i*h$, where we discretize the problem in $n$ values and  $h=\frac{1}{n+1}$, and $i  \in  \mathbb{Z}$.
+In our case, we know that $g(x)$, that is, the second derivative, is given by the equation $g(x) = 100e^{-10x}$. Dirichlet boundary conditions apply, where $u(0)=u(1)=0$.
+This problem can thus represented as a matrix:
+\[
+    \mathbf{A} = \begin{bmatrix}
+                           2& -1& 0 &\dots   & \dots &0 \\
+                           -1 & 2 & -1 &0 &\dots &\dots \\
+                           0&-1 &2 & -1 & 0 & \dots \\
+                           & \dots   & \dots &\dots   &\dots & \dots \\
+                           0&\dots   &  &-1 &2& -1 \\
+                           0&\dots    &  & 0  &-1 & 2 \\
+                      \end{bmatrix}\begin{bmatrix}
+                           u_1\\
+                           u_2\\
+                           \dots \\
+                          \dots  \\
+                          \dots \\
+                           u_n\\
+                      \end{bmatrix}
+  =h^2
+\begin{bmatrix}
+                           {g}_1\\
+                           {g}_2\\
+                           \dots \\
+                           \dots \\
+                          \dots \\
+                           {g}_n\\
+                      \end{bmatrix}.
+\]
+when $u_{0}=u_{n+1}=0$, as in our case.
+To solve this problem, we applied 3 different approaches: Gaussian elimination of a general tridiagonal matrix, Gaussian elimination using an improved algorithm for this specific tridiagonal Toeplitz matrix, and LU decomposition of a general matrix.
+
+\subsection{Gaussian elimination of a tridiagonal matrix} \\
+The task is to solve an equation in this general form for the vector $\mathbf{u}$ :
+\[
+    \mathbf{A} = \begin{bmatrix}
+                           b_1& c_1 & 0 &\dots   & \dots &\dots \\
+                           a_1 & b_2 & c_2 &\dots &\dots &\dots \\
+                           & a_2 & b_3 & c_3 & \dots & \dots \\
+                           & \dots   & \dots &\dots   &\dots & \dots \\
+                           &   &  &a_{n-2}  &b_{n-1}& c_{n-1} \\
+                           &    &  &   &a_{n-1} & b_n \\
+                      \end{bmatrix}\begin{bmatrix}
+                           u_1\\
+                           u_2\\
+                           \dots \\
+                          \dots  \\
+                          \dots \\
+                           u_n\\
+                      \end{bmatrix}
+  =\begin{bmatrix}
+                           {g}_1\\
+                           {g}_2\\
+                           \dots \\
+                           \dots \\
+                          \dots \\
+                           {g}_n\\
+                      \end{bmatrix}.
+\]
+Where $a_n$,$b_n$, and $c_n$ are real numbers and the diagonal elements are nonzero.\\
+This can be done by applying the normal Gaussian elimination. The algorithm to do so is as follows:
+$$\tilde{a}_i = 0$$
+$$\tilde{b}_i=b_i-\frac{a_i}{\tilde{b}_{i-1}} c_{i-1}$$
+$$\tilde{g}_i=g_i-\frac{a_i}{\tilde{b}_{i-1}} \tilde{g}_{i-1}$$
+Leaving us with the following system:
+\[
+    \mathbf{A} = \begin{bmatrix}
+                           b_1& c_1 & 0 &\dots   & \dots &\dots \\
+                           0& \tilde{b}_{2} & c_2 &\dots &\dots &\dots \\
+                           & 0 & \tilde{b}_{3} & c_3 & \dots & \dots \\
+                           & \dots   & \dots &\dots   &\dots & \dots \\
+                           &   &  & 0  &\tilde{b}_{n-1}& c_{n-1} \\
+		      &    &  &   &0 &\tilde{b}_n  \\
+                      \end{bmatrix}\begin{bmatrix}
+                           u_1\\
+                           u_2\\
+                           \dots \\
+                          \dots  \\
+                          \dots \\
+                           u_n\\
+                      \end{bmatrix}
+  =\begin{bmatrix}
+                           g_1\\
+                           \tilde{g}_2\\
+                           \dots \\
+                           \dots \\
+                          \dots \\
+                           \tilde{g}_n\\
+                      \end{bmatrix}.
+\]
+The solutions can then be found by backward substitution: 
+$$u_n = \frac{\tilde{g}_n}{\tilde{b}_n}$$
+$$u_{i-1} = \frac{\tilde{g}_{i-1}-c_{i-1} u_i}{\tilde{b}_{i-1}}$$
+When calculating the step $\frac{a_i}{\tilde{b}_{i-1}}$ only once, we are left with approximately $8n$ floating point operations.
+\subsection{Gaussian elimination of the specific tridiagonal Toeplitz matrix}
+
+Because $c_i=a_i=-1$, the previously described algorithm used for the specific matrix  to solve the second derivative problem can be improved. It can be shown that 
+$$\tilde{b}_i=\frac{i+1}{i}$$
+This very step can be very efficiently precalculated, thus it will not go into the calculation of the number of floating point operations. The rest of the algorithm goes as follows.
+$$\tilde{g}_i=g_i+\frac{\tilde{g}_{i-1}}{\tilde{b}_{i-1}} $$
+Followed by backward substitution:
+$$u_n = \frac{\tilde{g}_n}{\tilde{b}_n}$$
+$$u_{i-1} = \frac{\tilde{g}_{i-1}+u_i}{\tilde{b}_{i-1}}$$
+The number of floating point operations is thus approximately $4n$.\\
+
 \paragraph{LU-Decomposition}
 
-\paragraph{Gaussian elimination}
 
 \paragraph{Implementation}
-
-
-\subsection{Comparison}
+The code where the algorithms were implemented, can be found here: \\
+The core of the general triangular Gaussian elimination algorithm is given by the following C++ code sniplet:
+\begin{lstlisting}[caption=Code for solving the general triangular matrix]
+void solve(double *a,double *b, double *c, double *deriv, int n, double *solutions){
+  double precalc;
+  for(int i=1;i<n;i++){
+    precalc=a[i+1]/b[i];
+    b[i+1]=b[i+1]-precalc*c[i]; //b[i+1]=b[i+1]-a[i+1]*c[i]/b[i];
+    deriv[i+1]=deriv[i+1]-precalc*deriv[i];
+  }
+  solutions[n]=deriv[n]/b[n];
+  delete [] a; // A not needed anymore (set to 0 anyways)
+  for(int i=n-1;i>=1;i--){
+    solutions[i]=(deriv[i]-c[i]*solutions[i+1])/b[i];
+  }
+  delete [] c; delete [] b; delete [] deriv; //c and b and deriv are not needed anymore
+}
+\end{lstlisting}
+Here $a$, and $b$ are arrays of length $n+1$ (the 0th value remains unused), $c$ is an arrayof length $n$, and $deriv$ (the discretized second derivative multiplied with $h^2$) is an array of length $n+2$. $n$ is the size of the $ n\cdot n$ matrix. $solutions$ is an array of length $n+2$ and the array that is changed, while the space for the other arrays is freed.\\\\
+The core of the algorithm for solving the specific matrix encountered is given by the following C++ code sniplet:
+\begin{lstlisting}[caption=Code for solving the specific triangular matrix]
+void improvedSolve(double *deriv,double *b, int n, double *solutions){
+  for(int i=2;i<=n;i++){
+    deriv[i]=deriv[i]+deriv[i-1]/b[i-1];
+  }
+  solutions[n]=deriv[n]/b[n];
+  for(int i=n-1;i>=1;i--){
+    solutions[i]=(deriv[i]+solutions[i+1])/b[i];
+  }
+  delete [] b; delete [] deriv;
+}
+\end{lstlisting}
+Here, $deriv$ (the discretized second derivative multiplied with $h^2$) is an array of length $n+2$, b is an array of length $n+1$ (0th element is ommitted) and already filled with the changed values.  $n$ is the size of the $n\cdot n$ matrix. $solutions$ is an array of length $n+2$ and the array that is changed, while the space for the other arrays is freed.\\
+In all cases, the results were verified by comparing the calculated result using the algorithms to the analytical solution, which exists for our given problem. We printed out the matrices that were formed as an intermediate step in the terminal to assure that the algorithms were, in fact, implemented correctly. 
+\subsection{Accuracy}
+For all algorithms, the results were verified by comparing the calculated result using the algorithms to the analytical solution, which exists for our given problem. We printed out the matrices that were formed as an intermediate step in the terminal to assure that the algorithms were, in fact, implemented correctly. For each algorithm, for each $x_i$, both the analytical result and the result using the algorithm were written to a .txt file. The analytical solution as well as the approximate solutions can be plotted to inspect wether the algorithm is generally right, while looking at the relative error as a function of the steplength $h$ is a more reliable and exact way to see how accurate our solution is. 
 \paragraph{Floating point operations}
 
 \paragraph{Time expenditure}
 
 
+\section{Methods}
+\subsection{Accuracy}
 
 \section{Discussion}
 
 \section{Conclusion}
-
+\section{Appendix}
+\subsection{Proof that $\tilde{b}_i=\frac{i+1}{i}$ in the improved algorithm}
+By calculation by hand, it can be shown that  $\tilde{b}_1=\frac{2}{1}$,  $\tilde{b}_2=\frac{3}{2}$.\\
+This gives the impression that  $\tilde{b}_i=\frac{i+1}{i}$.
+Inserting this in the general algorithm for Gauss elimination, we can perform a proof by induction and get that
+  $$\tilde{b}_{i+1}=2-\frac{1}{\tilde{b}_{i}}=2-\frac{i}{i+1}=\frac{i+2}{i+1} \blacksquare
+$$
 \section{References}
  
 \begin{thebibliography}{9}
