@@ -34,20 +34,6 @@
 
 \part*{--------Insert Title--------}
 {\large By Simon Schrader (FYS4150) Adrian Kleven (FYS3150)}\\\\
-Note to self: 
-useful clipboard- elements to be copied and pasted are always found at the bottom of the article
-Currently:
- + 4X4 matrix 
-
- + insert figure
-
- + insert c++ code
- 
- + using references
- 
- compile two times for sections to show up in table of contents!
-
-
 \tableofcontents
 
 \listoffigures
@@ -319,22 +305,26 @@ $log_{10}(h)$ &  $log_{10}(max_{\epsilon_i})$ \\
 One can clearly see how the logarithm of the error decreases almost linearly as a function of the logarithm of h until $log_{10}(h)$, where the error starts increasing again. This is expected. The (probable) leading term of the mathematical error in the second derivative is given by $$\epsilon_{approx}=\frac{{f_0}^{(4)}}{12}h^2,$$ so in principle, increasing n (thus decreasing h) will reduce the error and only time use can hinder us in decreasing the error to zero. However, due to the nature of loss in numerical precision in double precision numbers in C++, we get a maximum in accuracy at $n \approx 10^6$.  This is probably because very small differences between $g_i$ and $g_{i+1}$
  are not correctly represented anymore and errors start accumulating.
 \subsection{Time expenditure}
-
+The number of floating point operations used by an algorithm is only indicative of the time spent by a computer. Fetching from and writing to memory contribute to the total time spent computing. So, in order to compare the efficiencies of these algorithms, it's useful to run and time the different programs in order to assess their performance compared to each other.\\To do this, the different algorithms where timed and averaged over 31 simulations each using the inbuilt \emph{time.h} functions. The results are shown below in Figure \ref{Figure 2}.
 \begin{center}
 \begin{figure}[H]
 \includegraphics[width =1.2\textwidth]{IMG1217.jpg} \label{Elapsed time comparison}
 	\caption[Comparing elapsed time]{Average elapsed time as measured by averaging 31 simulations of each algorithm. Plotted on a logarithmic scale.}
+	\label{Figure 2}
 \end{figure}
 \end{center}
+As seen from this figure, the time spent by the LU- decomposition of a general matrix rises exceptionally quickly as the matrix grows in size compared to the two other algorithms.\\\\It is also of interest to compare the general and specialized approaches to see what improvements were made. In this case, the number of floating point operations halved when switching from a general to a specialized algorithm. Again, taking the average of 31 simulations of each algorithm, then plotting their ratio as a function of the matrix size. This is shown below in figure \ref{Figure 3}
 \begin{center}
 \begin{figure}[H]
 	\includegraphics[width =1.2\textwidth]{IMG1218.jpg}
 	\caption[Comparing general and specialized (elapsed time)]{The ratio of time- expenditure between the specialized and general algorithm as a function of the size of matrix plotted logarithmically}
+	\label{Figure 3}
 \end{figure}
 \end{center}
+The ratio quickly drops from around 0.95 to around 0.75 as the size of the matrix grows. This is significantly higher than an estimate based solely on floating point operations. This suggests that other factors have a significant impact on the results.
 
 \section{Conclusion}
-The results that were found in this project agreed with our expectations. When we varied the matrix size $n$, we expected to see a decrease in the error due to a reduced mathematical error until a given point from which it would start raising again due to roundoff errors, and found that this point is at around $n \approx 10^6$. We also wanted to see how specializing an algorithm can lead to increased efficiency while yielding the same results, and we found that the expenditure of figuring out and implementing specialized algorithms, like the Thomas algorithm, are absolutely worth it, considering how personal computers are unable to solve a general matrix of size $10^5\times10^5$ or bigger both in terms of memory use and computational time. We found that the number of floating point operations is rougly proportional to the time use of our program, and that reducing the number of FLOPS from 8n to 4n almost doubles computational speed. Even though these findings were of mathematical nature, they are very relevant for problems in natural sciences, were time use and accuracy are of uttermost importance. We have developed a set of tools that can be used for a broad range of purposes, not just this project.
+The results that were found in this project agreed with our expectations. When we varied the matrix size $n$, we expected to see a decrease in the error due to a reduced mathematical error until a given point from which it would start raising again due to roundoff errors, and found that this point is at around $n \approx 10^6$. We also wanted to see how specializing an algorithm can lead to increased efficiency while yielding the same results, and we found that the expense of formulating and implementing specialized algorithms, like the Thomas algorithm, are absolutely worth it, considering how personal computers are unable to solve a general matrix of size $10^5\times10^5$ or bigger both in terms of memory use and computational time. We found that the number of floating point operations is roughly proportional to the time use of our program, and that reducing the number of FLOPS from 8n to 4n reduced the computational speed by over 25\% for matrices of size $3\times 3$ and greater. Even though these findings were of mathematical nature, they are very relevant for problems in natural sciences, were time use and accuracy are of uttermost importance. We have developed a set of tools that can be used for a broad range of purposes, not just this project.
 \section{Appendix}
 \subsection{Proof that $\tilde{b}_i=\frac{i+1}{i}$ in the improved algorithm}
 By calculation by hand, it can be shown that  $\tilde{b}_1=\frac{2}{1}$,  $\tilde{b}_2=\frac{3}{2}$.\\
@@ -355,22 +345,9 @@ info.txt
 \item plot\_h.py - plots $log_{10}(h)$ against $log_{10}(rel_error)$
 \item run\_everything.py - runs b.cpp, c.cpp and e.cpp 30 times without writing to file, then once with writing to file, for varying n
 \end{enumerate}
+
 \section{References}
- 
-\begin{thebibliography}{9}
-\bibitem{1st source} 
-
-\end{thebibliography}
-
-
-
-
-
-
-
-
-
-
+[1] Morten Hjort-Jensen \textit{Computational Physics: Lecture Notes Fall 2015}
 
 
 
@@ -394,15 +371,6 @@ for (unsigned int i = 0; i<100;i++{
 \includegraphics[width=8cm]{}
 \caption{include caption}
 \end{figure}
-
-
-HOW TO CITE SOURCES:
-use
-\cite{reference name}
-in the text, and
-\bibitem{reference name} 
-
-
 
 \end{comment}
 
