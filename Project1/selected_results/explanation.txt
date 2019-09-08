@@ -1,0 +1,4 @@
+Well, 
+log_err.txt is the table showing log(h) against the relative error,
+all the oppX_n.txt files are the actual "result" where n is chosen as a parameter for running the program and X is b/c/e,
+and the .png files are just plots.
