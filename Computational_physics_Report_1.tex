@@ -8,6 +8,8 @@
 \usepackage{float}
 \usepackage{verbatim}
 \usepackage{listings}
+\usepackage{hyperref}
+
 \usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
 \definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
 \definecolor{mylilas}{RGB}{170,55,241}
@@ -31,7 +33,7 @@
 \begin{document}
 
 \part*{--------Insert Title--------}
-{\large By Simon Schrader, Adrian Kleven}\\\\
+{\large By Simon Schrader (FYS4150) Adrian Kleven (FYS3150)}\\\\
 Note to self: 
 useful clipboard- elements to be copied and pasted are always found at the bottom of the article
 Currently:
@@ -55,7 +57,7 @@ Currently:
 \clearpage
  
 \section{Abstract}
-asdasdasdasd
+Solving mathematical problems with the help of a computer has never been more relevant than nowadays and can be used for a broad range of problems. In this project, we compared three algorithms for solving a specific second-order differential equation, that we treated as a discretized linear algebra problem, numerically in terms of computational time and found that specializing our algorithms decreases computational time while retaining the same mathematical accuracy as the general algorithm. We also found that the accuracy is a function of step length, where  $h \approx 10^{-6}$ gives the result that is closest to the analytical solution of the equation we dealt with.
 \section{Introduction}
 \subsection{Purpose} 
 The purpose of this report is to examine three different numerical algorithms for solving the one- dimensional Poisson equation with imposed Dirichelet boundary conditions. \\This equation can be rewritten as a set of linear equations and discretized for use in numerical approximations. Exploring the differences in computation time and relative error between the different algorithms will therefore also be a purpose of this report.\\\\
@@ -65,15 +67,10 @@ For this specific set of equations, the general algorithm for Gaussian eliminati
 \section{Methods}
 
 As written in the Introduction, the aim is to solve a second-order differential equation of the form
+$$\frac{d^2u(x)}{dx^2} = g(x).$$
 
-\begin{equation*}
-\frac{d^2u(x)}{dx^2} = g(x).
-
-\end{equation*}
 Using the formula on page XXX in [1], this equation can be discretized to 
-\begin{equation*}
-\frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2} = g_{i}
-\end{equation*}
+$$\frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2} = g_{i}$$
 where $u_{i}$ and $g_{i}$ stand for $u(x_{i})$ and $g(x_{i})$, respectively, and $x_{i}=i*h$, where we discretize the problem in $n$ values and  $h=\frac{1}{n+1}$, and $i  \in  \mathbb{Z}$.
 In our case, we know that $g(x)$, that is, the second derivative, is given by the equation $g(x) = 100e^{-10x}$. Dirichlet boundary conditions apply, where $u(0)=u(1)=0$.
 This problem can thus represented as a matrix:
@@ -103,11 +100,11 @@ This problem can thus represented as a matrix:
                            {g}_n\\
                       \end{bmatrix}.
 \]
-when $u_{0}=u_{n+1}=0$, as in our case.
-To solve this problem, we applied 3 different approaches: Gaussian elimination of a general tridiagonal matrix, Gaussian elimination using an improved algorithm for this specific tridiagonal Toeplitz matrix, and LU decomposition of a general matrix.
-
-\subsection{Gaussian elimination of a tridiagonal matrix} \\
-The task is to solve an equation in this general form for the vector $\mathbf{u}$ :
+when $u_{0}=u_{n+1}=0$, as in our case. In order to shorten notation, $g_i*h^2$ is simply written as  $g_i$ from now on.
+To solve this problem, we applied 3 different approaches: Gaussian elimination of a general tridiagonal matrix, Gaussian elimination using an improved algorithm for this specific tridiagonal Toeplitz matrix, and LU decomposition of a general matrix. The accuracy of our solutions can be determined by calculating the relative error, which we can calculate because we know the analytical solution given by 
+$$u(x)=1-(1-e^{-10})x-e^{-10x}$$
+\subsection{Gaussian elimination of a tridiagonal matrix} 
+The task is to solve an equation in this general form for the vector $\mathbf{u}$ :\\
 \[
     \mathbf{A} = \begin{bmatrix}
                            b_1& c_1 & 0 &\dots   & \dots &\dots \\
@@ -222,21 +219,30 @@ For all algorithms, the results were verified by comparing the calculated result
 \section{Results}
 
 \subsection{Precision}
-
+\begin{center}
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{Adrian_put_in_the_picture_with_the_shape_of_the_function.png}
+	\caption[Form of solution]{The discretized solution for different values of n compared to the analytical solution using the general tridiangular algorithm}
+\end{figure}
+\end{center}
+Here, we see that discretizing with only $n=100$ steps already yields very usable results in the sense that the dimension of result is correct.
 \begin{table}[H]
-\caption[Relative error of specialized algorithm]{Maximum relative error of specialized algorithm as a function of matrix size}
+\caption[Relative error of specialized algorithm]{Logarithm of maximum relative error of specialized algorithm as a function of logarithm of step length}
 \begin{tabular}{ll}
-n & $ Max_{\epsilon_i}$ \\
-10^1 & fill \\
-10^2 & fill \\
-10^3 & . \\
-10^4 & . \\
-10^5 & . \\
-10^6 & . \\
-10^7 & 
+$log_{10}(h)$ &  $log_{10}(max_{\epsilon_i})$ \\
+ -1.041 & -1.180 \\
+ -2.004 & -3.088 \\
+ -3.000 & -5.080 \\
+ -4.000 & -7.079 \\
+ -5.000 & -9.079 \\
+ -6.000 & -10.163 \\
+ -7.000 & -9.090 
+
 \end{tabular}
 \end{table}
-
+***Memo to myself - also put in picture, it's beautiful***\\
+One can clearly see how the logarithm of the error decreases almost linearly as a function of the logarithm of h until $log_{10}(h)$, where the error starts increasing again. This is expected. The (probable) leading term of the mathematical error in the second derivative is given by $$\epsilon_{approx}=\frac{{f_0}^{(4)}}{12}h^2,$$ so in principle, increasing n (thus decreasing h) will reduce the error and only time use can hinder us in decreasing the error to zero. However, due to the nature of loss in numerical precision in double precision numbers in C++, we get a maximum in accuracy at $n \approx 10^6$.  This is probably because very small differences between $g_i$ and $g_{i+1}$
+ are not correctly represented anymore and errors start accumulating.
 \subsection{Time expenditure}
 
 \begin{center}
@@ -252,16 +258,28 @@ n & $ Max_{\epsilon_i}$ \\
 \end{figure}
 \end{center}
 
-\section{Discussion}
-
 \section{Conclusion}
+The results that were found in this project agreed with our expectations. When we varied the matrix size $n$, we expected to see a decrease in the error due to a reduced mathematical error until a given point from which it would start raising again due to roundoff errors, and found that this point is at around $n \approx 10^6$. We also wanted to see how specializing an algorithm can lead to increased efficiency while yielding the same results, and we found that the expenditure of figuring out and implementing specialized algorithms, like the Thomas algorithm, are absolutely worth it, considering how personal computers are unable to solve a general matrix of size $10^5\times10^5$ or bigger both in terms of memory use and computational time. We found that the number of floating point operations is rougly proportional to the time use of our program, and that reducing the number of FLOPS from 8n to 4n almost doubles computational speed. Even though these findings were of mathematical nature, they are very relevant for problems in natural sciences, were time use and accuracy are of uttermost importance. We have developed a set of tools that can be used for a broad range of purposes, not just this project.
 \section{Appendix}
 \subsection{Proof that $\tilde{b}_i=\frac{i+1}{i}$ in the improved algorithm}
 By calculation by hand, it can be shown that  $\tilde{b}_1=\frac{2}{1}$,  $\tilde{b}_2=\frac{3}{2}$.\\
 This gives the impression that  $\tilde{b}_i=\frac{i+1}{i}$.
 Inserting this in the general algorithm for Gauss elimination, we can perform a proof by induction and get that
-  $$\tilde{b}_{i+1}=2-\frac{1}{\tilde{b}_{i}}=2-\frac{i}{i+1}=\frac{i+2}{i+1} \blacksquare
-$$
+ $$\tilde{b}_{i+1}=2-\frac{1}{\tilde{b}_{i}}=2-\frac{i}{i+1}=\frac{i+2}{i+1} \blacksquare$$
+\subsection{List of programs}
+All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab}
+\begin{enumerate}
+\item b.cpp - Solves the problem using Gaussian elimination of any tridiangular matrix
+\item c.cpp - Solves the problem using Gaussian elimination of specific tridiangular matrix decomposition
+\item e.cpp - Solves the problem using LU decomposition, writes to file
+\item vecop.cpp and vecop.hpp - Library files with actual solving functions
+\item d.py creates the file log\_err\_c.txt with maximum relative error.
+\item plot\_from\_output.py $log_{10}(h)$
+\item plot\_times.py - plots time use from time\_
+info.txt
+\item plot\_h.py - plots $log_{10}(h)$ against $log_{10}(rel_error)$
+\item run\_everything.py - runs b.cpp, c.cpp and e.cpp 30 times without writing to file, then once with writing to file, for varying n
+\end{enumerate}
 \section{References}
  
 \begin{thebibliography}{9}
