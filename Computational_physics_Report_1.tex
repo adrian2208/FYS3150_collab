@@ -17,7 +17,7 @@
 \usepackage{graphicx}
 \graphicspath{{C:/Users/adria/Pictures/}} 
 \author{Adrian Martinsen Kleven, Simon Schrader}
-\title{INSERT TITLE!}
+\title{Project 1}
 
 \lstset{
  	language =C++,   
@@ -34,8 +34,8 @@
 
 \part*{-Project 1 - FYS3150/FYS4150-
 }
-{\large By Simon Schrader (4150) Adrian Kleven (3150) - autumn 2019
-}\\\\
+{\large By Simon Schrader (4150), Adrian Kleven (3150) - autumn 2019
+}
 \tableofcontents
 
 \listoffigures
@@ -156,7 +156,7 @@ $$u_{i-1} = \frac{\tilde{g}_{i-1}-c_{i-1} u_i}{\tilde{b}_{i-1}}$$
 When calculating the step $\frac{a_i}{\tilde{b}_{i-1}}$ only once, we are left with approximately $8n$ floating point operations.
 \subsection{Gaussian elimination of the specific tridiagonal Toeplitz matrix}
 
-Because $c_i=a_i=-1$, the previously described algorithm used for the specific matrix  to solve the second derivative problem can be improved. It can be shown that 
+Because $c_i=a_i=-1$, the previously described algorithm used for the specific matrix  to solve the second derivative problem can be improved. It can be shown that (see appendix) 
 $$\tilde{b}_i=\frac{i+1}{i}$$
 This very step can be very efficiently precalculated, thus it will not go into the calculation of the number of floating point operations. The rest of the algorithm goes as follows.
 $$\tilde{g}_i=g_i+\frac{\tilde{g}_{i-1}}{\tilde{b}_{i-1}} $$
@@ -295,7 +295,7 @@ For all algorithms, the results were verified by comparing the calculated result
 
 Here, we see that discretizing with only $n=100$ steps already yields very usable results in the sense that the dimension of result is correct.
 \begin{figure}[H]
-	\includegraphics[width =1.2\textwidth]{error.png}
+	\includegraphics[width =1.2\textwidth]{comp_fys_1_error.png}
 	\caption[Relative error of specialized algorithm]{Logarithm of maximum relative error of specialized algorithm as a function of logarithm of step length}
 	\label{Figure 3}
 \end{figure}
@@ -323,7 +323,7 @@ $. This suggests that other factors have a significant impact on the results.
 
 \section{Conclusion}
 The results that were found in this project agreed with our expectations. When we varied the matrix size $n$, we expected to see a decrease in the error due to a reduced mathematical error until a given point from which it would start raising again due to roundoff errors, and found that this point is at around $n \approx 10^6$. We also wanted to see how specializing an algorithm can lead to increased efficiency while yielding the same results, and we found that the expense of formulating and implementing specialized algorithms, like the Thomas algorithm, are absolutely worth it, considering how personal computers are unable to solve a general matrix of size $10^5\times10^5$ or bigger both in terms of memory use and computational time - storing $10^{10}
-$ double precision variables, 8 bytes each, takes approximately 80 gigabytes of Random Access Memory, which is five to ten times more than modern computers have. We found that the number of floating point operations is roughly proportional to the time use of our program, and that reducing the number of FLOPS from 8n to 4n reduced the computational speed by over 25\% for matrices of size $3\times 3$ and greater. Even though these findings were of mathematical nature, they are very relevant for problems in natural sciences, were time use and accuracy are of uttermost importance. We have developed a set of tools that can be used for a broad range of purposes, not just this project.
+$ double precision variables, 8 bytes each, takes approximately 80 gigabytes of Random Access Memory, which is five to ten times more than modern computers have. We found that the number of floating point operations is roughly proportional to the time use of our program, and that reducing the number of FLOPS from 8n to 4n reduced the computational speed by over 25\% for matrices of size $3\times 3$ and greater. Even though these findings were of mathematical nature, they are very relevant for problems in natural sciences, where time use and accuracy are of uttermost importance. We have developed a set of tools that can be used for a broad range of purposes, not just this project.
 \section{Critique}
 When developing the program, we encountered several things to think of that we had not thought about before. How do collaborate on a project when you're not sitting together all the time? How do you deal with workflow, whose program should you use, how do you coordinate the coding, naming of variables, choice of language (this was easy, C++), working times, and so on. Developing the algorithms was almost too easy, given that Morten went through them in the lecture notes. Procrastination is always an issue, and we didn't finish until the last day. It was nice to learn how to use GitHub, that we also use to log our data. We did not make any test functions here, but I already realized now how important and helpful they can be in the future. In our opinion, it would be nice if you were more clear about what you wanted to be part of the reports - we're being graded for it, and losing points for not thinking about something you consider important, is disappointing.
 \section{Appendix}
