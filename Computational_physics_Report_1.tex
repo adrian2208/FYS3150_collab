@@ -32,8 +32,10 @@
 
 \begin{document}
 
-\part*{--------Insert Title--------}
-{\large By Simon Schrader (FYS4150) Adrian Kleven (FYS3150)}\\\\
+\part*{-Project 1 - FYS3150/FYS4150-
+}
+{\large By Simon Schrader (4150) Adrian Kleven (3150) - autumn 2019
+}\\\\
 \tableofcontents
 
 \listoffigures
@@ -56,7 +58,8 @@ As written in the Introduction, the aim is to solve a second-order differential 
 $$\frac{d^2u(x)}{dx^2} = -g(x).$$
 
 Using the formula 3.4 in [1], this equation can be discretized to 
-$$\frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2} = g_{i}$$
+$$-
+\frac{u_{i-1}-2u_{i}+u_{i+1}}{h^2} = g_{i}$$
 where $u_{i}$ and $g_{i}$ stand for $u(x_{i})$ and $g(x_{i})$, respectively, and $x_{i}=i*h$, where we discretize the problem in $n$ values and  $h=\frac{1}{n+1}$, and $i  \in  \mathbb{Z}$.
 In our case, we know that $g(x)$, that is, the second derivative, is given by the equation $g(x) = 100e^{-10x}$. Dirichlet boundary conditions apply, where $u(0)=u(1)=0$.
 This problem can thus represented as a matrix:
@@ -216,7 +219,8 @@ Since the matrix $L$ is non- degenerate, $\textbf{y}$ can be written in terms of
 $$
 \textbf{y} =\textbf{ L}^{\textbf{-1}}\textbf{w}
 $$
-With $y$, $x$ can be obtained by $\textbf{Ux} =\textbf{y}$, and our linear system of equations is solved.\\\\By using the equations 2 through 4, it can be found that the total number of floating point operations for the LU- factorization is approximately $\frac{2}{3}n^3$, according to [1] .
+With $y$, $x$ can be obtained by $\textbf{Ux} =\textbf{y}$, and our linear system of equations is solved.\\\\By using the equations 2 through 4, it can be found that the total number of floating point operations for the LU- factorization is approximately $\frac{2}{3}n^3$, according to [1
+] .
 \subsection{C++ Implementation}
 \subsubsection{General tridiagonal matrix}
 The code where the algorithms were implemented, can be found here: \\
@@ -320,6 +324,8 @@ $. This suggests that other factors have a significant impact on the results.
 \section{Conclusion}
 The results that were found in this project agreed with our expectations. When we varied the matrix size $n$, we expected to see a decrease in the error due to a reduced mathematical error until a given point from which it would start raising again due to roundoff errors, and found that this point is at around $n \approx 10^6$. We also wanted to see how specializing an algorithm can lead to increased efficiency while yielding the same results, and we found that the expense of formulating and implementing specialized algorithms, like the Thomas algorithm, are absolutely worth it, considering how personal computers are unable to solve a general matrix of size $10^5\times10^5$ or bigger both in terms of memory use and computational time - storing $10^{10}
 $ double precision variables, 8 bytes each, takes approximately 80 gigabytes of Random Access Memory, which is five to ten times more than modern computers have. We found that the number of floating point operations is roughly proportional to the time use of our program, and that reducing the number of FLOPS from 8n to 4n reduced the computational speed by over 25\% for matrices of size $3\times 3$ and greater. Even though these findings were of mathematical nature, they are very relevant for problems in natural sciences, were time use and accuracy are of uttermost importance. We have developed a set of tools that can be used for a broad range of purposes, not just this project.
+\section{Critique}
+When developing the program, we encountered several things to think of that we had not thought about before. How do collaborate on a project when you're not sitting together all the time? How do you deal with workflow, whose program should you use, how do you coordinate the coding, naming of variables, choice of language (this was easy, C++), working times, and so on. Developing the algorithms was almost too easy, given that Morten went through them in the lecture notes. Procrastination is always an issue, and we didn't finish until the last day. It was nice to learn how to use GitHub, that we also use to log our data. We did not make any test functions here, but I already realized now how important and helpful they can be in the future. In our opinion, it would be nice if you were more clear about what you wanted to be part of the reports - we're being graded for it, and losing points for not thinking about something you consider important, is disappointing.
 \section{Appendix}
 \subsection{Proof that $\tilde{b}_i=\frac{i+1}{i}$ in the improved algorithm}
 By calculation by hand, it can be shown that  $\tilde{b}_1=\frac{2}{1}$,  $\tilde{b}_2=\frac{3}{2}$.\\
