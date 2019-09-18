@@ -10,7 +10,7 @@ void makeTestMatrix(double **A,int n){
   }
 }
 void testJacobi(double **A, int n){
-  jacobi_diagNy(A,n,1e-8);
+  jacobi_diag(A,n,1e-8);
   cout <<"no"<<endl;
   for(int i=0;i<n;i++){
     cout << A[i][i]<<endl;

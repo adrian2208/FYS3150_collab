@@ -98,28 +98,7 @@ double** similarity_transform(double**A,int n, int k, int l, double s, double c)
   deleteNNMatrix(S,n); deleteNNMatrix(SA,n);
   return A;
 }
-void jacobi_diag(double** A, int n, double tol){
-  double tau, tant, sint, cost;
-  double rootElem;
-  double* maxelem=findMax(A,n);
-  int k= round(maxelem[1]); int l=round(maxelem[2]);
-  while(maxelem[0]>tol){
-    tau=(A[l][l]-A[k][k])/(2.0*A[k][l]);
-    rootElem=sqrt(1+tau*tau);
-    if (fabs(-tau+rootElem)<fabs(-tau-rootElem)){
-      tant=-tau+rootElem;
-    }
-    else{
-      tant=-tau-rootElem;
-    }
-    cost=1/sqrt(1+tant*tant);
-    sint=tant*cost;
-    A=similarity_transform(A,n,k,l,sint,cost);
-    maxelem=findMax(A,n); k= round(maxelem[1]); l=round(maxelem[2]);
-    printMatrix(A,n);
-  }
-}
-void jacobi_diagNy(double **A, int n, double tol){
+void jacobi_diag(double **A, int n, double tol){
   double tau,tant, sint, cost;
   double* maxelem=findMax(A,n);
   int k=round(maxelem[1]); int l=round(maxelem[2]); double maxSquare=maxelem[0];
