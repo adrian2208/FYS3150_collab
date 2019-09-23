@@ -1,46 +1,56 @@
 #include "vecop.hpp"
 #include <cmath>
 #include <algorithm>
-#include <iomanip>
 #include <fstream>
 using namespace std;
+double potential(double r,double omega){
+  return r*r*omega*omega+1/r;
+}
 int main(int argc, char** argv){
   int n;
+  double omega;
   ofstream outfile;
-  outfile.open("solutions_harmonic_oscillator.txt");
+  outfile.open("solutions_two_electrons.txt");
   const double PI = atan(1.0)*4;
-  if(argc>=2){
-    n=atoi(argv[1]);;
+  if(argc==2){
+    n=atoi(argv[1]);
+    omega=1.0;
+  }
+  else if(argc==3){
+    n=atoi(argv[1]);
+    omega=atof(argv[2]);
   }
   else{
-    cout << "You need to state a number n" << endl;
+    cout << "You need to state a number n and omega" << endl;
     exit(1);
   }
   double **A=createNNMatrix(n);
-  double rhomax=1;double rhomin=0;
-  double h=(rhomax-rhomin)/n;
+  double rhomax=11;double rhomin=0;
+  double *rho=createArray(n);
+
+  double h=(rhomax-rhomin)/(n+1);
   double hh=h*h;
   double d=2.0/hh;
   double a=-1/hh;
-  for(int i=0;i<n;i++){ //Fill diagonal with 2*hh
-    A[i][i]=d;
-  }
   for(int i=0;i<n-1;i++){ //Fill the other two rows with -1*hh
     A[i+1][i]=a; //a
     A[i][i+1]=a; // a
   }
-  double solutions [n];
-  double accurate_sol [n];
-  for(int i=1;i<=n;i++){
-    accurate_sol[i-1]=(d+2*a*cos(i*PI/(n+1.0)));
+  for(int i=0;i<n;i++){
+    rho[i]=(i+1)*h;
   }
-  sort(accurate_sol,accurate_sol+n);
+  for(int i=0;i<n;i++){ //Fill diagonal with 2*hh
+    //A[i][i]=d+rho[i]*rho[i];
+    A[i][i]=d+potential(rho[i],omega);
+  }
+  double solutions [n];
   double **R=createNNMatrix(n);
   jacobi_diag(A,R,n,10e-8);
   for(int i=0;i<n;i++){
     solutions[i]=A[i][i];
   }
   deleteNNMatrix(A,n);
+
   outfile << "n: " <<n<< endl;
   outfile << "rhomax: "<<rhomax<<endl;
   outfile << "rhomin: "<<rhomin<<endl;
@@ -57,7 +67,7 @@ int main(int argc, char** argv){
   deleteNNMatrix(R,n);
   sort(solutions,solutions+n);
   for(int i=0; i<n;i++){
-    cout << solutions[i] << " " << accurate_sol[i] << endl;
+    cout << solutions[i] << endl;
   }
   outfile.close();
 }

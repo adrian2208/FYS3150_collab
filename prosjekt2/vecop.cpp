@@ -9,6 +9,11 @@ double** createNNMatrix(int n){
   for (int i = 0; i < n; i++){
     A[i] = new double[n];
   }
+  for (int i=0;i<n;i++){
+    for(int j=0;j<n;j++){
+      A[i][j]=0.0;
+    }
+  }
   return A;
 }
 void deleteNNMatrix(double** A,int n){
@@ -86,20 +91,25 @@ double ** createJacobiMatrix(int n, int i, int j, double s,double c){
   S[i][i]=c; S[j][j]=c; S[j][i]=-s; S[i][j]=s;
   return S;
 }
+/*
 void invertJacobiMatrix(double **S, int n, int i, int j){
   S[i][j]=-S[i][j];
   S[j][i]=-S[j][i];
 }
-double** similarity_transform(double**A,int n, int k, int l, double s, double c){
+*/
+/*double** similarity_transform(double**A,int n, int k, int l, double s, double c){
   double **S=createJacobiMatrix(n,k,l,s,c);
   double **SA=matrixMult(n,S,A);
   invertJacobiMatrix(S,n,k,l);
   A=matrixMult(n,SA,S);
   deleteNNMatrix(S,n); deleteNNMatrix(SA,n);
   return A;
-}
-void jacobi_diag(double **A, int n, double tol){
+}*/
+void jacobi_diag(double **A,double **R, int n, double tol){
   double tau,tant, sint, cost;
+  for(int i=0; i<n;i++){
+    R[i][i]=1.0; // Initialise eigenvector matrix
+  }
   double* maxelem=findMax(A,n);
   int k=round(maxelem[1]); int l=round(maxelem[2]); double maxSquare=maxelem[0];
   while(maxSquare>tol){
@@ -112,7 +122,7 @@ void jacobi_diag(double **A, int n, double tol){
     }
     cost=1/sqrt(1+tant*tant);
     sint=cost*tant;
-    double a_kk,a_ll,a_ik,a_il;
+    double a_kk,a_ll,a_ik,a_il, r_ik, r_il;
     a_kk=A[k][k];
     a_ll=A[l][l];
     A[k][k]=cost*cost*a_kk-2.0*cost*sint*A[k][l]+sint*sint*a_ll;
@@ -128,7 +138,13 @@ void jacobi_diag(double **A, int n, double tol){
         A[i][l]=cost*a_il+sint*a_ik;
         A[l][i]=A[i][l];
       }
+      r_ik = R[i][k];
+      r_il = R[i][l];
+      R[i][k] = cost*r_ik - sint*r_il;
+      R[i][l] = cost*r_il + sint*r_ik;
+
     }
+
     maxelem=findMax(A,n);
     k=round(maxelem[1]);
     l=round(maxelem[2]);
@@ -153,6 +169,7 @@ double* findMax(double **A, int n){ // returns an array where arr[0] is the larg
   }
   return returnarray;
 }
+/*
 double ** copyMatrix(double**A,int n){
   double** B=createNNMatrix(n);
   for(int i=0;i<n;i++){
@@ -162,6 +179,7 @@ double ** copyMatrix(double**A,int n){
   }
   return B;
 }
+*/
 void printMatrix(double **A, int n){
   std::cout << std::setprecision(5) << std::fixed;
   for (int i=0; i<n;i++){

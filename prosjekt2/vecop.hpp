@@ -17,7 +17,7 @@ void deleteNNMatrix(double** A,int n); //Deletes a matrix created by createNNMat
 double ** createJacobiMatrix(int n, int i, int j, double theta); // Creates a Jacobi matrix
 void invertJacobiMatrix(double **S,int n, int i, int j); //Inverts an existing Jacobi Matrix (that is, S is being overwritten)
 double ** matrixMult(int n, double **A, double **B);
-void jacobi_diag(double** A, int n, double tol);
+void jacobi_diag(double** A, double **R, int n, double tol);
 double* findMax(double **A, int n); // returns an array where arr[0] is the largest value, arr[1] the i element and arr[2] the j element
 void printMatrix(double **A, int n);
 void jacobi_diag(double **A, int n, double tol);
