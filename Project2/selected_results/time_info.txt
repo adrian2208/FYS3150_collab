@@ -1,0 +1,37 @@
+arma n: 10 ellapsed time: 0.00141
+arma n: 10 ellapsed time: 0.002593
+arma n: 10 ellapsed time: 0.002667
+arma n: 10 ellapsed time: 0.00126
+arma n: 10 ellapsed time: 0.002231
+arma n: 100 ellapsed time: 0.061721
+arma n: 100 ellapsed time: 0.066359
+arma n: 100 ellapsed time: 0.047744
+arma n: 100 ellapsed time: 0.054225
+arma n: 100 ellapsed time: 0.050057
+arma n: 400 ellapsed time: 0.252441
+arma n: 400 ellapsed time: 0.332396
+arma n: 400 ellapsed time: 0.341555
+arma n: 400 ellapsed time: 0.344207
+arma n: 400 ellapsed time: 0.347663
+egen n: 10 ellapsed time: 0.000243
+egen n: 10 ellapsed time: 0.000229
+egen n: 10 ellapsed time: 0.000223
+egen n: 10 ellapsed time: 0.000226
+egen n: 10 ellapsed time: 0.000377
+egen n: 100 ellapsed time: 0.442543
+egen n: 100 ellapsed time: 0.440634
+egen n: 100 ellapsed time: 0.469543
+egen n: 100 ellapsed time: 0.442486
+egen n: 100 ellapsed time: 0.448516
+egen n: 400 ellapsed time: 116.111
+egen n: 400 ellapsed time: 110.93
+egen n: 400 ellapsed time: 113.092
+egen n: 400 ellapsed time: 120.812
+egen n: 400 ellapsed time: 123.845
+egen n: 10 amount_looping: 124 ellapsed time: 0.000223
+egen n: 10 amount_looping: 124 ellapsed time: 0.000255
+egen n: 100 amount_looping: 14480 ellapsed time: 0.442167
+egen n: 100 amount_looping: 14480 ellapsed time: 0.441132
+egen n: 400 amount_looping: 236304 ellapsed time: 129.523
+egen n: 200 amount_looping: 58385 ellapsed time: 6.82273
+
