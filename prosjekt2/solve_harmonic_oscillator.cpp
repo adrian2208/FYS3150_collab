@@ -3,11 +3,15 @@
 #include <algorithm>
 #include <iomanip>
 #include <fstream>
+#include "time.h"
 using namespace std;
 int main(int argc, char** argv){
+  clock_t start, finish;
   int n;
   ofstream outfile;
   outfile.open("solutions_harmonic_oscillator.txt");
+  ofstream outfile_time;
+  outfile_time.open("time_info.txt",ios::out | ios::app);
   const double PI = atan(1.0)*4;
   if(argc>=2){
     n=atoi(argv[1]);;
@@ -36,7 +40,12 @@ int main(int argc, char** argv){
   }
   sort(accurate_sol,accurate_sol+n);
   double **R=createNNMatrix(n);
-  jacobi_diag(A,R,n,10e-8);
+  start=clock();
+  int amount=jacobi_diag2(A,R,n,1e-8);
+  finish=clock();
+  double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
+  outfile_time <<"egen n: "<<n<< " amount_looping: "<<amount<<" ellapsed time: "<<ellapsed_time<<endl;
+  outfile_time.close();
   for(int i=0;i<n;i++){
     solutions[i]=A[i][i];
   }
@@ -44,6 +53,7 @@ int main(int argc, char** argv){
   outfile << "n: " <<n<< endl;
   outfile << "rhomax: "<<rhomax<<endl;
   outfile << "rhomin: "<<rhomin<<endl;
+  outfile << endl;
   for(int i=0; i<n;i++){
     outfile <<solutions[i] <<" ";
   }
@@ -56,8 +66,8 @@ int main(int argc, char** argv){
   }
   deleteNNMatrix(R,n);
   sort(solutions,solutions+n);
-  for(int i=0; i<n;i++){
+  /*for(int i=0; i<n;i++){
     cout << solutions[i] << " " << accurate_sol[i] << endl;
-  }
+  }*/
   outfile.close();
 }

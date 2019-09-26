@@ -8,24 +8,22 @@ double potential(double r,double omega){
 }
 int main(int argc, char** argv){
   int n;
+  double rhomax,rhomin;
+  rhomin=0;
   double omega;
   ofstream outfile;
-  outfile.open("solutions_two_electrons.txt");
   const double PI = atan(1.0)*4;
-  if(argc==2){
+  if(argc>3){
     n=atoi(argv[1]);
-    omega=1.0;
-  }
-  else if(argc==3){
-    n=atoi(argv[1]);
-    omega=atof(argv[2]);
+    omega=atof(argv[3]);
+    rhomax=atof(argv[2]);
   }
   else{
-    cout << "You need to state a number n and omega" << endl;
+    cout << "You need to state a number n and rhomax and omega" << endl;
     exit(1);
   }
+  outfile.open(createFileName("solutions_two_electrons_",omega));
   double **A=createNNMatrix(n);
-  double rhomax=11;double rhomin=0;
   double *rho=createArray(n);
 
   double h=(rhomax-rhomin)/(n+1);
@@ -45,7 +43,7 @@ int main(int argc, char** argv){
   }
   double solutions [n];
   double **R=createNNMatrix(n);
-  jacobi_diag(A,R,n,10e-8);
+  jacobi_diag(A,R,n,1e-8);
   for(int i=0;i<n;i++){
     solutions[i]=A[i][i];
   }
@@ -54,6 +52,7 @@ int main(int argc, char** argv){
   outfile << "n: " <<n<< endl;
   outfile << "rhomax: "<<rhomax<<endl;
   outfile << "rhomin: "<<rhomin<<endl;
+  outfile << "omega: " << omega<<endl;
   for(int i=0; i<n;i++){
     outfile <<solutions[i] <<" ";
   }
@@ -66,8 +65,8 @@ int main(int argc, char** argv){
   }
   deleteNNMatrix(R,n);
   sort(solutions,solutions+n);
-  for(int i=0; i<n;i++){
+  /*for(int i=0; i<n;i++){
     cout << solutions[i] << endl;
-  }
+  }*/
   outfile.close();
 }

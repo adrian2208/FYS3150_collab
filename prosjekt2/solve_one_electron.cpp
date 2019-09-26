@@ -2,25 +2,28 @@
 #include <cmath>
 #include <algorithm>
 #include <fstream>
-
 using namespace std;
-double potential(double r){
-  return r*r;
+double potential(double r,double omega){
+  return r*r*omega*omega;
 }
 int main(int argc, char** argv){
   int n;
+  double rhomax,rhomin;
+  rhomin=0;
+  double omega;
   ofstream outfile;
-  outfile.open("solutions_one_electron.txt");
   const double PI = atan(1.0)*4;
-  if(argc>=2){
-    n=atoi(argv[1]);;
+  if(argc>3){
+    n=atoi(argv[1]);
+    omega=atof(argv[3]);
+    rhomax=atof(argv[2]);
   }
   else{
-    cout << "You need to state a number n" << endl;
+    cout << "You need to state a number n and rhomax and omega" << endl;
     exit(1);
   }
+  outfile.open(createFileName("solutions_one_electron_",omega));
   double **A=createNNMatrix(n);
-  double rhomax=11;double rhomin=0;
   double *rho=createArray(n);
 
   double h=(rhomax-rhomin)/(n+1);
@@ -36,19 +39,20 @@ int main(int argc, char** argv){
   }
   for(int i=0;i<n;i++){ //Fill diagonal with 2*hh
     //A[i][i]=d+rho[i]*rho[i];
-    A[i][i]=d+potential(rho[i]);
+    A[i][i]=d+potential(rho[i],omega);
   }
   double solutions [n];
   double **R=createNNMatrix(n);
-  jacobi_diag(A,R,n,10e-8);
+  jacobi_diag(A,R,n,1e-8);
   for(int i=0;i<n;i++){
     solutions[i]=A[i][i];
   }
   deleteNNMatrix(A,n);
-  //sort(solutions,solutions+n);
+
   outfile << "n: " <<n<< endl;
   outfile << "rhomax: "<<rhomax<<endl;
   outfile << "rhomin: "<<rhomin<<endl;
+  outfile << "omega: " << omega<<endl;
   for(int i=0; i<n;i++){
     outfile <<solutions[i] <<" ";
   }
@@ -60,8 +64,9 @@ int main(int argc, char** argv){
     outfile << endl;
   }
   deleteNNMatrix(R,n);
-  for(int i=0; i<n;i++){
+  sort(solutions,solutions+n);
+  /*for(int i=0; i<n;i++){
     cout << solutions[i] << endl;
-  }
+  }*/
   outfile.close();
 }

@@ -1,6 +1,6 @@
 #include "vecop.hpp"
 using namespace std;
-string createFileName(string name,int n){
+string createFileName(string name,double n){
   return name.append(to_string(n)).append(".txt");
 }
 double** createNNMatrix(int n){
@@ -105,6 +105,55 @@ void invertJacobiMatrix(double **S, int n, int i, int j){
   deleteNNMatrix(S,n); deleteNNMatrix(SA,n);
   return A;
 }*/
+int jacobi_diag2(double **A,double **R, int n, double tol){
+  double tau,tant, sint, cost;
+  int amount=0;
+  for(int i=0; i<n;i++){
+    R[i][i]=1.0; // Initialise eigenvector matrix
+  }
+  double* maxelem=findMax(A,n);
+  int k=round(maxelem[1]); int l=round(maxelem[2]); double maxSquare=maxelem[0];
+  while(maxSquare>tol){
+    amount++;
+    tau=(A[l][l]-A[k][k])/(2.0*A[k][l]);
+    if ( tau > 0 ) {
+      tant = 1.0/(tau + sqrt(1.0 + tau*tau));
+    }
+    else {
+      tant = -1.0/( -tau + sqrt(1.0 + tau*tau));
+    }
+    cost=1/sqrt(1+tant*tant);
+    sint=cost*tant;
+    double a_kk,a_ll,a_ik,a_il, r_ik, r_il;
+    a_kk=A[k][k];
+    a_ll=A[l][l];
+    A[k][k]=cost*cost*a_kk-2.0*cost*sint*A[k][l]+sint*sint*a_ll;
+    A[l][l]=sint*sint*a_kk+2.0*cost*sint*A[k][l]+cost*cost*a_ll;
+    A[k][l]=0.0;
+    A[l][k]=0.0;
+    for(int i=0; i<n;i++){
+      if(i != k && i != l){
+        a_ik=A[i][k];
+        a_il=A[i][l];
+        A[i][k]=cost*a_ik-sint*a_il;
+        A[k][i]=A[i][k];
+        A[i][l]=cost*a_il+sint*a_ik;
+        A[l][i]=A[i][l];
+      }
+      r_ik = R[i][k];
+      r_il = R[i][l];
+      R[i][k] = cost*r_ik - sint*r_il;
+      R[i][l] = cost*r_il + sint*r_ik;
+
+    }
+
+    maxelem=findMax(A,n);
+    k=round(maxelem[1]);
+    l=round(maxelem[2]);
+    maxSquare=maxelem[0];
+  }
+  return amount;
+}
 void jacobi_diag(double **A,double **R, int n, double tol){
   double tau,tant, sint, cost;
   for(int i=0; i<n;i++){
