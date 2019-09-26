@@ -15,7 +15,7 @@
 \definecolor{mylilas}{RGB}{170,55,241}
 \usepackage{amsmath}
 \usepackage{graphicx}
-\graphicspath{{C:/Users/adria/Pictures/}} 
+\graphicspath{{C:/Users/adria/Pictures/FYS3150/}} 
 \author{Adrian Martinsen Kleven, Simon Schrader}
 \title{Project 2}
 
@@ -54,24 +54,32 @@ Discretizing the Radial Schroedinger equation yields a set of linear equations t
 \section{Methods}
 
 \subsection{Jacobi's eigenvalue algorithm}\label{jacobi algo}
-
+This algorithm bases itself on the properties of similarity transformations. Assume a real and symmetric matrix $A$ with $n$ eigenvalues $\lambda_1,\lambda_2,...,\lambda_n$. Then there exists a real orthogonal matrix $S$ such that
+\begin{equation}\label{eq:1}
+S^TAS=\begin{bmatrix}
+\lambda_1 & 0 & \cdots & 0 \\
+0 & \lambda_2 & 0 & \vdots \\
+\vdots & 0 & \ddots & 0 \\
+0 & \cdots & 0 & \lambda_n \\
+\end{bmatrix}.
+\end{equation}
+$S$ It can be shown then, that the $j'th$ column of the matrix $S$ is the eigenvector corresponding to the eigenvalue $\lambda_j$ for $j \in [1,2,...,n]$ see Ref. [3], chapter 8.\\\\A matrix $B$ is similar to $A$ if $B=S^TAS$, where $S$ is an orthogonal matrix. It can be shown that \hyperref[proof of same eigenvalues]{\emph{$B$ shares eigenvalues with $A$}}. Though the eigenvectors are not in general the same unless $S^T$ happens to be the identity matrix, but then this whole affair would be rather pointless.\\\\Using this property of the similarity transformation, successive applications of such a transform:
+$$
+S_N^TS_{N-1}^T...S_1^TAS_1...S_{N-1}S_N
+$$
+will retain the eigenvalues of the original matrix $A$. If in addition, the matrices $S$ and $S^T$ had the property that they gradually reduced the non- diagonal matrix elements to zero, then several iterations of this would yield a diagonal matrix with the eigenvalues of A along the diagonal(equation \ref{eq:1}).
 \subsection{One electron in a 3- dimensional harmonic oscillator potential}
 Assuming a centrally symmetric harmonic oscillator potential $V(r) = (1/2)m\omega^2r^2$ and a single electron with orbital angular moment equal to zero, the radial Schroedinger equation reads
-\begin{equation}
-\label{ref. 3}
-  -\frac{\hbar^2}{2 m} \frac{1}{r^2} \frac{d}{dr} r^2
-  \frac{d}{dr}R(r)+ V(r) R(r) = E R(r).
-\end{equation}
+\begin{equation*}
+-\frac{\hbar^2}{2 m} \frac{1}{r^2} \frac{d}{dr} r^2\frac{d}{dr}R(r)+ V(r) R(r) = E R(r). \hspace{1cm} ref.[3]
+\end{equation*}
 From here on the equation is scaled in order to express the results in terms of dimensionless variables.\\
 substituting $R(r) = (1/r) u(r)$. This simplifies the expression considerably to
 
 \begin{equation*}
   -\frac{\hbar^2}{2 m} \frac{d^2}{dr^2}u(r)+ V(r) u(r) = E u(r).
 \end{equation*}
-
-Imposing Dirichelet boundary conditions, due to the nature of the normalizable wave functions that represent physical systems $u(0)=u(\infty)=0$.
-
-Dividing $r$ by the constant $\alpha$ where $[\alpha] = length$ to introduce the dimensionless variable $\rho =\frac{r}{\alpha}$, $V(\rho)$ becomes $\frac{1}{2}k\alpha^2 \rho^2$. The equation becomes
+Imposing Dirichelet boundary conditions, due to the nature of the normalizable wave functions that represent physical systems $u(0)=u(\infty)=0$. Dividing $r$ by the constant $\alpha$ where $[\alpha] = length$ to introduce the dimensionless variable $\rho =\frac{r}{\alpha}$, $V(\rho)$ becomes $\frac{1}{2}k\alpha^2 \rho^2$. The equation becomes
 
 \begin{equation*}
   -\frac{\hbar^2}{2 m \alpha^2} \frac{d^2}{d\rho^2} u(\rho) 
@@ -109,21 +117,25 @@ is used.\\As infinity cannot be represented in a computer, a maximal value $\rho
 -\frac{u_{i+1} -2u_i +u_{i-1}}{h^2}+\rho_i^2u_i= \lambda u_i
 \end{equation*}
 From here the matrix elements are defined from the coefficients of $u_{i+1}$, $u_{i}$, and $u_{i-1}$ .$u_0 = u(0)= 0$ and $u_N = u(\rho_{max}) \approx 0$ and so are exempt from the matrix, giving a $N-1 \times N-1$ matrix and corresponding eigenvalue problem:
-
+$$
+d_i=\frac{2}{h^2}+\rho_i^2,\hspace{1cm}  a=-\frac{1}{h^2}
+$$
 \begin{equation*}
-    \begin{bmatrix}\frac{2}{h^2}+\rho_1^2 & -\frac{1}{h^2} & 0   & 0    & \dots  &0     & 0 \\
-                                -\frac{1}{h^2} & \frac{2}{h^2}+\rho_2^2 & -\frac{1}{h^2} & 0    & \dots  &0     &0 \\
-                                0   & -\frac{1}{h^2} & \frac{2}{h^2}+\rho_3^2 & -\frac{1}{h^2}  &0       &\dots & 0\\
-                                \dots  & \dots & \dots & \dots  &\dots      &\dots & \dots\\
-                                0   & \dots & \dots & \dots  &\dots  -\frac{1}{h^2}     &\frac{2}{h^2}+\rho_{N-2}^2 & -\frac{1}{h^2}\\
-                                0   & \dots & \dots & \dots  &\dots       &-\frac{1}{h^2} & \frac{2}{h^2}+\rho_{N-1}^2
-             \end{bmatrix}  \begin{bmatrix} u_{1} \\
+\begin{bmatrix}
+d_1 & a &0  &0  &\cdots  & 0\\ 
+ a&  d_2& a & 0 & \cdots &0 \\ 
+ 0&  a&  d_3& \ddots  &\ddots  &\vdots \\ 
+ 0& 0 & a &  \ddots& a &0 \\ 
+ \vdots&\vdots  &\ddots  &\ddots  &  d_{N-2}&a \\ 
+ 0& 0 & \cdots & 0 & a &d_{N-1}& 
+\end{bmatrix}
+  \begin{bmatrix} u_{1} \\
                                                               u_{2} \\
-                                                              \dots\\ \dots\\ \dots\\
+                                                              \vdots\\ \vdots\\ \vdots\\
                                                               u_{N-1}
              \end{bmatrix}=\lambda \begin{bmatrix} u_{1} \\
                                                               u_{2} \\
-                                                              \dots\\ \dots\\ \dots\\
+                                                              \vdots\\ \vdots\\ \vdots\\
                                                               u_{N-1}
              \end{bmatrix}.  
       \label{eq:sematrix}
@@ -144,6 +156,58 @@ From here, a number of algorithms can be used in fishing out the eigenvalues and
 
 \section{Results}
 
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{eigenvalues.png}
+	\caption[Lowest eigenvalues of the single- and double- electron systems as a function of $\omega$]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{ground_state_comparision_omega_1_000000.png}
+	\caption[Ground states of the single- and double- electron systems]{Ground states of the single- and double- electron systems compared under $\omega =1.000$}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_one_electron_0_010000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_one_electron_0_500000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_one_electron_1_000000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_one_electron_5_000000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_two_electrons_0_010000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_two_electrons_0_500000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_two_electrons_1_000000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+\begin{figure}[H]
+	\includegraphics[width =1.2\textwidth]{solutions_two_electrons_5_000000.png}
+	\caption[contents title]{figure text}
+\end{figure}
+
+
 \subsection{Precision}
 
 \subsection{Time expenditure}
@@ -153,8 +217,16 @@ From here, a number of algorithms can be used in fishing out the eigenvalues and
 \section{Critique}
 
 \section{Appendix}
-\subsection{...}
-
+\subsection{Proof that similar matrices share eigenvalues}\label{proof of same eigenvalues}
+If a matrix $B$ is similar to a matrix $A$, then $B=S^{-1}A^S$. Then if $\vec{x}$ is an eigenvector of $A$ with eigenvalue $\lambda$:
+$$
+A\vec{x}=\lambda\vec{x}
+$$
+Both sides of the equation can be multiplied by $S^{-1}$ and the identity operator $I = SS^{-1}$ can be inserted in between $A$ and $\vec{x}$ to yield
+$$
+S^{-1}ASS^{-1}\vec{x} =B\left(S^{-1}\vec{x}\right)= \lambda \left( S^{-1}\vec{x}\right)
+$$
+So $\lambda$ is also an eigenvalue of $B$ though with the corresponding eigenvector $\left( S^{-1}\vec{x}\right)$.
 \subsection{List of programs}
 All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab}
 \begin{enumerate}
@@ -164,9 +236,11 @@ All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab}
 
 
 \section{References}
-[1]Jacobi, C.G.J. (1846). "Über ein leichtes Verfahren, die in der Theorie der Säkularstörungen vorkommenden Gleichungen numerisch aufzulösen". Crelle's Journal (German).\\
-%[2] Morten Hjort-Jensen \textit{Computational Physics: Lecture Notes Fall 2015}
-
+\begin{itemize}
+\item[(1)] Jacobi, C.G.J. (1846). "Über ein leichtes Verfahren, die in der Theorie der Säkularstörungen vorkommenden Gleichungen numerisch aufzulösen". Crelle's Journal (German)
+\item[(2)] Morten Hjort-Jensen \textit{Computational Physics: Lecture Notes Fall 2015}
+\item[(3)]G. Golub, C. Van Loan, Matrix Computations (John Hopkins University Press, 1996)
+\end{itemize}
 
 
 \begin{comment}
