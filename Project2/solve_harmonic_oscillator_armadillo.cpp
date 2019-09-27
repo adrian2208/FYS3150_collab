@@ -3,10 +3,10 @@
 using namespace std;
 using namespace arma;
 int main(int argc, char** argv){
-  clock_t start, finish;
+  clock_t start, finish; //Start and end time
   int n;
   ofstream outfile_time;
-  outfile_time.open("time_info.txt",ios::out | ios::app);
+  outfile_time.open("time_info.txt",ios::out | ios::app); //Appending to time-info
   const double PI = atan(1.0)*4;
   if(argc>=2){
     n=atoi(argv[1]);;

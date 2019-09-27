@@ -1,14 +1,17 @@
+"""For an existing file, finds the maximum value of a given wave function and writes it to file. Here, many files.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-def density(rho,func):
+def density(rho,func): #The function squared. Rho for rhoference
     return func**2
-omegas=["0.010000","0.500000","1.000000","5.000000"]
+omegas=["0.010000","0.500000","1.000000","5.000000"] #for file name purposes
 omega_val=[float(omega) for omega in omegas]
 filenames=["solutions_one_electron_","solutions_two_electrons_"]
 position_peak_two=[] #Two electrons
 position_peak_one=[] #one electron
-outfile=open("maximum_peaks_wave_functions.txt","w")
+outfile=open("maximum_peaks_wave_functions.txt","w") #written to this file
 for filename in filenames:
     for omega in omegas:
         infile=open(filename+omega+".txt","r")

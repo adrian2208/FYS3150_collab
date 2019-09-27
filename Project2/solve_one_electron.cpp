@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <fstream>
 using namespace std;
-double potential(double r,double omega){
+double potential(double r,double omega){ //potential. For one electron, omega should be 1 to make sense.
   return r*r*omega*omega;
 }
 int main(int argc, char** argv){
@@ -13,7 +13,7 @@ int main(int argc, char** argv){
   double omega;
   ofstream outfile;
   const double PI = atan(1.0)*4;
-  if(argc>3){
+  if(argc>3){ //n, omega and rhomax need to be stated
     n=atoi(argv[1]);
     omega=atof(argv[3]);
     rhomax=atof(argv[2]);

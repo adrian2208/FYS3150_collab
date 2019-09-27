@@ -6,9 +6,9 @@ howmany=int(1);
 fast=True
 test=True
 try:
-    nvals[0]=int(sys.argv[1]);
-    fast=bool(int(sys.argv[2]));
-    test=bool(int(sys.argv[3]));
+    nvals[0]=int(sys.argv[1]); #If you wanna change this. Kind of not neccessary for the future
+    fast=bool(int(sys.argv[2])); # If you want to use -O3 flags
+    test=bool(int(sys.argv[3])); #If you want to run testings as well
 except:
     pass
 filenames=["vecop","solve_one_electron","solve_two_electrons","solve_harmonic_oscillator"]

@@ -1,3 +1,4 @@
+""" For a file, plots the eigenfunctions """
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -24,6 +25,7 @@ print(eigenvec)
 i=np.argsort(eigenval)
 eigenvec=eigenvec[:,i]
 eigenvec=np.transpose(eigenvec)
+# Don't even ask me why or how this works. It works. That's all I need. 
 print(eigenvec)
 rho=np.linspace(rhomin,rhomax,n)
 for i in range(3):
@@ -34,7 +36,7 @@ for i in range(3):
         label="ground state"
     plt.plot(rho,densityp,label=label)
 plt.xlabel(r"$\rho$")
-plt.ylabel(r"$(rR(r))^2$")
+plt.ylabel(r"$(u(\rho))^2$")
 plt.legend()
 plt.savefig(infilename[:-4]+".png")
 plt.show()

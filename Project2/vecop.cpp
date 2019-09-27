@@ -105,7 +105,7 @@ void invertJacobiMatrix(double **S, int n, int i, int j){
   deleteNNMatrix(S,n); deleteNNMatrix(SA,n);
   return A;
 }*/
-int jacobi_diag2(double **A,double **R, int n, double tol){
+int jacobi_diag2(double **A,double **R, int n, double tol){ //Same as the other one, but returns the amount of iterations.
   double tau,tant, sint, cost;
   int amount=0;
   for(int i=0; i<n;i++){

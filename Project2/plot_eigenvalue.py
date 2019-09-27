@@ -1,3 +1,5 @@
+"""For an existing file, finds the lowest eigenvalue and writes it  to file. Here, many files.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 omegas=["0.010000","0.500000","1.000000","5.000000"]

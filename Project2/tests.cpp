@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 using namespace std;
-double** makeTestMatrix(){
+double** makeTestMatrix(){ //Makes a predefined test matrix where we know eigenvalues and vectors.
   double **A=createNNMatrix(5);
   double elem[25]={2.0,0.0,1.0,2.0,1.0,0.0,1.0,1.0,1.0,1.0,1.0,1.0,4.0,3.0,3.0,2.0,1.0,3.0,4.0,3.0,1.0,1.0,3.0,3.0,3.0};
   for(int i=0;i<5;i++){
@@ -13,7 +13,7 @@ double** makeTestMatrix(){
   }
   return A;
 }
-void testBiggestElement(){
+void testBiggestElement(){ //Tests if biggest element is recognized. I am well aware that I destroy the symmetry of the matrix.
   double **testMatrix=makeTestMatrix();
   testMatrix[1][3]=34.0;
   double *vecci=findMax(testMatrix,5);double maxelem=vecci[0];
