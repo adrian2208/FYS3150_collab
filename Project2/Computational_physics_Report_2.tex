@@ -68,11 +68,50 @@ It can be shown then, that the $j'th$ column of the matrix $S$ is the eigenvecto
 $$
 S_N^TS_{N-1}^T...S_1^TAS_1...S_{N-1}S_N
 $$
-will retain the eigenvalues of the original matrix $A$. If in addition, the matrices $S$ and $S^T$ had the property that they gradually reduced the non- diagonal matrix elements to zero, then several iterations of this would yield a diagonal matrix with the eigenvalues of A along the diagonal(equation \ref{eq:1}).
+will retain the eigenvalues of the original matrix $A$. If in addition, the matrices $S$ and $S^T$ had the property that they gradually reduced the non- diagonal matrix elements to zero, then several iterations of this would yield a diagonal matrix with the eigenvalues of A along the diagonal ( equation \ref{eq:1} ).\\Such a matrix can be constructed by tailoring the orthogonal $(n\times n)$ rotation matrix
+\begin{equation*}
+\begin{bmatrix}
+1 & 0 & \cdots & \cdots & \cdots & \cdots & 0 & 0\\ 
+ 0& 1 & 0 & \cdots &\cdots  &\cdots  &0  &0 \\ 
+ \vdots& 0 & \ddots & \ddots & \vdots & \vdots & \vdots &\vdots \\ 
+ \vdots& \cdots & \ddots & \cos\theta &0  & \cdots & 0 &\sin\theta \\ 
+\vdots & \cdots & \cdots & \cdots & 1 & 0 & \cdots &0 \\ 
+ \vdots& \cdots & \cdots & \cdots & \cdots & \ddots & \vdots & \vdots\\ 
+0 & \cdots & \cdots &\cdots  & \cdots &\cdots  & 1 & 0\\ 
+0 &\cdots  & 0 & -\sin\theta & 0 & \cdots & 0 & \cos\theta
+\end{bmatrix}\hspace{2cm} ref.(2)
+\end{equation*}
+where the matrix elements that aren't zero are given by
+$$
+s_{kk}=s_{ll}=\cos\theta,s_{kl}=-s_{lk}=-\sin\theta,s_{ii}=-s_{ii}=1\hspace{1cm} i\neq k\hspace{1cm} i\neq l
+$$
+by changing the angle $\theta$ so as to make the non-diagonal matrix elements of $B$ equal to zero.\\After the transformation $B=S^TAS$ the matrix elements of $B$ are as follows:
+$$
+For \hspace{1cm} i\neq k,i \neq l
+$$
+$$
+b_{ii} = a_{ii}
+$$
+$$
+b_{ik} = a_{ik}\cos\theta - a_{il}\sin\theta
+$$
+$$
+b_{il} = a_{il}\cos\theta + a_{ik}\sin\theta
+$$
+$$
+b_{kk} = a_{kk}\cos^2\theta - 2a_{kl}\cos\theta \sin\theta + a_{ll}\sin^2\theta \hspace{1cm} ref. (2)
+$$
+$$
+b_{ll} = a_{ll}\cos^2\theta + 2a_{kl}\cos\theta \sin\theta + a_{kk}\sin^2\theta \hspace{1cm}
+$$
+$$
+b_{kl} = (a_{kk}-a_{ll})\cos\theta \sin\theta + a_{kl}(\cos^2\theta-\sin^2\theta) \hspace{1cm}
+$$
+$\theta$ is chosen such that the largest (by norm) off- diagonal matrix element $b_{mn}$ is set to zero. Then the other matrix elements of $B$ are calculated. This is then repeated for the new matrix $B$ with a new largest off- diagonal matrix element until the matrix $B$ resembles a diagonal matrix within a predetermined tolerance. As discussed above, the matrix $S$ which at this point equals the matrix product $S_1S_2...S_{N-1}S_N$, contains the eigenvectors corresponding to eigenvalues $\lambda_j$ in its j'th columns.
 \subsection{One electron in a 3- dimensional harmonic oscillator potential}
 Assuming a centrally symmetric harmonic oscillator potential $V(r) = (1/2)m\omega^2r^2$ and a single electron with orbital angular moment equal to zero, the radial Schroedinger equation reads
 \begin{equation*}
--\frac{\hbar^2}{2 m} \frac{1}{r^2} \frac{d}{dr} r^2\frac{d}{dr}R(r)+ V(r) R(r) = E R(r). \hspace{1cm} ref.[3]
+-\frac{\hbar^2}{2 m} \frac{1}{r^2} \frac{d}{dr} r^2\frac{d}{dr}R(r)+ V(r) R(r) = E R(r). \hspace{1cm} ref.(4)
 \end{equation*}
 From here on the equation is scaled in order to express the results in terms of dimensionless variables.\\
 substituting $R(r) = (1/r) u(r)$. This simplifies the expression considerably to
@@ -143,9 +182,31 @@ d_1 & a &0  &0  &\cdots  & 0\\
 \end{equation*}
 From here, a number of algorithms can be used in fishing out the eigenvalues and corresponding eigenvectors. \hyperref[jacobi algo]{\emph{The Jacobi eigenvalue algorithm}} can be applied to any real, symmetric matrix, and so it will be applied here.
 \subsection{Two electrons in a 3- dimensional harmonic oscillator potential}
-
-
-
+For the case of two non- interacting electrons in a 3- dimensional harmonic oscillator potential, the Schroedinger equation can be written as 
+\begin{equation*}
+\left(-\frac{\hbar^2}{2 m} \frac{d^2}{dr_1^2}+ \frac{1}{2}k r_1^2\right)u(r_1,r_2)+\left( -\frac{\hbar^2}{2 m} \frac{d^2}{dr_2^2}+ \frac{1}{2}k r_2^2\right)u(r_1,r_2)  = E_{total} u(r_1,r_2).
+\end{equation*}
+When adding Coloumb interactions between the electrons, it's useful to introduce a set of new coordinates. $\vec{r}=\vec{r_1}-\vec{r_2}$ to capture the Coloumb interaction $V_C \propto ||\vec{r}||^{-1}$ and $R = \frac{\vec{r_1}+\vec{r_2}}{2}$, the average position of the two electrons in order to capture the energy associated with their position in the harmonic oscillator potential. The radial Schroedinger equation becomes (ref. (5))
+\begin{equation*}
+\left(  -\frac{\hbar^2}{m} \frac{d^2}{dr^2} -\frac{\hbar^2}{4 m} \frac{d^2}{dR^2}+ \frac{1}{4} k r^2+  kR^2\right)u(r,R)  = E_{total} u(r,R).
+\end{equation*}
+Where $E_{total} = E_r+E_R$ and $E_r$ is the energy associated with the electrons relative position and $E_R$ is the energy associated with their average position in the harmonic oscillator potential.\\The wave function $u(r,R)$ is separable by the ansatz into $\psi(r)\phi(R)$ and from here, only the r- dependent Schroedinger equation will be covered.\\\\The Coloumb repulsion is given by
+\begin{equation*}
+V(r)=\frac{\beta e^2}{r},
+\end{equation*}
+with the proportionality constants $\beta$ and $e$ given by $\beta e^2 = 1.44 eVnm$.\\Adding this to the potential energy of the Hamiltonian $\hat{H}_r$ gives
+\begin{equation*}
+\hat{H}_r= -\frac{\hbar^2}{m} \frac{d^2}{dr^2}+ \frac{1}{4}k r^2+\frac{\beta e^2}{r}
+\end{equation*}
+which in turn gives the radial time- independent Schroedinger equation
+\begin{equation*}
+\hat{H}_r \psi(r)=E_r\psi(r).
+\end{equation*}
+As was done for the case of the single electron, this equation will be nondimensionalized to aid in computation.\hyperref[nondim_2_el]{\emph{see Appendix}}
+Schroedinger's equation becomes
+\begin{equation*}
+  -\frac{d^2}{d\rho^2} \psi(\rho) + \omega_r^2\rho^2\psi(\rho) +\frac{1}{\rho} = \lambda \psi(\rho).
+\end{equation*}
 \subsection{ Implementation}
 \subsubsection{Implementation of the Jacobi algorithm}
 The implementation of the Jacobi algorithm is straightforward. Our implementation of the function takes the matrix takes four arguments: The (square) matrix A that needs to be diagonalized, the (square) matrix $R$ where the eigenfunctions are to be stored, the matrix dimension $n$, and a tolerance. Because the sum of the off-diagonal matrix elements get smaller for each orthogonal transformation, we decided to be done diagonalizing the matrix as soon as the maximum off-diagonal element is smaller than the tolerance. We set up $R$ to be the identity matrix.\\
@@ -170,12 +231,12 @@ The potential was set up to be the same as for the one-electron case, but the co
 For $\omega$=5, we chose se n=400 and  $\rho_{max}=4$ to be sufficent. For $\omega=1$, wese considered n=400 and  $\rho_{max}=6$ to be sufficient.For $\omega=0.5$, $n=500$ and  $\rho_{max}=8$ gave good results. However, for ,$\omega=0.01$, we ended up using n=800 and   $\rho_{max}=40$. This is not ideal, but we ended up using these values, considering how larger values of  $\rho_{max}$ would decrease the accuracy due to an increased value of h, while increasing n would make the computational time skyrocket. 
 
 \subsection{Unit testing}
-We verified the correct implementation of the algorithm by checking three properties of a symmetric, fairly random $5*5$ matrix. We checked that our program to find the largest off-diagonal element worked correctly, we checked that we got the correct eigenvalues, and we checked that the eigenvectors were orthogonal, as orthogonal projections conserve the orthogonality of the eigenvectors (see appendix). 
+We verified the correct implementation of the algorithm by checking three properties of a symmetric, fairly random $5\times 5$ matrix. We checked that our program to find the largest off-diagonal element worked correctly, we checked that we got the correct eigenvalues, and we checked that the eigenvectors were orthogonal, as orthogonal projections conserve the orthogonality of the eigenvectors (see appendix). 
 \section{Results}
 \subsection{Time usage}
-We compared the time use of our implementation of the Jacobi algorithm to the eigen decomposition of a symmetric matrix as implemented in armadillo used to solve the harmonic oscillator, using the command eig\_sym. The time expenditure for different matrices of size $n*n$ is shown in table 1:
+We compared the time use of our implementation of the Jacobi algorithm to the eigen decomposition of a symmetric matrix as implemented in armadillo used to solve the harmonic oscillator, using the command eig\_sym. The time expenditure for different matrices of size $n\times n$ is shown in table 1:
 \begin{table}[H]
-\caption[Comparison of time use for algorithms]{Time usage in seconds for matrices of size $n*n$ using the Jacobi algorithm vs. using armadillo's eig\_sym, averaged over 5 runs}
+\caption[Comparison of time use for algorithms]{Time usage in seconds for matrices of size $n\times n$ using the Jacobi algorithm vs. using armadillo's eig\_sym, averaged over 5 runs}
 \begin{tabular}{lll}
 $n$ &  armadillo & Jacobi algorithm \\
  10 & 0.0020 & 0.00025 \\
@@ -183,9 +244,9 @@ $n$ &  armadillo & Jacobi algorithm \\
  400 & 0.32 & 120
 \end{tabular}
 \end{table}
-armadillo's implementation for solving symmetric positive-definite matrices is clearly much faster than the Jacobi algorithm. The time used to diagonalize a matrix  using the Jacobi algorithm for matrices of size $1000*1000$ or larger, is thus barely feasible on a personal computer, and implementing faster algorithms for the same general problem, or specializing the algorithm to a tridiagonal matrix, might be necessary. 
+armadillo's implementation for solving symmetric positive-definite matrices is clearly much faster than the Jacobi algorithm. The time used to diagonalize a matrix  using the Jacobi algorithm for matrices of size $1000\times 1000$ or larger, is thus barely feasible on a personal computer, and implementing faster algorithms for the same general problem, or specializing the algorithm to a tridiagonal matrix, might be necessary. 
 \subsection{Amount of orthogonal transformations}
-The amount of necessary orthogonal tranformations to diagonalize a matrix is assumed to be $3n^2$ −$5n^2$ (see [2]) for the Jacobi algorithm for a matrix of size $n*n$. Having a threshold of $10^{-8}$ for the largest element, we found that it takes roughly 15.000 orthogonal transfomrations for a matrix of size n=100, 60.000 for a matrix of size n=200, and 240.000 for a matrix of size n=400. These numbers increased only slightly when we changed the threshold to $10^{-12}$. This is clearly much less than expected, and we assume that the cause is the fact that we deal with a tridiagonal matrix, where most entries already are zeroed out. 
+The amount of necessary orthogonal transformations to diagonalize a matrix is assumed to be $3n^2-5n^2$ (see (2)) for the Jacobi algorithm for a matrix of size $n\times n$. Having a threshold of $10^{-8}$ for the largest element, we found that it takes roughly 15.000 orthogonal transformations for a matrix of size n=100, 60.000 for a matrix of size n=200, and 240.000 for a matrix of size n=400. These numbers increased only slightly when we changed the threshold to $10^{-12}$. This is clearly much less than expected, and we assume that the cause is the fact that we deal with a tridiagonal matrix, where most entries already are zeroed out. 
 \subsection{Buckling beam}
 We found that all eigenvalues were identical to the analytical solution with a relative error of less than $10^{-7}$. We did not do further research on that particular problem that already is well researched.
 \subsection{one electron in three-dimensional harmonic oscillator well}
@@ -233,6 +294,31 @@ $$
 S^{-1}ASS^{-1}\vec{x} =B\left(S^{-1}\vec{x}\right)= \lambda \left( S^{-1}\vec{x}\right)
 $$
 So $\lambda$ is also an eigenvalue of $B$ though with the corresponding eigenvector $\left( S^{-1}\vec{x}\right)$.
+\subsection{Nondimensionalization of the radial Schroedinger equation for two interacting electrons}
+\label{nondim_2_el}
+Using the dimensionless variable $\rho=\frac{r}{\alpha}$ the equation becomes
+\begin{equation*}
+  -\frac{d^2}{d\rho^2} \psi(\rho) 
+       + \frac{1}{4}\frac{mk}{\hbar^2} \alpha^4\rho^2\psi(\rho)+\frac{m\alpha \beta e^2}{\rho\hbar^2}\psi(\rho)  = 
+\frac{m\alpha^2}{\hbar^2}E_r \psi(\rho) .
+\end{equation*}
+Introducing a new term 
+$$
+\omega_r^2=\frac{1}{4}\frac{mk}{\hbar^2} \alpha^4
+$$
+and defining $\alpha$ such that the term in front of 
+$$
+\frac{\psi(\rho)}{\rho}
+$$
+is $1$:
+\begin{equation*}
+\alpha = \frac{\hbar^2}{m\beta e^2}.
+\end{equation*}
+Defining the final eigenvalue
+\begin{equation*}
+\lambda = \frac{m\alpha^2}{\hbar^2}E_r,
+\end{equation*}
+
 \subsection{List of programs}
 All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} in the map "project 2".
 \begin{itemize}
@@ -274,6 +360,7 @@ $\omega$ &$\rho_1$ & $\rho_2$  \\
 \item[(2)] Morten Hjort-Jensen \textit{Computational Physics: Lecture Notes Fall 2015}
 \item[(3)]G. Golub, C. Van Loan, Matrix Computations (John Hopkins University Press, 1996)
 \item[(4)]David J. Griffiths, Darrell F. Schroeter, Introduction to Quantum Mechanics, third edition (Cambride University Press, 2018)
+\item[(5)] FYS3150/FYS4150 Project 2 problem sheet "http://compphysics.github.io/ComputationalPhysics/doc/Projects/2019/Project2/pdf/Project2.pdf"
 \end{itemize}
 
 
