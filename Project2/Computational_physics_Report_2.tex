@@ -49,7 +49,7 @@
 \section{Introduction}
 \subsection{Purpose} 
 The purpose of this report is to transform different problems arising in the physical sciences, such as simple quantum mechanical systems or a buckling beam, into problems that can be solved using methods from linear algebra and implement certain numerical algorithms, as well as test their efficiency.
-Specifically, discretizing the radial Schroedinger equation bound by 3- dimensional harmonic oscillator potentialsinto a system of linear equations and restating the problem in terms of an eigenvalue problem.
+Specifically, discretizing the radial Schroedinger equation bound by 3- dimensional harmonic oscillator potentials into a system of linear equations and restating the problem in terms of an eigenvalue problem.
 \subsection{Approach}
 Discretizing the Radial Schroedinger equation yields a set of linear equations that by the use of Dirichlet boundary conditions yield an eigenvalue problem of a tridiagonal Toeplitz- matrix. The relevance of this is that the eigenvalues of such a matrix have analytical solutions, which gives a benchmark by which the algorithms can be tested.\\The algorithms are implemented using C++, and we compare the time usage of our implementation with the time usage in the C++ library armadillo.
 \section{Methods}
@@ -325,11 +325,10 @@ As can be seen in the appendix, the maximum value of the squared ground state wa
 \end{figure}
 
 \section{Conclusion}
-
-\section{Critique}
+Physical systems featuring wave equations and simple symmetric potentials (including the symmetric zero- potential) in one dimension, can be solved by stating the problem as an eigenvalue problem then using numerical eigenvalue solvers.\\Systems such as the ones presented in this report result in tridiagonal symmetric matrices. These lend themselves better to algorithms based on bisection such as \hyperref[method by bisection]{\emph{this one(ref.(6))}} as opposed to the \hyperref[jacobi algo]{\emph{Jacobi eigenvalue algorithm}}. Jacobi's algorithm turned out to be far slower then the armadillo in- built eigenvalue solvers and for this application, it's needlessly general.
 
 \section{Appendix}
-\subsection{Proof that orthogonal transformations persever orthogonality of eigenvectors}\label{eigenvector orthogonality}
+\subsection{Proof that orthogonal transformations preserve orthogonality of eigenvectors}\label{eigenvector orthogonality}
 Let $v_i, v_j$ be the eigenvectors of a symmetric matrix A. They are orthogonal because A is symmetric, that is, $v_{j}^Tv_i$=0. Let U be an orthogonal matrix. The orthogonal transformation of the vector $v$ will retain its orthogonality because
  $(Uv_j)^T(Uv_i)=v_{j}^TU^TUv_i=v_{j}^T(U^TU)v_i=v_{j}^Tv_i=0$
 \subsection{Proof that similar matrices share eigenvalues}\label{proof of same eigenvalues}
@@ -403,12 +402,16 @@ $\omega$ &$\rho_1$ & $\rho_2$  \\
 \end{table}
 
 \section{References}
+\label{method by bisection}
 \begin{itemize}
 \item[(1)] Jacobi, C.G.J. (1846). "Über ein leichtes Verfahren, die in der Theorie der Säkularstörungen vorkommenden Gleichungen numerisch aufzulösen". Crelle's Journal (German)
 \item[(2)] Morten Hjort-Jensen \textit{Computational Physics: Lecture Notes Fall 2015}
 \item[(3)]G. Golub, C. Van Loan, Matrix Computations (John Hopkins University Press, 1996)
 \item[(4)]David J. Griffiths, Darrell F. Schroeter, Introduction to Quantum Mechanics, third edition (Cambride University Press, 2018)
 \item[(5)] FYS3150/FYS4150 Project 2 problem sheet "http://compphysics.github.io/ComputationalPhysics/doc/Projects/2019/Project2/pdf/Project2.pdf"
+\item[(6)]Calculation of the Eigenvalues of a Symmetric Tridiagonal
+Matrix by the Method of Biseetion
+by w. BARTH, R. s. MARTIN, and J. H. WILKINSON
 \end{itemize}
 
 
