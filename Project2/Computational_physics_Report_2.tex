@@ -51,7 +51,7 @@
 The purpose of this report is to transform different problems arising in the physical sciences, such as simple quantum mechanical systems or a buckling beam, into problems that can be solved using methods from linear algebra and implement certain numerical algorithms, as well as test their efficiency.
 Specifically, discretizing the radial Schroedinger equation bound by 3- dimensional harmonic oscillator potentialsinto a system of linear equations and restating the problem in terms of an eigenvalue problem.
 \subsection{Approach}
-Discretizing the Radial Schroedinger equation yields a set of linear equations that by the use of Dirichelet boundary conditions yield an eigenvalue problem of a tridiagonal Toeplitz- matrix. The relevance of this is that the eigenvalues of such a matrix have analytical solutions, which gives a benchmark by which the algorithms can be tested.\\The algorithms are implemented using C++, and we compare the time usage of our implementation with the time usage in the C++ library armadillo.
+Discretizing the Radial Schroedinger equation yields a set of linear equations that by the use of Dirichlet boundary conditions yield an eigenvalue problem of a tridiagonal Toeplitz- matrix. The relevance of this is that the eigenvalues of such a matrix have analytical solutions, which gives a benchmark by which the algorithms can be tested.\\The algorithms are implemented using C++, and we compare the time usage of our implementation with the time usage in the C++ library armadillo.
 \section{Methods}
 
 \subsection{Jacobi's eigenvalue algorithm}\label{jacobi algo}
@@ -108,6 +108,44 @@ $$
 b_{kl} = (a_{kk}-a_{ll})\cos\theta \sin\theta + a_{kl}(\cos^2\theta-\sin^2\theta) \hspace{1cm}
 $$
 $\theta$ is chosen such that the largest (by norm) off- diagonal matrix element $b_{mn}$ is set to zero. Then the other matrix elements of $B$ are calculated. This is then repeated for the new matrix $B$ with a new largest off- diagonal matrix element until the matrix $B$ resembles a diagonal matrix within a predetermined tolerance. As discussed above, the matrix $S$ which at this point equals the matrix product $S_1S_2...S_{N-1}S_N$, contains the eigenvectors corresponding to eigenvalues $\lambda_j$ in its j'th columns.
+\subsection{The buckling beam problem}
+A one- dimensional beam of length $L$ is secured at both ends ($x=0$ and $x=L$). A force $F$ is applied at the point $(L,0)$ in the $-x$ direction. The vertical displacement of the beam at a point $x$ is given by $u(x)$ where
+$$
+\gamma \frac{d^2 u(x)}{dx^2} = -F u(x).
+$$
+As the beam is fixed at both ends, the boundary conditions are $u(0)=u(L)=0$.$\gamma$ is related to the structural and material properties of the bar.\\it's helpful for computation to nondimensionalize the equation. An example of this can be seen \hyperref[nondim_2_el]{\emph{in the appendix}}.\\Firstly, the dimensionless variable $\rho =\frac{x}{L},\hspace{1mm} \rho \in [0,1]$ is introduced, making the new boundary conditions $u(0)=u(1)=0$. The eigenvalue is then set to\\$\lambda = \frac{FL^2}{\gamma}.$ The final expression is
+\begin{equation*}
+\frac{d^2u(\rho)}{d\rho^2}=-\lambda u(\rho).
+\end{equation*} 
+To discretize this expression, \hyperref[2nd derivative]{the equation for the second derivative} is applied.\\Given a number of mesh points $N$ the step length $h=\frac{1}{N}$ such that\\$\rho_i=ih, \hspace{1mm} i \in [1,2,...,N]$ and $u(\rho_i)=u_i$:
+\begin{equation*}
+-\frac{u_{i+1}-2u_i+u_{i-1}}{h^2}=\lambda u_i
+\end{equation*}
+This can be expressed in terms of the eigenvalue problem
+\begin{equation*}
+\begin{bmatrix}
+d & a &0  &0  &\cdots  & 0\\ 
+ a&  d& a & 0 & \cdots &0 \\ 
+ 0&  a&  d& \ddots  &\ddots  &\vdots \\ 
+ 0& 0 & a &  \ddots& a &0 \\ 
+ \vdots&\vdots  &\ddots  &\ddots  &  d&a \\ 
+ 0& 0 & \cdots & 0 & a &d& 
+\end{bmatrix}
+  \begin{bmatrix} u_{1} \\
+                                                              u_{2} \\
+                                                              \vdots\\ \vdots\\ \vdots\\
+                                                              u_{N-1}
+             \end{bmatrix}=\lambda \begin{bmatrix} u_{1} \\
+                                                              u_{2} \\
+                                                              \vdots\\ \vdots\\ \vdots\\
+                                                              u_{N-1}
+             \end{bmatrix}.  
+\end{equation*}
+with $a = -\frac{1}{h^2}$ and $d=\frac{2}{h^2}$.\\It has analytical eigenvalues
+\begin{equation*}
+\lambda_j = d+2a\cos{(\frac{j\pi}{N+1})} \hspace{0.1cm} j=1,2,\dots N.
+\end{equation*}
+This will prove useful in testing the accuracy of the numerical algorithms later on.
 \subsection{One electron in a 3- dimensional harmonic oscillator potential}
 Assuming a centrally symmetric harmonic oscillator potential $V(r) = (1/2)m\omega^2r^2$ and a single electron with orbital angular moment equal to zero, the radial Schroedinger equation reads
 \begin{equation*}
@@ -119,7 +157,7 @@ substituting $R(r) = (1/r) u(r)$. This simplifies the expression considerably to
 \begin{equation*}
   -\frac{\hbar^2}{2 m} \frac{d^2}{dr^2}u(r)+ V(r) u(r) = E u(r).
 \end{equation*}
-Imposing Dirichelet boundary conditions, due to the nature of the normalizable wave functions that represent physical systems $u(0)=u(\infty)=0$. Dividing $r$ by the constant $\alpha$ where $[\alpha] = length$ to introduce the dimensionless variable $\rho =\frac{r}{\alpha}$, $V(\rho)$ becomes $\frac{1}{2}k\alpha^2 \rho^2$. The equation becomes
+Imposing Dirichlet boundary conditions, due to the nature of the normalizable wave functions that represent physical systems $u(0)=u(\infty)=0$. Dividing $r$ by the constant $\alpha$ where $[\alpha] = length$ to introduce the dimensionless variable $\rho =\frac{r}{\alpha}$, $V(\rho)$ becomes $\frac{1}{2}k\alpha^2 \rho^2$. The equation becomes
 
 \begin{equation*}
   -\frac{\hbar^2}{2 m \alpha^2} \frac{d^2}{d\rho^2} u(\rho) 
@@ -148,9 +186,10 @@ Schroedinger's equation is then written as
 \end{equation*}
 In order to discretize this, the expression for the second derivative
 
-\begin{equation*}
+\begin{equation}
+\label{2nd derivative}
   \frac{u(\rho+\epsilon) -2u(\rho) +u(\rho-\epsilon)}{\epsilon^2}
-\end{equation*}
+\end{equation}
 is used.\\As infinity cannot be represented in a computer, a maximal value $\rho_{max}$ is used, at which the wave function approaches zero within a predetermined tolerance. Then, choosing a number of mesh points N from which the step length $h=\frac{\rho_N-\rho_0 }{N+1}$ is decided, $\rho$ can be discretized as $\rho_i= \rho_0 + ih$ where $i=1,2,\dots , N$ and $u(\rho_i)=u_i$. The following expression is then arrived at for the Schroedinger equation for a given $\rho_i$:
 
 \begin{equation*}
@@ -160,7 +199,8 @@ From here the matrix elements are defined from the coefficients of $u_{i+1}$, $u
 $$
 d_i=\frac{2}{h^2}+\rho_i^2,\hspace{1cm}  a=-\frac{1}{h^2}
 $$
-\begin{equation*}
+\begin{equation}
+\label{discrete matrix}
 \begin{bmatrix}
 d_1 & a &0  &0  &\cdots  & 0\\ 
  a&  d_2& a & 0 & \cdots &0 \\ 
@@ -178,8 +218,7 @@ d_1 & a &0  &0  &\cdots  & 0\\
                                                               \vdots\\ \vdots\\ \vdots\\
                                                               u_{N-1}
              \end{bmatrix}.  
-      \label{eq:sematrix}
-\end{equation*}
+\end{equation}
 From here, a number of algorithms can be used in fishing out the eigenvalues and corresponding eigenvectors. \hyperref[jacobi algo]{\emph{The Jacobi eigenvalue algorithm}} can be applied to any real, symmetric matrix, and so it will be applied here.
 \subsection{Two electrons in a 3- dimensional harmonic oscillator potential}
 For the case of two non- interacting electrons in a 3- dimensional harmonic oscillator potential, the Schroedinger equation can be written as 
@@ -202,11 +241,20 @@ which in turn gives the radial time- independent Schroedinger equation
 \begin{equation*}
 \hat{H}_r \psi(r)=E_r\psi(r).
 \end{equation*}
-As was done for the case of the single electron, this equation will be nondimensionalized to aid in computation.\hyperref[nondim_2_el]{\emph{see Appendix}}
+As was done for the case of the single electron, this equation will be nondimensionalized to aid in computation(\hyperref[nondim_2_el]{\emph{see Appendix}}).
 Schroedinger's equation becomes
 \begin{equation*}
-  -\frac{d^2}{d\rho^2} \psi(\rho) + \omega_r^2\rho^2\psi(\rho) +\frac{1}{\rho} = \lambda \psi(\rho).
+  -\frac{d^2}{d\rho^2} \psi(\rho) + \omega_r^2\rho^2\psi(\rho) +\frac{1}{\rho}\psi(\rho) = \lambda \psi(\rho).
 \end{equation*}
+Using the \hyperref[2nd derivative]{\emph{equation for the second derivative}}, this equation can be discretized by the same method as for the single- electron case:
+\begin{equation*}
+-\frac{\psi_{i+1} -2\psi_i +\psi_{i-1}}{h^2}+\left( \omega_r^2 \rho_i^2+\frac{1}{\rho_i}\right)\psi_i= \lambda \psi_i
+\end{equation*}
+which makes for \hyperref[discrete matrix]{\emph{the same matrix as before}}, but now with
+$$
+d_i=\frac{2}{h^2}+\omega_r^2\rho_i^2 +\frac{1}{\rho_i}
+$$
+
 \subsection{ Implementation}
 \subsubsection{Implementation of the Jacobi algorithm}
 The implementation of the Jacobi algorithm is straightforward. Our implementation of the function takes the matrix takes four arguments: The (square) matrix A that needs to be diagonalized, the (square) matrix $R$ where the eigenfunctions are to be stored, the matrix dimension $n$, and a tolerance. Because the sum of the off-diagonal matrix elements get smaller for each orthogonal transformation, we decided to be done diagonalizing the matrix as soon as the maximum off-diagonal element is smaller than the tolerance. We set up $R$ to be the identity matrix.\\
@@ -258,7 +306,7 @@ For the one-electron case, the eigenvalues for the ground state, the first excit
 From figure 1, one can also see the quantum mechanical occurrence of nodes. The first excited state has one node (that is, the squared wave function is zero), the second excited state has two, and so on. This is expected and follows quantum mechanical rules [4].
  
 \subsection{two electrons in three-dimensional harmonic oscillator well}
-As discussed bfore, the equation that needs to be solved is almost the same as for one elctron, but with an extra term that leads to interesting observations. In order to see what happens, we compared the eigenvalue of the ground state with the Coloumb potential either turned on or turned off (which is the same as ignoring electron-electron repulsion. The electron-electron distance is then mathematically equal to the distance of one electron to origo). We did this for several values of the  $\omega$, as can be seen in table 2:
+As discussed before, the equation that needs to be solved is almost the same as for one electron, but with an extra term that leads to interesting observations. In order to see what happens, we compared the eigenvalue of the ground state with the Coloumb potential either turned on or turned off (which is the same as ignoring electron-electron repulsion. The electron-electron distance is then mathematically equal to the distance of one electron to the origin). We did this for several values of the  $\omega$, as can be seen in table 2:
 \begin{table}[H]
 \caption[Ground state eigenvalues for one and two electrons]{Ground state eigenvalue (unitless) for different values of $\omega$ for one electron ($\lambda_1$) or two electrons ($\lambda_2$)}
 \begin{tabular}{lll}
