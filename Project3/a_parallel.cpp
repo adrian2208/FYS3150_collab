@@ -20,6 +20,45 @@ double int_func(double x1, double x2, double y1, double y2, double z1, double z2
   }
   return returnval;
 }
+int * getParallelizationCoefficients(int N,int mynum, int totNum, int loopings){
+  /* calculates the
+  input:
+  N - the number the user gave as input
+  mynum - the process' ID
+  totNum - the total number of processes
+  loopings: How often the loop is run
+
+  returns: An array of amount_loopings+1 with coefficients, where arr[0] is the innermost loop_start, arr[1] the outermost loop-end and so on. Last one is amount of loops.
+  */
+  int total_amount=1;
+  int amount_per_thread,startamount,endamount;
+  int *returnval= new int[N+1];
+  total_amount=pow(N,loopings)+ 1e-9;
+  amount_per_thread=total_amount/totNum;
+  int division_rest=total_amount%totNum;
+  if (division_rest>=(mynum+1)){
+    amount_per_thread+=1;
+  }
+  startamount=amount_per_thread*mynum;
+  endamount=amount_per_thread*(mynum+1);
+
+  if (division_rest>=(mynum+1)){
+    startamount+=mynum;
+    endamount+=mynum+1;
+  }
+  else{
+    startamount+=division_rest;
+    endamount+=division_rest;
+  }
+  int start_temp=startamount, end_temp=endamount;
+  int startrestend,endrest;
+  for(int r=0;r<loopings;r++){ // loopings amount of times
+    returnval[r]=start_temp%N;
+    start_temp=start_temp/N;
+  }
+  returnval[loopings]=endamount-startamount;
+  return returnval;
+}
 int main(int argc, char** argv){
   int N;
   N=atoi(argv[1]);
@@ -32,26 +71,35 @@ int main(int argc, char** argv){
   double time_start,time_end,total_time;
   double local_sum;
   double total_sum;
-  int i;
+  int * val;
+  int i,j,k,l,m,n,counter;
   MPI_Init(&argc, &argv);
   MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
   MPI_Comm_rank (MPI_COMM_WORLD,&my_rank);
   time_start=MPI_Wtime();
+  val=getParallelizationCoefficients(N,my_rank,numprocs,6);
+  n=val[0]; m=val[1];l=val[2];k=val[3];j=val[4];i=val[5];counter=val[6];
   total_sum=0;
-  i=my_rank;
-    for (int j = 0;j<N;j++){
-      for (int k = 0;k<N;k++){
-        for (int l = 0;l<N;l++){
-           for (int m = 0;m<N;m++){
-              for (int n = 0;n<N;n++){
-                local_sum+=w[i]*w[j]*w[k]*w[l]*w[m]*w[n]*int_func(x[i],x[j],x[k],x[l],x[m],x[n]);
-                /*This is clearly only allowed because all 6 dimensions have the same dimensionality */
-                //cout <<"val of addvar " <<add_var<<endl;
-     		      }
-            }
-        }
+  while(counter>0){
+    if(n>=N){
+      n=0; m++;
+      if(m>=N){
+        m=0;l++;
+      }
+      if(l>=N){
+        l=0;k++;
+      }
+      if(k>=N){
+        k=0;j++;
+      }
+      if(j>=N){
+        j=0;i++;
       }
     }
+    local_sum+=w[i]*w[j]*w[k]*w[l]*w[m]*w[n]*int_func(x[i],x[j],x[k],x[l],x[m],x[n]);
+    n++;
+    counter--;
+  }
   MPI_Reduce(&local_sum,&total_sum,1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   time_end=MPI_Wtime();
   total_time=time_end-time_start;
