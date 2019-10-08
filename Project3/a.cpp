@@ -21,7 +21,14 @@ double int_func(double x1, double x2, double y1, double y2, double z1, double z2
   return returnval;
 }
 int main(int argc, char** argv){
-  int N=atoi(argv[1]);
+  int N;
+  if(argc>=2){
+    N=atoi(argv[1]); //n needs to be stated
+  }
+  else{
+    cout << "You need to state a number N" << endl;
+    exit(1);
+  }
   double *x = new double[N];
   double *w=new double[N];
   double *x2=new double[N];

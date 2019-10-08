@@ -20,7 +20,7 @@ double int_func(double x1, double x2, double y1, double y2, double z1, double z2
   }
   return returnval;
 }
-int * getParallelizationCoefficients(int N,int mynum, int totNum, int loopings){
+long long int * getParallelizationCoefficients(long long int N,int mynum, int totNum, int loopings){
   /* calculates the
   input:
   N - the number the user gave as input
@@ -30,10 +30,11 @@ int * getParallelizationCoefficients(int N,int mynum, int totNum, int loopings){
 
   returns: An array of amount_loopings+1 with coefficients, where arr[0] is the innermost loop_start, arr[1] the outermost loop-end and so on. Last one is amount of loops.
   */
-  int total_amount=1;
-  int amount_per_thread,startamount,endamount;
-  int *returnval= new int[N+1];
+  long long int total_amount=1;
+  long long int amount_per_thread,startamount,endamount;
+  long long int *returnval= new long long int[N+1];
   total_amount=pow(N,loopings)+ 1e-9;
+  cout << total_amount<<endl;
   amount_per_thread=total_amount/totNum;
   int division_rest=total_amount%totNum;
   if (division_rest>=(mynum+1)){
@@ -50,8 +51,8 @@ int * getParallelizationCoefficients(int N,int mynum, int totNum, int loopings){
     startamount+=division_rest;
     endamount+=division_rest;
   }
-  int start_temp=startamount, end_temp=endamount;
-  int startrestend,endrest;
+  long long int start_temp=startamount, end_temp=endamount;
+  long long int startrestend,endrest;
   for(int r=0;r<loopings;r++){ // loopings amount of times
     returnval[r]=start_temp%N;
     start_temp=start_temp/N;
@@ -64,14 +65,14 @@ int main(int argc, char** argv){
   N=atoi(argv[1]);
   double *x = new double[N];
   double *w=new double[N];
-  double lambda=3;
+  double lambda=2;
   double add_var;
   gauleg(-lambda,lambda,x,w,N); // Calls the lib.cpp function gauleg // THIS  LOOKS LIKE GULAG
   int local_n,numprocs,my_rank;
   double time_start,time_end,total_time;
   double local_sum;
   double total_sum;
-  int * val;
+  long long int * val;
   int i,j,k,l,m,n,counter;
   MPI_Init(&argc, &argv);
   MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
