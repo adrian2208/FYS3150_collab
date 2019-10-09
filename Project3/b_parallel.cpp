@@ -116,7 +116,8 @@ double int_func_gaulag(double r1, double r2, double theta1, double theta2, doubl
   in order to use laguerre-polynomials.
   */
   double cosb=cos(theta1)*cos(theta2)+sin(theta1)*sin(theta2)*cos(phi1-phi2); // the actor
-  double top=sin(theta1)*sin(theta2)*exp(-3*(r1+r2));
+	double top=r1*r1*r2*r2*sin(theta1)*sin(theta2)*exp(-3*(r1+r2));
+  //double top=sin(theta1)*sin(theta2)*exp(-3*(r1+r2));
   double denum;
   double root=r1*r1+r2*r2-2*r1*r2*cosb;
   if (root >1e-8){
@@ -154,7 +155,7 @@ int main(int argc, char** argv){
   double time_start,time_end,total_time;
   gauleg(0,PI,theta,omega_theta,N);
   gauleg(0,2*PI,phi,omega_phi,N);
-  gauss_laguerre(r,omega_r,N,2);
+  gauss_laguerre(r,omega_r,N,0);
   moveToLeft(r,N);
   moveToLeft(omega_r,N);
   MPI_Init(&argc, &argv);
