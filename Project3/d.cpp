@@ -1,4 +1,5 @@
 #include "lib.h"
+#include "functions.hpp"
 #include <algorithm>
 #include <random>
 #include <math.h>
@@ -8,45 +9,6 @@
 #define PI 3.14159265358979
 
 using namespace std;
-/*double int_func(double x1, double x2, double y1, double y2, double z1, double z2){
-  double exponential_part=exp(-4*(sqrt(x1*x1+y1*y1+z1*z1)+sqrt(x2*x2+y2*y2+z2*z2))); // Exponential part of the function
-  double denom=sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2)); // Denominator part
-  double returnval;
-  //cout << denom << endl;
-  if (fabs(denom)<= 1e-15){ //If denominator is zero, it is omitted
-    returnval=0;
-  }
-  else{
-    returnval= exponential_part/denom; //Final value of function
-  }
-  return returnval;
-}
-double int_func(double r1, double r2, double theta1, double theta2, double phi1, double phi2){
-  double cosb=cos(theta1)*cos(theta2)+sin(theta1)*sin(theta2)*cos(phi1-phi2); // the actor
-  double top=r1*r1*r2*r2*sin(theta1)*sin(theta2)*exp(-4*(r1+r2));
-  double denum;
-  double root=r1*r1+r2*r2-2*r1*r2*cosb;
-  if (root >1.0e-8){
-    denum=sqrt(root);
-  }
-  else{
-    return 0;
-  }
-  return top/denum;
-}*/
-double int_func_montecarlo(double r1, double r2, double theta1, double theta2, double phi1, double phi2){
-  double cosb=cos(theta1)*cos(theta2)+sin(theta1)*sin(theta2)*cos(phi1-phi2); // the actor
-  double top=r1*r1*r2*r2*sin(theta1)*sin(theta2);
-  double root=r1*r1+r2*r2-2*r1*r2*cosb;
-  double denum;
-  if (root >1.0e-8){
-    denum=sqrt(root);
-  }
-  else{
-    return 0;
-  }
-  return top/denum;
-}
 
 int main(int argc, char** argv){
   int N;
@@ -64,7 +26,7 @@ int main(int argc, char** argv){
   double sum_sigma=0.0; double sum_mc=0.0;
   double x[6];
   double fx=0;
-  double jacobi_det=4.0*pow(PI,4)/16.0;//pow(2*PI,2)*pow(PI,2);'
+  double jacobi_det=4.0*pow(PI,4)/16.0;//pow(2*PI,2)*pow(PI,2)/16.0;'
   double rand1;
   double rand2;
   for (int i=0;i<N;i++){

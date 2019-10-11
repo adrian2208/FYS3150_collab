@@ -1,4 +1,5 @@
 #include "lib.h"
+#include "functions.hpp"
 #include <algorithm>
 //#include <mpi.h>
 #include <random>
@@ -7,19 +8,7 @@
 #include <iostream>
 #include <functional>
 using namespace std;
-double int_func(double x1, double x2, double y1, double y2, double z1, double z2){
-  double exponential_part=exp(-4*(sqrt(x1*x1+y1*y1+z1*z1)+sqrt(x2*x2+y2*y2+z2*z2))); // Exponential part of the function
-  double denom=sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2)); // Denominator part
-  double returnval;
-  //cout << denom << endl;
-  if (fabs(denom)<= 1e-15){ //If denominator is zero, it is omitted
-    returnval=0;
-  }
-  else{
-    returnval= exponential_part/denom; //Final value of function
-  }
-  return returnval;
-}
+
 int main(int argc, char** argv){
   int N;
   if(argc>=2){

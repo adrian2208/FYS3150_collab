@@ -9,8 +9,10 @@ def int_func(x1,x2,y1,y2,z1,z2):
     else:
         returnval= exponential_part/denom;
     return returnval;
-x=linspace(-5,5,11)
+plt.ylim([0,5])
+x=linspace(-5,5,1100)
 y=[int_func(val,0,0,0,0,0) for val in x]
 print(y)
 plt.plot(x,y)
+plt.savefig("function.png")
 plt.show()
