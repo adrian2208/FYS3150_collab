@@ -64,12 +64,12 @@ long long int * getParallelizationCoefficients(long long int N,int mynum, int to
   total_amount=pow(N,loopings)+ 1e-9;
   amount_per_thread=total_amount/totNum;
   int division_rest=total_amount%totNum;
-  if (division_rest>=(mynum+1)){
-    amount_per_thread+=1;
-  }
+
   startamount=amount_per_thread*mynum;
   endamount=amount_per_thread*(mynum+1);
-
+	if (division_rest>=(mynum+1)){
+    amount_per_thread+=1;
+  }
   if (division_rest>=(mynum+1)){
     startamount+=mynum;
     endamount+=mynum+1;
@@ -84,7 +84,8 @@ long long int * getParallelizationCoefficients(long long int N,int mynum, int to
     returnval[r]=start_temp%N;
     start_temp=start_temp/N;
   }
-  returnval[loopings]=endamount-startamount;
+  //returnval[loopings]=endamount-startamount;
+	returnval[loopings]=amount_per_thread;
   return returnval;
 }
 double int_func(double x1, double x2, double y1, double y2, double z1, double z2){
