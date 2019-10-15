@@ -1,10 +1,10 @@
 #include "lib.h"
 #include "functions.hpp"
-#include <algorithm>
-//#include <mpi.h>
+#include <time.h>
 #include <math.h>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 #define PI 3.14159265359
 using namespace std;
 void moveToLeft(double *arr,int N){
@@ -13,6 +13,9 @@ void moveToLeft(double *arr,int N){
   }
 }
 int main(int argc, char** argv){
+  ofstream outfile;
+  outfile.open("results/time_info.csv",ios::out | ios::app); //time-info file
+  clock_t start, finish;
   int N;
   if(argc>=2){
     N=atoi(argv[1]); //n needs to be stated
@@ -33,6 +36,7 @@ int main(int argc, char** argv){
   gauss_laguerre(r,omega_r,N,0);
   moveToLeft(r,N);
   moveToLeft(omega_r,N);
+  start=clock();
   for (int i=0;i<N;i++){
     for (int j = 0;j<N;j++){
       for (int k = 0;k<N;k++){
@@ -50,5 +54,11 @@ int main(int argc, char** argv){
       }
     }
   }
+  delete [] r; delete [] omega_r;delete [] phi; delete [] omega_phi;delete [] theta; delete [] omega_theta;
+  finish=clock();
+  double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
+  double correct_result=5*3.14159265359*3.14159265359/(16*16);
+  double relative_error=fabs(int_gauss-correct_result)/correct_result;
+  outfile<<"\ngaulag,no,1,"<<N<<","<<ellapsed_time<<","<<int_gauss<<","<<relative_error<<","<<0;
   cout << "estimate: " << int_gauss << " correct: " << PI*PI*5/(16*16) << endl;
 }

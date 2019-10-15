@@ -3,11 +3,15 @@
 #include <math.h>
 #include <iomanip>
 #include <iostream>
-
+#include <time.h>
+#include <fstream>
 using namespace std;
-
 int main(int argc, char** argv){
+  ofstream outfile;
+  outfile.open("results/time_info.csv",ios::out | ios::app); //time-info file
+  //outfile<<"Type,Parrallelisation_flag,Amount_threads,N,Time_use,Result,relative_error,standard_deviation";
   int N;
+  clock_t start, finish;
   if(argc>=2){
     N=atoi(argv[1]); //n needs to be stated
   }
@@ -17,10 +21,11 @@ int main(int argc, char** argv){
   }
   double *x = new double[N];
   double *w=new double[N];
-  double lambda=3;
+  double lambda=2;
   double int_gauss=0.;
   double add_var;
   gauleg(-lambda,lambda,x,w,N); // Calls the lib.cpp function gauleg // THIS  LOOKS LIKE GULAG
+  start=clock();
   for (int i=0;i<N;i++){
     for (int j = 0;j<N;j++){
       for (int k = 0;k<N;k++){
@@ -37,6 +42,12 @@ int main(int argc, char** argv){
       }
     }
   }
+  finish=clock();
+  delete [] x; delete [] w;
+  double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
+  double correct_result=5*3.14159265359*3.14159265359/(16*16);
+  double relative_error=fabs(int_gauss-correct_result)/correct_result;
+  outfile<<"\ngauleg,no,1,"<<N<<","<<ellapsed_time<<","<<int_gauss<<","<<relative_error<<","<<0;
   cout <<" approach :"<< int_gauss << " correct: "<< 5*3.14159265359*3.14159265359/(16*16)<< endl;
-
+  outfile.close();
 }

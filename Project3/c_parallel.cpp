@@ -1,12 +1,12 @@
 #include "lib.h"
 #include "functions.hpp"
-#include <algorithm>
+//#include <algorithm>
 #include <mpi.h>
 #include <random>
 #include <math.h>
 #include <iomanip>
 #include <iostream>
-#include <functional>
+//#include <functional>
 using namespace std;
 
 int main(int argc, char** argv){
@@ -55,16 +55,24 @@ int main(int argc, char** argv){
   local[0]=int_mc;
   local[1]=sum_sigma;
   MPI_Reduce(local,total,2,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
+
   //MPI_Reduce(&local[0],&total[0],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   //MPI_Reduce(&local[1],&total[1],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   time_end=MPI_Wtime();
+  delete [] val;delete [] local;
   total_time=time_end-time_start;
   int_mc=total[0];
   sum_sigma=total[1];
+  delete [] total;
   int_mc=int_mc/N;
   sum_sigma=sum_sigma/N;
   variance=sum_sigma-int_mc*int_mc;
   if (my_rank==0){
+    ofstream outfile;
+    outfile.open("results/time_info.csv",ios::out | ios::app); //time-info file
+    double correct_result=5*3.14159265359*3.14159265359/(16*16);
+    double relative_error=fabs(int_mc*jacobi_det-correct_result)/correct_result;
+    outfile<<"\nbadMonteCarlo,no,"<<numprocs<<","<<N<<","<<total_time<<","<<int_mc*jacobi_det<<","<<relative_error<<","<<jacobi_det*sqrt(variance/((double) N ));
     cout << "Time = " <<  total_time << " on number of processors: "  << numprocs  << endl;
     cout << setiosflags(ios::showpoint | ios::uppercase);
     cout << " Monte carlo result= " << setw(10) << setprecision(8) << jacobi_det*int_mc;

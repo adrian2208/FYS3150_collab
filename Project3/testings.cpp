@@ -26,7 +26,6 @@ TEST_CASE("Test whether the correct numbers are given by the getParallelizationC
   int val_expected[n]={168,168};
 
   for(int i=0;i<(loop+1);i++){
-    //cout << val[i]<<" "<<val_expected[i]<<endl;
     REQUIRE(val_expected[i]==val[i]);
   }
 }
@@ -77,6 +76,5 @@ TEST_CASE("Tests a simple integral,xydxdy from 0 to 5 for both integrands, using
     sum+=example_functions(x,y);
   }
   sum=sum*jacobi/N;
-  cout << sum<<endl;
   REQUIRE(fabs((sum-625.0/4.0))<1e-1);
 }

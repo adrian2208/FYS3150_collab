@@ -1,15 +1,17 @@
 #include "lib.h"
 #include "functions.hpp"
-#include <algorithm>
-//#include <mpi.h>
 #include <random>
 #include <math.h>
 #include <iomanip>
 #include <iostream>
-#include <functional>
+#include <time.h>
+#include <fstream>
 using namespace std;
 
 int main(int argc, char** argv){
+  ofstream outfile;
+  outfile.open("results/time_info.csv",ios::out | ios::app); //time-info file
+  clock_t start, finish;
   int N;
   if(argc>=2){
     N=atoi(argv[1]); //n needs to be stated
@@ -27,7 +29,7 @@ int main(int argc, char** argv){
   double x[6];
   double fx;
   double jacobi_det=pow(2*lambda,6);
-
+  start=clock();
   for (int i=0;i<N;i++){
     for(int j=0;j<6;j++){
       x[j]=-lambda+2*lambda*RnG(gen); // makes x[j] a random number between -lambda and lamnbda
@@ -38,8 +40,13 @@ int main(int argc, char** argv){
   }
   int_mc=int_mc/N;
   sum_sigma=sum_sigma/N;
-  variance=sum_sigma-int_mc*int_mc;
+  variance=sum_sigma-int_mc*int_mc; // This is E(X^2)-E(X)^2
+  finish=clock();
+  double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
+  double correct_result=5*3.14159265359*3.14159265359/(16*16);
+  double relative_error=fabs(int_mc*jacobi_det-correct_result)/correct_result;
+  outfile<<"\nbadMonteCarlo,no,1,"<<N<<","<<ellapsed_time<<","<<int_mc*jacobi_det<<","<<relative_error<<","<<jacobi_det*sqrt(variance/((double) N ));
   cout << setiosflags(ios::showpoint | ios::uppercase);
-  cout << " Monte carlo result= " << setw(10) << setprecision(8) << jacobi_det*int_mc;
+  cout << " Monte carlo result= " << setw(10) << setprecision(8) << int_mc*jacobi_det;
   cout << " Sigma= " << setw(10) << setprecision(8) << jacobi_det*sqrt(variance/((double) N )) << endl;
 }

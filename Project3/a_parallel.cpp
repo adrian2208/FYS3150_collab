@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   double local_sum;
   double total_sum;
   long long int * val;
-  int i,j,k,l,m,n,counter;
+  long long int i,j,k,l,m,n,counter;
   MPI_Init(&argc, &argv);
   MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
   MPI_Comm_rank (MPI_COMM_WORLD,&my_rank);
@@ -49,8 +49,16 @@ int main(int argc, char** argv){
   }
   MPI_Reduce(&local_sum,&total_sum,1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   time_end=MPI_Wtime();
+  delete [] x; delete [] w;delete [] val;
   total_time=time_end-time_start;
   if (my_rank==0){
+    ofstream outfile;
+    outfile.open("results/time_info.csv",ios::out | ios::app); //time-info file
+    double correct_result=5*3.14159265359*3.14159265359/(16*16);
+    double relative_error=fabs(total_sum-correct_result)/correct_result;
+    outfile<<"\ngauleg,no,"<<numprocs<<","<<N<<","<<total_time<<","<<total_sum<<","<<relative_error<<","<<0;
+    cout<<"total sum:" << total_sum << endl;
+    cout << "Time = " <<  total_time << " on number of processors: "  << numprocs  << endl;
     cout<<"total sum:" << total_sum << endl;
     cout << "Time = " <<  total_time << " on number of processors: "  << numprocs  << endl;
   }
