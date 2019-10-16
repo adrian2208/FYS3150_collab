@@ -1,4 +1,5 @@
 # compiled files:
+*.exe
 *.o
 *.so
 *.a
