@@ -2,9 +2,9 @@ import subprocess, sys
 import numpy as np
 filenames=["a","b","c","d","a_parallel","b_parallel","c_parallel","d_parallel"];
 helpfiles=["lib","functions","tests_main","testings"]
-n_gaussisk=[10,15,20]
-n_gaussisk_parallel=[10,15,20,25,30,40]
-n_monte=[1000,10000,100000]
+n_gaussisk=[10,15,20,30]
+n_gaussisk_parallel=[10,15,20,25,30,40,45]
+n_monte=[1000,10000,100000,1000000,1000000,1000000,10000000]
 n_monte_parallel=[1000,10000,100000,100000,1000000,10000000,100000000,1000000000]
 for i in range(int(len(filenames)/2)):
     subprocess.call("c++ -c "+filenames[i]+".cpp",shell=True)
@@ -30,7 +30,6 @@ def compile(fast):
         subprocess.call("mpic++ "+fast+" -o "+filenames[i]+".exe "+filenames[i]+".o lib.o functions.o",shell=True)
     for i in range(int(3*len(filenames)/4),len(filenames)):
         subprocess.call("mpic++ "+fast+" -o "+filenames[i]+".exe "+filenames[i]+".o functions.o",shell=True)
-compile("-O3")
 def runAll(mengde):
     for amount in range(mengde):
         for n in n_gaussisk:
