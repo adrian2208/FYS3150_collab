@@ -59,5 +59,6 @@ int main(int argc, char** argv){
     outfile<<"\ngauleg,no,"<<numprocs<<","<<N<<","<<total_time<<","<<total_sum<<","<<relative_error<<","<<0;
     cout<<"total sum:" << total_sum << endl;
     cout << "Time = " <<  total_time << " on number of processors: "  << numprocs  << endl;
+  }
   MPI_Finalize ();
 }
