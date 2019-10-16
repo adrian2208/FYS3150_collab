@@ -16,8 +16,8 @@ int main(int argc, char** argv){
   gauleg(-lambda,lambda,x,w,N); // Calls the lib.cpp function gauleg // THIS  LOOKS LIKE GULAG
   int local_n,numprocs,my_rank;
   double time_start,time_end,total_time;
-  double local_sum;
-  double total_sum;
+  double local_sum=0;
+  double total_sum=0;
   long long int * val;
   long long int i,j,k,l,m,n,counter;
   MPI_Init(&argc, &argv);
@@ -59,8 +59,5 @@ int main(int argc, char** argv){
     outfile<<"\ngauleg,no,"<<numprocs<<","<<N<<","<<total_time<<","<<total_sum<<","<<relative_error<<","<<0;
     cout<<"total sum:" << total_sum << endl;
     cout << "Time = " <<  total_time << " on number of processors: "  << numprocs  << endl;
-    cout<<"total sum:" << total_sum << endl;
-    cout << "Time = " <<  total_time << " on number of processors: "  << numprocs  << endl;
-  }
   MPI_Finalize ();
 }

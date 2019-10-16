@@ -31,6 +31,7 @@ int main(int argc, char** argv){
 
   double int_mc_local=0.0,int_mc_total;
   double* local=new double[2];
+  local[0]=0;local[1]=0;
   double* total=new double[2];
   long long int * val;
   int local_start,local_end,numprocs,my_rank;

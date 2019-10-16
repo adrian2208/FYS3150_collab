@@ -28,7 +28,7 @@ int main(int argc, char** argv){
   double *omega_theta=new double[N];
   double *omega_phi=new double[N];
   double *omega_r=new double[N+1];
-  double local_sum,total_sum, add_var;
+  double local_sum=0,total_sum=0, add_var=0;
   long long int * val;
   long long int i,j,k,l,m,n,counter;
   int local_n,numprocs,my_rank;

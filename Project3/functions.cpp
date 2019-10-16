@@ -105,7 +105,7 @@ double int_func(double x1, double x2, double y1, double y2, double z1, double z2
   double exponential_part=exp(-4*(sqrt(x1*x1+y1*y1+z1*z1)+sqrt(x2*x2+y2*y2+z2*z2))); // Exponential part of the function
   double denom=sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2)); // Denominator part
   double returnval;
-  if (fabs(denom)<= 1e-15){ //If denominator is zero, it is omitted
+  if (fabs(denom)<= 1e-8){ //If denominator is zero, it is omitted
     returnval=0;
   }
   else{
