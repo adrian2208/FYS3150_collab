@@ -1,0 +1,152 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\newcommand{\RomanNumeralCaps}[1]
+    {\MakeUppercase{\romannumeral #1}}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{cite}
+
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{C:/Users/adria/Pictures/FYS3150/}} 
+\author{Adrian Martinsen Kleven, Simon Schrader}
+\title{Project 3}
+
+\lstset{
+ 	language =C++,   
+    frame=tb, % draw a frame at the top and bottom of the code block
+    tabsize=4, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    commentstyle=\color{green}, % comment color
+    keywordstyle=\color{blue}, % keyword color
+    stringstyle=\color{red} % string color
+}
+
+\begin{document}
+
+\part*{-Project 3 - FYS3150/FYS4150-
+}
+{\large By Simon Schrader (4150), Adrian Kleven (3150) - autumn 2019
+}
+\tableofcontents
+
+\listoffigures
+\listoftables
+
+ 
+\clearpage
+ 
+\section{Abstract}
+Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. To solve this integral, two different approaches, relying on Gaussian quadrature and Monte- Carlo integration are used.
+\section{Introduction} 
+The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving the six- dimensional integral
+\section{Methods}
+
+\subsection{Monte Carlo Integration}
+A different approach to solving integrals numerically is the use of Monte Carlo integration, where properties of probability distribution functions (PDFs) are used to approximate the solution. For any integral $\int_a^bf(x)dx$, one can find a PDF p(x) that fulfills  $\int_a^bp(x)dx=1$ that is nonzero $ \forall x\in [a,b]$ Then by the law of large numbers \cite{devore2012modern},
+$$\int_a^bf(x)dx=\int_a^bp(x)\frac{f(x)}{p(x)}dx=E[\frac{f(x)}{p(x)}]\approx \frac{1}{N}\sum_{i=1}^{N}\frac{f(x_i)}{p(x_i)}$$
+where N is a very large number and $x_i$ are random samples from the given PDF.\\
+The variance is then given by
+\[ 
+\sigma^2=\frac{1}{N}\sum_{i=1}^{N}\left(\left( \frac{f(x_i)}{p(x_i)}\right)^2-E[\frac{f(x)}{p(x)}]^2\right) p(x_i)=E[ ( \frac{f(x)}{p(x)})^2]-E[\frac{f(x)}{p(x)}]^2
+\]
+It can then be shown \cite{devore2012modern} that the standard error of the mean is
+$$
+\sigma_N \approx \frac{\sigma}{\sqrt{N}}
+$$
+Thus, the error is a function of $\frac{1}{\sqrt{N}}$. This is does not depend on the dimensionality of the integral to be evaluated, making Monte Carlo methods very effective for integrals in higher dimensions.
+The appropriate choice of a fitting PDF is crucial. Even though the above equations hold true for any PDF, choosing a PDF p(x) that closely follows our function f(x), leads to a better sampling of $x_i$ \cite{devore2012modern} and decreases the standard deviation. Thus, the real integral is approached much faster.
+
+\subsection{Implementation}
+
+\subsubsection{Legendre polynomials}
+The first approach to solving the integral is to use Gauss-Legendre polynomials. As Legendre polynomials cannot be properly mapped to $(-\infty,\infty)$, it is necessary to define a threshold $\lambda$ where the function is "sufficiently" zero. Thus, the integral is only evaluated for $(-\lambda,\lambda)$ As can be seen in FIGURE XXX, the function approaches zero rather quickly, and $\lambda$=2 seems to be an appropriate choice. The integration limit is then changed to $[-2,2]$ for all 6 integrands. Numerical recipe's gauleg-function \cite{press1992numerical} then maps the weights from $[-1,1]$ to $[-2,2]$. Because any all the 6 variables in the integral are freely interchangeable, the the approximation then reads, 
+$$\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}f(x_1,x_2,y_1,y_2,z_1,z_2)dx_1dx_2dy_1dy_2dz_1dz_2$$
+$$\approx\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}f(x_1,x_2,y_1,y_2,z_1,z_2)dx_1dx_2dy_1dy_2dz_1dz_2 $$
+$$\approx\sum_{i=1}^{N}\sum_{j=1}^{N}\sum_{k=1}^{N}\sum_{l=1}^{N}\sum_{m=1}^{N}\sum_{n=1}^{N}\omega_i\omega_j\omega_k\omega_l\omega_m\omega_nf(x_i,x_j,x_k,x_l,x_m,x_n)$$
+where $x_i$ and $\omega_i$ where created using the gauleg-function. 
+Computationally, this will lead to a total of $N^6$ function evaluations. A possible problem to face is that one will end up dividing by zero $N^3$ times. This problem can be faced by ignoring all function evaluations where the function's denominator is larger than a threshold, which was chosen to be $10^{-8}.$
+\subsubsection{Laguerre and Legendre polynomials}
+When transferred into spherical coordinates, the integral reads 
+
+$$
+\int_{0}^{\pi}\int_{0}^{\pi}\int_{0}^{2\pi}\int_{0}^{2\pi}\int_{0}^{\infty}\int_{0}^{\infty}
+\frac{r_1^2r_2^2sin(\theta_1)sin(\theta_2)e^{-4(r_1+r_2)}}{\sqrt{r_1^2+r_2^2-2r_1r_2cos(\beta)}}dr_1dr_2d\phi_1d\phi_2d\theta_1d\theta_2
+$$
+with
+$$
+cos(\beta)=cos(\theta_1)cos(\theta_2)+sin(\theta_1)sin(\theta_2)cos(\phi_1-\phi_2)
+$$
+
+This has the advantage that infinity only has to be faced twice, and Laguerre-Polynomials can be used for that. Laguerre-polynomials are defined for $[0,\infty)$ and have a weight function $W(x)=e^{-x}$. This is relevant for $r_1$ and $r_2$, as the integration limits go from $0$ to $\infty$. The angles $\theta_1$ and $\theta_2$ lie in $[0,\pi]$, and the angles $\phi_1$ and $\phi_2$  lie in $[0,2\pi]$. Here, Lagrange-Polynomials can be used again. Because each of the $\theta$, $\phi$ and $r$ are interchangeable, it is necessary to create 3 types of mesh points and weights: One using the Laguerre polynomials  ($\omega_r$, $x_r$), one using Lagrange polynomials for the angle $\theta$ ($\omega_\theta$, $x_\theta$) and one using Lagrange polynomials for the angle $\phi$ ($\omega_\phi$, $x_\phi$). The function to be evaluated changes slightly due to the Laguerre-polynomials weight function, the exponent goes from -4 to -3, leading to
+$$g(r_1,r_2,\theta_1,\theta_2,\phi_1,\phi_2)=\frac{r_1^2r_2^2sin(\theta_1)sin(\theta_2)e^{-3(r_1+r_2)}}{\sqrt{r_1^2+r_2^2-2r_1r_2cos(\beta)}}$$
+$$\int_{0}^{\pi}\int_{0}^{\pi}\int_{0}^{2\pi}\int_{0}^{2\pi}\int_{0}^{\infty}\int_{0}^{\infty}
+g(r_1,r_2,\theta_1,\theta_2,\phi_1,\phi_2)dr_1dr_2d\phi_1d\phi_2d\theta_1d\theta_2$$
+This integral is then approximated by the following sum:
+
+$$
+\approx \sum_{i=1}^N \sum_{j=1}^N \sum_{k=1}^N \sum_{l=1}^N \sum_{m=1}^N \sum_{n=1}^N \omega_{r,i} \omega_{r,j} \omega_{\theta ,k} \omega_{\theta ,l} \omega_{\phi ,m} \omega_{\phi ,n} g(x_{r,i},x_{r,j},x_{\theta ,k},x_{\theta ,l},x_{\phi ,m},x_{\phi ,n})
+$$
+
+\section{Results}
+
+\section{Conclusion}
+
+\section{Critique}
+
+\section{Appendix}
+
+
+\subsection{List of programs}
+All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} in the folder "project 3".
+\begin{itemize}
+\item[1.] 
+\end{itemize}
+
+\subsection{Tables}
+
+\cite{Lecture_Notes_Fall_2015}
+\cite{Problem_set_3}
+\bibliographystyle{Plain}
+
+
+
+\bibliography{citations}
+
+
+
+\begin{comment}
+
+$$
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+\end{bmatrix}
+$$
+
+\begin{lstlisting}[caption=insert caption]
+for (unsigned int i = 0; i<100;i++{
+}
+\end{lstlisting}
+
+\begin{figure}[h]
+\includegraphics[width=8cm]{}
+\caption{include caption}
+\end{figure}
+
+\end{comment}
+
+\end{document}
