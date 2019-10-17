@@ -20,9 +20,6 @@ int main(int argc, char** argv){
     cout << "You need to state a number N" << endl;
     exit(1);
   }
-  std::random_device rd;
-  std::mt19937_64 gen(rd());
-  std::uniform_real_distribution<double> RnG(0.0,1.0);
   double int_mc=0.0; double variance=0.0;
   double sum_sigma=0.0; double sum_mc=0.0;
   double x[6];
@@ -42,6 +39,9 @@ int main(int argc, char** argv){
   MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
   MPI_Comm_rank (MPI_COMM_WORLD,&my_rank);
   time_start=MPI_Wtime();
+  std::random_device rd;
+  std::mt19937_64 gen(rd()+my_rank);
+  std::uniform_real_distribution<double> RnG(0.0,1.0);
   val=getParallelizationCoefficients(N,my_rank,numprocs,1);
   counter=val[1];
   while(counter >0){
