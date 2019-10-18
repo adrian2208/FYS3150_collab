@@ -10,6 +10,8 @@
 \usepackage{listings}
 \usepackage{hyperref}
 
+%bibliography packages, bibliography files are plain text files marked .bib 
+%... in the same directory as the .tex file.
 \usepackage[nottoc,numbib]{tocbibind}
 \usepackage{cite}
 
@@ -48,9 +50,12 @@
 \clearpage
  
 \section{Abstract}
-Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. To solve this integral, two different approaches, relying on Gaussian quadrature and Monte- Carlo integration are used.
+Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. To solve this integral, two different approaches relying on Gaussian quadrature and Monte- Carlo integration are used.
 \section{Introduction} 
-The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving the six- dimensional integral
+The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving a six- dimensional integral
+$$
+\int_{-\infty}^\infty \frac{\exp \left( -4\left( \sqrt{x_1^2+y_1^2+z_1^2}+\sqrt{x_2^2+y_2^2+z_2^2} \right) \right)}{\sqrt{(x_1-x_2)^2+(y_1-y_2)^2+(z_1-z_2)^2}}
+$$
 \section{Methods}
 
 \subsection{Monte Carlo Integration}
