@@ -31,6 +31,7 @@ def compile(fast):
     for i in range(int(3*len(filenames)/4),len(filenames)):
         subprocess.call("mpic++ "+fast+" -o "+filenames[i]+".exe "+filenames[i]+".o functions.o",shell=True)
 def runAll(mengde):
+
     for amount in range(mengde):
         for n in n_gaussisk:
             for i in range(int(len(filenames)/4)):
@@ -44,6 +45,11 @@ def runAll(mengde):
         for n in n_monte_parallel:
             for i in range(int(len(filenames)*3/4),len(filenames)):
                 subprocess.call("mpirun -n 4 "+filenames[i]+".exe "+str(n),shell=True)
+    for i in range(int(len(filenames)*7/8),len(filenames)):
+        subprocess.call("mpirun -n 4 "+filenames[i]+".exe "+str(10000000000),shell=True)
+    for i in range(int(len(filenames)/2),int(3*len(filenames)/4)):
+        subprocess.call("mpirun -n 4 "+filenames[i]+".exe "+str(55),shell=True)
+        subprocess.call("mpirun -n 4 "+filenames[i]+".exe "+str(65),shell=True)
 compile("-O3")
 runAll(5)
 infile=np.loadtxt("results/time_info.csv",delimiter=",",dtype="str")

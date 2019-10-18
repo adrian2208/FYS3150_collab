@@ -29,7 +29,6 @@ for n in n_gauleg:
     time_gaulag.append(np.mean(gaulag_novectorized_parallel[gaulag_novectorized_parallel[:,3]==str(n)][:,4].astype(np.float)))
     error_gauleg.append(np.mean(gauleg_novectorized_parallel[gauleg_novectorized_parallel[:,3]==str(n)][:,6].astype(np.float)))
     error_gaulag.append(np.mean(gaulag_novectorized_parallel[gaulag_novectorized_parallel[:,3]==str(n)][:,6].astype(np.float)))
-
 for n in n_monte:
     time_monteGood.append(np.mean(monteGood_novectorized_parallel[monteGood_novectorized_parallel[:,3]==str(n)][:,4].astype(np.float)))
     time_monteBad.append(np.mean(monteBad_novectorized_parallel[monteBad_novectorized_parallel[:,3]==str(n)][:,4].astype(np.float)))
