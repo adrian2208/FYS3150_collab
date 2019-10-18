@@ -1,5 +1,7 @@
 import subprocess, sys
 import numpy as np
+import os
+os.chdir("../cpp")
 filenames=["a","b","c","d","a_parallel","b_parallel","c_parallel","d_parallel"];
 helpfiles=["lib","functions","tests_main","testings"]
 n_gaussisk=[10,15,20,30]
