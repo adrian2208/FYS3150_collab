@@ -1,6 +1,40 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+
+\makeatletter
+\ams@newcommand{\iiiiint}{\DOTSI\protect\MultiIntegral{5}}
+\renewcommand{\MultiIntegral}[1]{%
+  \edef\ints@c{\noexpand\intop
+    \ifnum#1=\z@\noexpand\intdots@\else\noexpand\intkern@\fi
+    \ifnum#1>\tw@\noexpand\intop\noexpand\intkern@\fi
+    \ifnum#1>\thr@@\noexpand\intop\noexpand\intkern@\fi
+    \ifnum#1>4 \noexpand\intop\noexpand\intkern@\fi % <---- added
+
+    \noexpand\intop
+    \noexpand\ilimits@
+  }%
+  \futurelet\@let@token\ints@a
+}
+\makeatother
+
+\makeatletter
+\ams@newcommand{\iiiiiint}{\DOTSI\protect\MultiIntegral{6}}
+\renewcommand{\MultiIntegral}[1]{%
+  \edef\ints@c{\noexpand\intop
+    \ifnum#1=\z@\noexpand\intdots@\else\noexpand\intkern@\fi
+    \ifnum#1>\tw@\noexpand\intop\noexpand\intkern@\fi
+    \ifnum#1>\thr@@\noexpand\intop\noexpand\intkern@\fi
+    \ifnum#1>4 \noexpand\intop\noexpand\intkern@\fi % <---- added
+	\ifnum#1>5 \noexpand\intop\noexpand\intkern@\fi % <---- added
+    \noexpand\intop
+    \noexpand\ilimits@
+  }%
+  \futurelet\@let@token\ints@a
+}
+\makeatother
+
+
 \newcommand{\RomanNumeralCaps}[1]
     {\MakeUppercase{\romannumeral #1}}
 \usepackage{amsfonts}
@@ -50,14 +84,125 @@
 \clearpage
  
 \section{Abstract}
-Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. To solve this integral, two different approaches relying on Gaussian quadrature and Monte- Carlo integration are used.
+Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. This integral is also applicable in other aspects of quantum mechanics \cite{Problem_set_3}. For this reason, it's of great value to examine different approaches to solving such integrals, as well as those with higher degrees of freedom. To solve this integral, two different approaches relying on Gaussian quadrature and Monte- Carlo integration were used, as well as the implementation of parallelization to speed up the programs.
 \section{Introduction} 
-The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving a six- dimensional integral
-$$
-\int_{-\infty}^\infty \frac{\exp \left( -4\left( \sqrt{x_1^2+y_1^2+z_1^2}+\sqrt{x_2^2+y_2^2+z_2^2} \right) \right)}{\sqrt{(x_1-x_2)^2+(y_1-y_2)^2+(z_1-z_2)^2}}
-$$
-\section{Methods}
+The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving a six- dimensional integral to examine their times expenditure and accuracy, as well as the effect of parallelizing the C++ implementations of these methods.
 
+\section{Methods}
+The expectation value of the correlation energy between two electrons interacting under the Coulomb interacting is given by the integral
+\begin{equation}\label{eq:correlationenergy}
+   \langle \frac{1}{|{\bf r}_1-{\bf r}_2|} \rangle =
+   \int_{-\infty}^{\infty} d{\bf r}_1d{\bf r}_2  e^{-2\alpha (r_1+r_2)}\frac{1}{|{\bf r}_1-{\bf r}_2|}.
+\end{equation}
+where 
+$$
+   {\bf r}_i =  x_i {\bf e}_x + y_i {\bf e}_y +z_i {\bf e}_z
+$$
+and
+$$
+r_i = \sqrt{x_i^2+y_i^2+z_i^2}
+$$
+as given by \cite{Problem_set_3}.
+\subsection{Gaussian quadrature}
+The method of Gaussian quadrature allows one to approximate a function $f(x)$ with a polynomial $P_{2N-1}(x)$ of degree $2n-1$, using only $N$ mesh points. Said polynomial is constructed using sets of orthogonal polynomials, meaning they have the property that
+\begin{equation}
+\int_a^b P_i(x)P_j(x)dx = C_{ij}\delta_{ij}
+\end{equation}
+where $\big\{ P_k\hspace{1mm}|\hspace{1mm} k \in \mathbb N \big\}$ is the set of polynomials orthogonal in the domain $[a,b]$, $\delta_{ij}$ is the Kronecker- delta and $P_0(x)$ is normalized to be $1$. Since the polynomials $\big\{ P_k\hspace{1mm}|\hspace{1mm} k \in \{0,\cdots ,N\} \big\}$ constitute an orthogonal set, any polynomial of degree $N$ or less can be constructed by a linear combination them\\\\Suppose a function $f(x)$ is approximated by the polynomial $Q_{2N-1}$. Then
+\begin{equation}\label{Eq:Poly approximation}
+\int_{a}^bf(x)dx \approx \int_{a}^bQ_{2N-1}(x)dx=\int_{a}^b\left(P_N(x)Q_{N-1}(x)+R_{N-1}(x)\right)dx
+\end{equation}
+where, due to the orthogonality of the $P_k$'s, $Q_{2N-1}$ can be decomposed into $P_N$ $R_{N-1}$ and 
+\begin{equation}\label{Eq:orthogonal polynomial expansion}
+Q_{N-1} = \sum\limits_{k=0}^{N-1} \beta_k P_k.
+\end{equation}
+Then
+$$
+\sum\limits_{k=0}^{N-1} \left( \int_{a}^b \beta_k P_N(x) P_k(x)dx \right)+\int_{a}^bR_{N-1}(x)dx = \int_{a}^bR_{N-1}(x)dx
+$$
+so
+\begin{equation*}
+\int_{a}^bf(x)dx \approx \int_{a}^bR_{N-1}(x)dx = \sum\limits_{k=0}^{N-1}  \int_{a}^b \alpha_k P_k(x)dx
+\end{equation*}
+where $R_{N-1}$ has been expressed in terms of orthogonal polynomials as was done in equation \ref{Eq:orthogonal polynomial expansion}.
+Inserting $P_0(x) = 1$ this expression can be rewritten, then simplified:
+\begin{equation}\label{Eq: integral as a function of a0}
+\int_{a}^bR_{N-1}(x)dx = \sum\limits_{k=0}^{N-1}  \int_{a}^b \alpha_kP_0(x) P_k(x)dx = \int_{a}^b \alpha_0 = \alpha_0(b-a).
+\end{equation}
+So it's only necessary to identify a single coefficient when evaluating this integral.\\Looking again at the polynomial $Q_{2N-1}(x)$ that serves as the approximation to the function $f(x)$. The points $x_n$ where $n \in \big\{0,\cdots,N-1\big\}$ are the zeros of $P_N$. Composing the polynomial as was done in equation \ref{Eq:Poly approximation}
+\begin{equation*}
+Q_{2N-1}(x) = P_N(x)Q_{N-1}(x)+R_{N-1}(x)
+\end{equation*}
+and assessing at the points $x_n$:
+\begin{equation}\label{Eq:Q2n_1 and Rn_1}
+Q_{2N-1}(x_n) = P_N(x_n)Q_{N-1}(x_n)+R_{N-1}(x_n) = R_{N-1}(x_n).
+\end{equation}
+So at the zeros $P_N$, the approximating polynomial $Q_{2N-1}(x)$ equals $R_{N-1}(x)$ which as the other polynomials, can be expressed as a linear combination of orthogonal polynomials as was done in equation \ref{Eq:orthogonal polynomial expansion}.
+\begin{equation*}
+R_{N-1}(x) = \sum\limits_{k=0}^{N-1} \alpha_k P_k(x).
+\end{equation*} 
+And at the points $x_n$:
+\begin{equation}\label{Eq:Number 7}
+R_{N-1}(x_n) = \sum\limits_{k=0}^{N-1} \alpha_k P_k(x_n)\hspace{6mm}n \in \big\{0,\cdots,N-1\big\}.
+\end{equation}
+As $\big\{ P_k\hspace{1mm}|\hspace{1mm} k \in \{0,\cdots,N\} \big\}$ are orthogonal polynomials,no one $P_k$ is linearly dependent on any others, thus $P_k(x_n)$ can be expressed as an invertible $N\times N$ matrix with matrix elements $P_{kn}$.\\\\Multiplying both sides of equation \ref{Eq:Number 7} by 
+\begin{equation}
+\sum\limits_{j=0}^{N-1}P_{jk}^{-1}
+\end{equation}
+yields
+\begin{equation*}
+\left( \sum\limits_{j=0}^{N-1}P_{jk}^{-1} \right)R_{N-1}(x_n) = \left( \sum\limits_{j=0}^{N-1}P_{jk}^{-1} \right)\sum\limits_{k=0}^{N-1} \alpha_k P_k(x_n)
+\end{equation*}
+which, due to the orthogonality of the column- vectors gives
+\begin{equation}\label{Eq: for the coefficients a}
+\sum\limits_{k=0}^{N-1}P_{nk}^{-1}R_{N-1}(x_k) = \alpha_n.
+\end{equation}
+Returning then to equation \ref{Eq: integral as a function of a0}, and inserting the expression \ref{Eq: for the coefficients a} for $n=0$.
+\begin{equation}
+\int_{a}^bR_{N-1}(x)dx = (b-a)\left( \sum\limits_{k=0}^{N-1}P_{0k}^{-1} R_{N-1}(x_k)\right).
+\end{equation}
+Remembering back to equation \ref{Eq:Q2n_1 and Rn_1} and labelling $\omega_k =(b-a)P_{0k}^{-1}$ as the weights, the final equation is arrived at:
+\begin{equation}
+\int_{a}^bf(x)dx \approx \int_{a}^bQ_{2N-1}(x)dx=\sum\limits_{k=0}^{N-1}\omega_k Q_{2N-1}(x_k)
+\end{equation}
+where $x_k$ are the $N$ zeros of the orthogonal polynomial of degree $N$, $Q_{2N-1}$ is the polynomial approximation of the original function $f(x)$ and $\omega_k$ are the associated weights.
+\subsubsection{Gauss- Legendre quadrature}
+Converting the integral in equation \ref{eq:correlationenergy} to the Cartesian coordinate system, meaning
+$$
+d{\bf r}_id{\bf r}_j =  \left( dx_i {\bf e}_x + dy_i {\bf e}_y +dz_i {\bf e}_z \right)\left( dx_j {\bf e}_x + dy_j {\bf e}_y +dz_j {\bf e}_z \right)
+$$
+which, because of the orthogonality of the basis vectors equals
+$$
+dx_idx_j{\bf e}_x \cdot {\bf e}_x +dy_idy_j{\bf e}_y \cdot {\bf e}_y +dz_idz_j{\bf e}_z \cdot {\bf e}_z
+$$
+$$
+dx_idx_j +dy_idy_j +dz_idz_j
+$$
+$$
+\iiiiiint\limits_{-\infty}^{\hspace{2.2mm}\infty} \frac{\exp \left( -4\left( \sqrt{x_1^2+y_1^2+z_1^2}+\sqrt{x_2^2+y_2^2+z_2^2} \right) \right)}{\sqrt{(x_1-x_2)^2+(y_1-y_2)^2+(z_1-z_2)^2}}dx_1 dx_2dy_1dy_2dz_1dz_2
+$$
+
+The Gauss- Legendre quadrature relies on the orthogonality of the Legendre polynomials in the domain $x \in [-1,1]$. Therefore it's necessary to replace infinity with other bounds that still yield suitable results. Then, only a simple change of variables is required to bring the integration bounds to $[-1, 1]$:
+$$
+\lim\limits_{t \rightarrow \pm \infty} f(t) \approx f(\pm \lambda) 
+$$
+change of variable $ t = \lambda \tau$:
+$$
+\int\limits_{-\lambda}^\lambda f(t)dt = \lambda \int\limits_{-1}^1 f(\lambda \tau)d\tau
+$$
+Using this fact for the relevant integral gives
+$$
+\lambda^5\iiiiiint\limits_{-1}^{\hspace{2.2mm}1} \frac{\exp \left( -4\lambda\left( \sqrt{\chi_1^2+\upsilon_1^2+\zeta_1^2}+\sqrt{\chi_2^2+\upsilon_2^2+\zeta_2^2} \right) \right)}{\sqrt{(\chi_1-\chi_2)^2+(\upsilon_1-\upsilon_2)^2+(\zeta_1-\zeta_2)^2}}d\chi_1 d\chi_2d\upsilon_1d\upsilon_2d\zeta_1d\zeta_2
+$$
+and then renaming the integrand
+\begin{equation}
+g(\chi_1 ,\chi_2,\upsilon_1,\upsilon_2,\zeta_1,\zeta_2) = \frac{\exp \left( -4\lambda\left( \sqrt{\chi_1^2+\upsilon_1^2+\zeta_1^2}+\sqrt{\chi_2^2+\upsilon_2^2+\zeta_2^2} \right) \right)}{\sqrt{(\chi_1-\chi_2)^2+(\upsilon_1-\upsilon_2)^2+(\zeta_1-\zeta_2)^2}}
+\end{equation}
+gives the final equation
+\begin{equation}
+\lambda^5\iiiiiint\limits_{-1}^{\hspace{2.2mm}1}g(\chi_1 ,\chi_2,\upsilon_1,\upsilon_2,\zeta_1,\zeta_2)d\chi_1 d\chi_2d\upsilon_1d\upsilon_2d\zeta_1d\zeta_2
+\end{equation}
+Gaussian quadrature 
 \subsection{Monte Carlo Integration}
 A different approach to solving integrals numerically is the use of Monte Carlo integration, where properties of probability distribution functions (PDFs) are used to approximate the solution. For any integral $\int_a^bf(x)dx$, one can find a PDF p(x) that fulfills  $\int_a^bp(x)dx=1$ that is nonzero $ \forall x\in [a,b]$ Then by the law of large numbers \cite{devore2012modern},
 $$\int_a^bf(x)dx=\int_a^bp(x)\frac{f(x)}{p(x)}dx=E[\frac{f(x)}{p(x)}]\approx \frac{1}{N}\sum_{i=1}^{N}\frac{f(x_i)}{p(x_i)}$$
@@ -76,12 +221,12 @@ The appropriate choice of a fitting PDF is crucial. Even though the above equati
 \subsection{Implementation}
 
 \subsubsection{Legendre polynomials}
-The first approach to solving the integral is to use Gauss-Legendre polynomials. As Legendre polynomials cannot be properly mapped to $(-\infty,\infty)$, it is necessary to define a threshold $\lambda$ where the function is "sufficiently" zero. Thus, the integral is only evaluated for $(-\lambda,\lambda)$ As can be seen in FIGURE XXX, the function approaches zero rather quickly, and $\lambda$=2 seems to be an appropriate choice. The integration limit is then changed to $[-2,2]$ for all 6 integrands. Numerical recipe's gauleg-function \cite{press1992numerical} then maps the weights from $[-1,1]$ to $[-2,2]$. Because any all the 6 variables in the integral are freely interchangeable, the the approximation then reads, 
+The first approach to solving the integral is to use Legendre polynomials. As Legendre polynomials cannot be properly mapped to $(-\infty,\infty)$, it is necessary to define a threshold $\lambda$ where the function is "sufficiently" zero. Thus, the integral is only evaluated for $(-\lambda,\lambda)$ As can be seen in FIGURE XXX, the function approaches zero rather quickly, and $\lambda$=2 seems to be an appropriate choice. The integration limit is then changed to $[-2,2]$ for all 6 integrands. Numerical recipe's gauleg-function \cite{press1992numerical} then maps the weights from $[-1,1]$ to $[-2,2]$. Because any all the 6 variables in the integral are freely interchangeable, the the approximation then reads, 
 $$\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}f(x_1,x_2,y_1,y_2,z_1,z_2)dx_1dx_2dy_1dy_2dz_1dz_2$$
 $$\approx\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}f(x_1,x_2,y_1,y_2,z_1,z_2)dx_1dx_2dy_1dy_2dz_1dz_2 $$
 $$\approx\sum_{i=1}^{N}\sum_{j=1}^{N}\sum_{k=1}^{N}\sum_{l=1}^{N}\sum_{m=1}^{N}\sum_{n=1}^{N}\omega_i\omega_j\omega_k\omega_l\omega_m\omega_nf(x_i,x_j,x_k,x_l,x_m,x_n)$$
 where $x_i$ and $\omega_i$ where created using the gauleg-function. 
-Computationally, this will lead to a total of $N^6$ function evaluations. A possible problem to face is that one will end up dividing by zero $N^3$ times. This problem can be faced by ignoring all function evaluations where the function's denominator is larger than a threshold, which was chosen to be $10^{-8}.$
+Computationally, this will lead to a total of $N^6$ function evaluations. A possible problem to face is that one will end up dividing by zero $N^3$ times. This problem can be faced by ignoring all function evaluations where the function's denominator is lower than a threshold, which was chosen to be $10^{-8}.$
 \subsubsection{Laguerre and Legendre polynomials}
 When transferred into spherical coordinates, the integral reads 
 
