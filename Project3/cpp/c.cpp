@@ -22,13 +22,13 @@ int main(int argc, char** argv){
   }
   std::random_device rd;
   std::mt19937_64 gen(rd());
-  std::uniform_real_distribution<double> RnG(0.0,1.0);
+  std::uniform_real_distribution<double> RnG(0.0,1.0); //Random number generator
   double lambda=2; //length of the box
   double int_mc=0.; double variance=0.;
-  double sum_sigma=0.; double sum_mc;
-  double x[6];
+  double sum_sigma=0.;
+  double x[6]; // In order to store 6 random numbers
   double fx;
-  double jacobi_det=pow(2*lambda,6);
+  double jacobi_det=pow(2*lambda,6); //The factor in front, calculation can be done in the end
   start=clock();
   for (int i=0;i<N;i++){
     for(int j=0;j<6;j++){
@@ -38,9 +38,9 @@ int main(int argc, char** argv){
     int_mc+=fx;
     sum_sigma+=fx*fx;
   }
-  int_mc=int_mc/N;
-  sum_sigma=sum_sigma/N;
-  variance=sum_sigma-int_mc*int_mc; // This is E(X^2)-E(X)^2
+  int_mc=int_mc/N;//*jacobi_det to get real result
+  sum_sigma=sum_sigma/N; //*jacobi-det² to get real result
+  variance=sum_sigma-int_mc*int_mc; // This is E(X^2)-E(X)^2 *jacobi_det^2 to get real result
   finish=clock();
   double ellapsed_time=((finish-start)/(float)CLOCKS_PER_SEC);
   double correct_result=5*3.14159265359*3.14159265359/(16*16);

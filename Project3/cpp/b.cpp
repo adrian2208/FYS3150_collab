@@ -8,6 +8,8 @@
 #define PI 3.14159265359
 using namespace std;
 void moveToLeft(double *arr,int N){
+  /*Takes an array of length N+1 and moves each element one "to the left". Thus, the 1. element is overwritten, and the Last
+  one occurs twice.*/
   for (int i=0;i<N;i++){
     arr[i]=arr[i+1];
   }
@@ -44,9 +46,7 @@ int main(int argc, char** argv){
            for (int m = 0;m<N;m++){
               for (int n = 0;n<N;n++){
                 add_var=omega_r[i]*omega_r[j]*omega_theta[k]*omega_theta[l]*omega_phi[m]*omega_phi[n]*
-                int_func_polar_gaulag(r[i],r[j],theta[k],theta[l],phi[m],phi[n]);
-                /*This is clearly only allowed because all 6 dimensions have the same dimensionality */
-                //cout <<"val of addvar " <<add_var<<endl;
+                int_func_polar_gaulag(r[i],r[j],theta[k],theta[l],phi[m],phi[n]); //evaluation of function times weights
                 int_gauss+=add_var;
      		      }
             }

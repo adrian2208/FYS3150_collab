@@ -9,7 +9,6 @@ using namespace std;
 int main(int argc, char** argv){
   ofstream outfile;
   outfile.open("../results/time_info.csv",ios::out | ios::app); //time-info file
-  //outfile<<"Type,Parrallelisation_flag,Amount_threads,N,Time_use,Result,relative_error,standard_deviation";
   int N;
   clock_t start, finish;
   if(argc>=2){
@@ -21,10 +20,10 @@ int main(int argc, char** argv){
   }
   double *x = new double[N];
   double *w=new double[N];
-  double lambda=2;
+  double lambda=2; //Threshold 
   double int_gauss=0.;
   double add_var;
-  gauleg(-lambda,lambda,x,w,N); // Calls the lib.cpp function gauleg // THIS  LOOKS LIKE GULAG
+  gauleg(-lambda,lambda,x,w,N); // Calls the lib.cpp function gauleg
   start=clock();
   for (int i=0;i<N;i++){
     for (int j = 0;j<N;j++){

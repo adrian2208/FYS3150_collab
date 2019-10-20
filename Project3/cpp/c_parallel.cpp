@@ -1,12 +1,10 @@
 #include "lib.h"
 #include "functions.hpp"
-//#include <algorithm>
 #include <mpi.h>
 #include <random>
 #include <math.h>
 #include <iomanip>
 #include <iostream>
-//#include <functional>
 using namespace std;
 
 int main(int argc, char** argv){
@@ -21,16 +19,15 @@ int main(int argc, char** argv){
 
   double lambda=2; //length of the box
   double int_mc=0.; double variance=0.;
-  double sum_sigma=0.; double sum_mc;
-  double x[6];
+  double sum_sigma=0.;
+  double x[6]; //In order to store 6 random numbers
   double fx;
   double jacobi_det=pow(2*lambda,6);
-  double int_mc_local=0,int_mc_total;
   double* local=new double[2];
   local[0]=0;local[1]=0;
   double* total=new double[2];
   long long int * val;
-  int local_start,local_end,numprocs,my_rank;
+  int numprocs,my_rank;
   double time_start,time_end,total_time;
   long long int counter;
   MPI_Init(&argc, &argv);
@@ -39,7 +36,7 @@ int main(int argc, char** argv){
   time_start=MPI_Wtime();
 
   std::random_device rd;
-  std::mt19937_64 gen(rd()+my_rank);
+  std::mt19937_64 gen(rd()+my_rank); //Each thread gets a different seed, as the rank is included
   std::uniform_real_distribution<double> RnG(0.0,1.0);
   time_start=MPI_Wtime();
   val=getParallelizationCoefficients(N,my_rank,numprocs,1);
@@ -56,9 +53,6 @@ int main(int argc, char** argv){
   local[0]=int_mc;
   local[1]=sum_sigma;
   MPI_Reduce(local,total,2,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-
-  //MPI_Reduce(&local[0],&total[0],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-  //MPI_Reduce(&local[1],&total[1],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   time_end=MPI_Wtime();
   delete [] val;delete [] local;
   total_time=time_end-time_start;

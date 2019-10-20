@@ -27,16 +27,14 @@ int main(int argc, char** argv){
   std::mt19937_64 gen(rd());
   std::uniform_real_distribution<double> RnG(0.0,1.0);
   double int_mc=0.0; double variance=0.0;
-  double sum_sigma=0.0; double sum_mc=0.0;
+  double sum_sigma=0.0;
   double x[6];
   double fx=0;
   double jacobi_det=4.0*pow(PI,4)/16.0;//pow(2*PI,2)*pow(PI,2)/16.0;'
-  double rand1;
-  double rand2;
   start=clock();
   for (int i=0;i<N;i++){
     for(int j=0;j<2;j++){
-      x[j]=-0.25*log(1.0-RnG(gen));
+      x[j]=-0.25*log(1.0-RnG(gen));//exponentially distributed
     }
     for(int j=2;j<4;j++){
       x[j]=PI*RnG(gen); // makes x[j] a random number between 0 and PI

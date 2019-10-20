@@ -10,9 +10,10 @@ def int_func(x1,x2,y1,y2,z1,z2):
         returnval= exponential_part/denom;
     return returnval;
 plt.ylim([0,5])
-x=linspace(-5,5,1100)
+x=linspace(-4,4,1100)
 y=[int_func(val,0,0,0,0,0) for val in x]
-print(y)
 plt.plot(x,y)
-plt.savefig("../plots/function.png")
+plt.xlabel(r"$x_1$")
+plt.ylabel(r"$f(x_1,0,0,0,0,0)$")
+plt.savefig("../plots/Function.pdf")
 plt.show()

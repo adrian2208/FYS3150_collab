@@ -21,33 +21,32 @@ int main(int argc, char** argv){
     exit(1);
   }
   double int_mc=0.0; double variance=0.0;
-  double sum_sigma=0.0; double sum_mc=0.0;
+  double sum_sigma=0.0;
   double x[6];
   double fx=0;
   double jacobi_det=4.0*pow(PI,4)/16.0;//pow(2*PI,2)*pow(PI,2)/16.0;'
 
-  double int_mc_local=0.0,int_mc_total;
+  double int_mc_local=0.0;
   double* local=new double[2];
   local[0]=0;local[1]=0;
   double* total=new double[2];
   long long int * val;
   int local_start,local_end,numprocs,my_rank;
   double time_start,time_end,total_time;
-  double each;
   long long int counter;
   MPI_Init(&argc, &argv);
   MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
   MPI_Comm_rank (MPI_COMM_WORLD,&my_rank);
   time_start=MPI_Wtime();
   std::random_device rd;
-  std::mt19937_64 gen(rd()+my_rank);
+  std::mt19937_64 gen(rd()+my_rank); //Each thread gets a different seed, as the rank is included
   std::uniform_real_distribution<double> RnG(0.0,1.0);
   val=getParallelizationCoefficients(N,my_rank,numprocs,1);
   counter=val[1];
   while(counter >0){
     counter--;
     for(int j=0;j<2;j++){
-      x[j]=-0.25*log(1.0-RnG(gen));
+      x[j]=-0.25*log(1.0-RnG(gen)); //exponentially distributed
     }
     for(int j=2;j<4;j++){
       x[j]=PI*RnG(gen); // makes x[j] a random number between 0 and PI
