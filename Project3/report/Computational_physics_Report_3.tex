@@ -82,15 +82,12 @@
 
 \listoffigures
 \listoftables
-
- 
 \clearpage
  
 \section{Abstract}
-Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. This integral is also applicable in other aspects of quantum mechanics \cite{Problem_set_3}. For this reason, it's of great value to examine different approaches to solving such integrals, as well as those with higher degrees of freedom. To solve this integral, two different approaches relying on Gaussian quadrature and Monte- Carlo integration were used, as well as the implementation of parallelization to speed up the programs.
+Determining the ground state correlation energy between two electrons in a helium atom can be done by evaluating a certain six- dimensional integral assuming that the electrons can be modelled separately, as two, single- particle wave functions of an electron in the hydrogen atom \cite{Problem_set_3}. This integral is also applicable in other aspects of quantum mechanics \cite{Problem_set_3}. For this reason, it's of great value to examine different approaches to solving such integrals, as well as those with higher degrees of freedom. To solve this integral, two different approaches relying on Gaussian quadrature and Monte- Carlo integration were used, as well as the implementation of parallelization to speed up the programs.\\\\Solely using Gauss- Legendre quadrature was found to be poor choice for this application as it's most applicable on finite intervals, however after a change of variables, using both Gauss- Legendre and Gauss- Laguerre quadrature gave good results.\\Both implementations of Monte- Carlo integration however, proved to be a lot more effective than Gaussian quadrature both in accuracy and time expenditure (see figure \ref{Error_time_use}). Especially when using importance sampling did the Monte- Carlo integration see a marked increase in accuracy with fewer mesh points.\\The addition of parallel computing sped the process up by over $350\%$ given $10^7$ mesh points. See figure \ref{N vs. relative time use}.
 \section{Introduction} 
-The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving a six- dimensional integral to examine their times expenditure and accuracy, as well as the effect of parallelizing the C++ implementations of these methods.
-
+The purpose of this article is to apply different versions of Gaussian quadrature and Monte- Carlo integration in solving a six- dimensional integral to examine their times expenditure and accuracy, as well as the effect of parallelizing the C++ implementations of these methods.\\\\Gauss- Legendre and Gauss- Laguerre quadrature takes advantage of two different sets of polynomials, orthogonal under some inner product, and applicable on two different types of intervals. By applying either the Gauss- Legendre quadrature or the Gauss- Laguerre quadrature to the integral (possibly after some change of variables or coordinate system), it's possible to benchmark each of their respective accuracies with the analytical result of the integral as well as compare their time expenditure.\\\\In addition, this article will examine the effectiveness of importance sampling in Monte- Carlo integration, its impact on time expenditure and how much faster it converges towards the real value.
 \section{Methods}
 The expectation value of the correlation energy between two electrons interacting under the Coulomb interacting is given by the integral
 \begin{equation}\label{eq:correlationenergy}
@@ -106,7 +103,7 @@ $$
 r_i = \sqrt{x_i^2+y_i^2+z_i^2}.
 $$
 $\alpha = 2$, corresponding to the charge of the nucleus of the helium atom as given by \cite{Problem_set_3}.
-\subsection{Gaussian quadrature}
+\subsection{Gaussian quadrature}\label{Gaussian quadrature}
 The method of Gaussian quadrature allows one to approximate a function $f(x)$ with a polynomial $P_{2N-1}(x)$ of degree $2n-1$, using only $N$ mesh points. Said polynomial is constructed using sets of orthogonal polynomials, meaning they have the property that
 \begin{equation}
 \int_a^b P_i(x)P_j(x)W(x)dx = C_{ij}\delta_{ij}
@@ -286,10 +283,15 @@ which, when defining the weights as $\omega_k = \textbf{L}_{0k}^{-1}$ gives the 
 \int_{0}^{\infty}W(x)g(x)dx \approx \sum\limits_{k=1}^N \omega_k g(x_k)
 \end{equation}
 and $\{x_k | k \in \{1,\cdots,N \}\}$ being the zeros of the Laguerre polynomial $L_N$ of degree $N$.
+Going back, equation \ref{Laguerre integral (r1) expresses as weight and function } can now be approximated as
+\begin{equation}
+C\int_{0}^{\infty}W(r_1)R(r_1)dr_1 \approx \sum\limits_{k=1}^N \omega_k R(r_1).
+\end{equation}
+The same is done for the variable $r_2$ of course, and as for the other variables; each of them can be approximated by the Gauss- Legendre quadrature with a simple change of variables as showcased in \ref{Gaussian quadrature}.
 \subsection{Monte Carlo Integration}
 A different approach to solving integrals numerically is the use of Monte Carlo integration, where properties of probability distribution functions (PDFs) are used to approximate the solution. For any integral $\int_a^bf(x)dx$, one can find a PDF p(x) that fulfills  $\int_a^bp(x)dx=1$ that is nonzero $ \forall x\in [a,b]$ Then by the law of large numbers \cite{devore2012modern},
 $$\int_a^bf(x)dx=\int_a^bp(x)\frac{f(x)}{p(x)}dx=E\left[\frac{f(x)}{p(x)}\right]\approx \frac{1}{N}\sum_{i=1}^{N}\frac{f(x_i)}{p(x_i)}$$
-where N is a very large number and $x_i$ are random samples from the given PDF.\\
+where N is a very large number and $x_i$ are $N$ random samples from the given PDF.\\
 The variance is then given by
 \[
 \sigma^2=\frac{1}{N}\sum_{i=1}^{N}\left(\left( \frac{f(x_i)}{p(x_i)}\right)-E \left[\frac{f(x)}{p(x)} \right]\right)^2 p(x_i)=E\left[ \left( \frac{f(x)}{p(x)}\right)^2\right]-E\left[\frac{f(x)}{p(x)}\right]^2
@@ -298,29 +300,27 @@ It can then be shown \cite{devore2012modern} that the standard error of the mean
 $$
 \sigma_N \approx \frac{\sigma}{\sqrt{N}}
 $$
-Thus, the error is a function of $\frac{1}{\sqrt{N}}$. This is does not depend on the dimensionality of the integral to be evaluated, making Monte Carlo methods very effective for integrals in higher dimensions.
+Thus, the error is a function of $\frac{1}{\sqrt{N}}$. This is not dependent on the dimensionality of the integral to be evaluated, making Monte Carlo methods very effective for integrals in higher dimensions.
 For Monte Carlo integration in more than one dimension, the only thing that needs to be changed is that each variable needs it's own independent PDF. For two variables x and y, for example, we have that 
 $$\int_a^bf(x,y)dxdy=\int_a^bp_1(x)p_2(y)\frac{f(x,y)}{p_1(x)p_2(y)}dxdy=E\left[\frac{f(x,y)}{p_1(x)p_2(y)}\right]$$
 $$\approx \frac{1}{N}\sum_{i=1}^{N}\frac{f(x_i,y_i)}{p_1(x_i)p_2(y_i)}$$
 where N is a very large number and $x_i, y_i$ are random samples from their respective PDFs.\\
 The appropriate choice of a fitting PDF is crucial. Even though the above equations hold true for any PDF, choosing a PDF p(x) that closely follows our function f(x), leads to a better sampling of $x_i$ \cite{devore2012modern} and decreases the standard deviation. Thus, the real integral is approached much faster.\\
-In order to generate random variables $x_i$ that have the same distribution like $p(x)$, we require that the cumulative distribution function (CDF) P(x) belonging to p(x) is invertible. We have then that $P^{-1}(U)$, where u is standard uniformly distributed, generates random variables $x_i$ that have the same distribution as p(x). See appendix for a proof.\\
-Standard uniformly distributed random variables can be generated with a random number generator. 
-
-\subsection{Implementation}
+In order to generate random variables $x_i$ that have the same distribution like $p(x)$, we require that the cumulative distribution function (CDF) P(x) belonging to p(x) is invertible. We have then that $P^{-1}(U)$, where $U$ is standard uniformly distributed, generates random variables $x_i$ that have the same distribution as p(x). See appendix for a proof.\\
+Standard uniformly distributed pseudo- random variables can be generated with a random number generator. 
 \subsection{Application}
 \subsubsection{Legendre polynomials}
 The first approach to solving the integral is to use Legendre polynomials. As Legendre polynomials cannot be properly mapped to $(-\infty,\infty)$, it is necessary to define a threshold $\lambda$ where the integrand is "sufficiently" zero. Thus, the integral is only evaluated for $(-\lambda,\lambda)$ As can be seen in Figure 1, the integrand approaches zero rather quickly, and $\lambda$=2 seems to be an appropriate choice.
 \begin{figure}[H]
 \centering
-\includegraphics[width=12cm]{Function.pdf}
+\includegraphics[width=11cm]{Function.pdf}
 \caption[Plot of function]{Plot of the integrand as a function of $x_1$ when $x_2=y_1=y_2=z_1=z_2=0$.}
 \end{figure}
-The integration limit is then changed to $[-2,2]$ for all 6 integrands. It is then possible to map the Legendre functions from $[-1,1]$ to $[-2,2]$. Because any all the 6 variables in the integral are freely interchangeable, the approximation then reads,
+The integration limit is then changed to $[-2,2]$ for all 6 integrands. It is then possible to map the Legendre functions from $[-1,1]$ to $[-2,2]$. Because any of the 6 variables in the integral are freely interchangeable, the approximation then reads,
 $$\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}\int_{-\infty}^{\infty}f(x_1,x_2,y_1,y_2,z_1,z_2)dx_1dx_2dy_1dy_2dz_1dz_2$$
 $$\approx\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}\int_{-2}^{2}f(x_1,x_2,y_1,y_2,z_1,z_2)dx_1dx_2dy_1dy_2dz_1dz_2 $$
 $$\approx\sum_{i=1}^{N}\sum_{j=1}^{N}\sum_{k=1}^{N}\sum_{l=1}^{N}\sum_{m=1}^{N}\sum_{n=1}^{N}\omega_i\omega_j\omega_k\omega_l\omega_m\omega_nf(x_i,x_j,x_k,x_l,x_m,x_n)$$
-where $x_i$ and $\omega_i$ are the weights and the mesh points from the Gaussian quadrature using Legendre polynomials.
+where $x_i$ and $\omega_i$ are the weights and the mesh points from the Gauss- Legendre quadrature.
 This will lead to a total of $N^6$ function evaluations. A possible problem to face is that one will end up dividing by zero $N^3$ times. This problem can be faced by ignoring all function evaluations where the function's denominator is lower than a threshold, which was chosen to be $10^{-8}$.
 \subsubsection{Laguerre and Legendre polynomials}
 When transferred into spherical coordinates, the integral reads
@@ -362,8 +362,8 @@ where $r_{i,1},r_{i,2}$ are exponentially distributed with a factor 4;  $\theta_
 $$x_i=-\frac{1}{4}ln(1-u_i)$$
 where $u_i$ is standard uniformly distributed. Again, all function evaluations where the denominator is smaller than $10^{-8}$, are ignored.
 \subsection{Computational implementation}
-The computational implementation of the formulas that were found was rather straightforward. For the Legendre polynomials, Numerical Recipe's ${\textit{gauleg}}$ function was used to fill to arrays of size N with the mesh points and weights, for the Laguerre polynomials, we used Numerical Recipe's ${\textit{gaulag}}$ function. The 6-fold sums were then implemented as 6-fold loops.\\
-For the Monte Carlo integration, we used the Mersenne Twister random number generator to create standard uniformly distributed numbers and transformed them according to the earlier described process. We tested both the Laguerre polynomials, the Lagrange polynomials and Monte Carlo integration on example integrals to make sure that everything works as predicted. We then used Python scripts to analyze and plot the data we have gotten.
+The computational implementation of the formulas that were found was rather straightforward. For the Legendre polynomials, Numerical Recipe's ${\textit{gauleg}}$ function was used to fill to arrays of size N with the mesh points and weights, for the Laguerre polynomials, we used Numerical Recipe's ${\textit{gaulag}}$ function \cite{press1992numerical}. The 6-fold sums were then implemented as 6-fold loops.\\
+For the Monte Carlo integration, we used the Mersenne Twister random number generator to create standard uniformly distributed numbers and transformed them according to the earlier described process. We tested both the Laguerre polynomials, the Lagrange polynomials and Monte Carlo integration on example integrals to make sure that everything works as predicted. We then used Python scripts to analyse and plot the data we have gotten.
 \subsubsection{Parallelization}
 Because each of the 4 approaches calculates terms in a sum that are independent of each other, it is easy to parallelize the code. We made a parallelized version of each of the 4 approaches as well. The code was parallelized using MPI, and a flexible function was created by us to make sure that each thread gets the same amount of workload. The 6-fold for loops used in the Gaussian quadrature were replaced by a single while-loop with multiple if-else clauses that essentially do the same.
 
@@ -371,8 +371,6 @@ Because each of the 4 approaches calculates terms in a sum that are independent 
 \subsection{Legendre polynomials}
 The results achieved using Legendre polynomials with a cutoff $\lambda=2$, as well as time use for both the parallelized and the non-parallelized case, and the deviation from the correct result, can be found in table 1.
 
-
-\begin{comment}
 \begin{table}[H]
 \caption[Cartesian Quadrature using Legendre polynomials]{Achieved results, relative error, time-usage in seconds (averaged over 5 simulations, but for n=55 and n=65)for both the nonparallel and the parallel program (without optimization flags) as well as standard error for integration using Legendre polynomials. }
 \begin{tabular}{|l|l|l|l|l|}
@@ -390,14 +388,10 @@ N          & Result   & Relative Error & \pbox{10cm}{time {[}s{]}\\ parallelized
 \end{tabular}
 \end{table}
 
-\end{comment}
-
 Even though the relative error tends to get smaller for larger values of N, even with N=65, there is a divergence between the analytical and the numerical result. Choosing a different threshold $\lambda$ might improve the result, as would larger values of N. One interesting aspect is that, for specific values of N ($N=15$, $N=25$), one gets more correct results than for larger values of n. This is presumably caused by us ending up getting "lucky" mesh points and weights. However, none of the results give close results, and the error is in the third decimal.
 \subsection{Laguerre and Legendre polynomials}
 
 The results achieved using Laguerre Polynomials for the radial parts and Legendre polynomials for the angle parts of the spherical integral as well as time use for both the parallelized and the nonparallelized case, and the deviation from the correct result, can be found in table 2.
-
-\begin{comment}
 
 \begin{table}[H]
 \caption[Spherical Quadrature using Laguerre polynomials]{Achieved results, relative error, time-usage in seconds (averaged over 5 simulations, but for n=55 and n=65)for both the nonparallel and the parallel program (without optimization flags) as well as standard error for integration using Laguerre polynomials (for the radial parts).}
@@ -416,14 +410,9 @@ N         & Result   & Relative Error & \pbox{10cm}{time {[}s{]}\\ parallelized}
 \end{tabular}
 \end{table}
 
-\end{comment}
-
-
 Compared to the Cartesian Legendre polynomials case, even quite small values of N give good estimates for the total result. However, for larger values of N, we did not achieve much better results than with using Legendre polynomials, which is surprising, given that the correct integration limits are taken into account. It is also quite interesting to see that evaluating the Laguerre polynomials takes roughly 3 times as much time as the Legendre polynomials. This might be caused by the computer system having to look up in different arrays, or by the more complex function that is evaluated. Again,for $N=15$, one gets a surprisingly correct result, which is presumably caused by lucky mesh points.
 \subsection{Cartesian Monte Carlo without importance sampling}
-The results achieved using Monte Carlo simulation and uniform distributions for Catesian coordinates as well as time use for both the parallelized and the nonparallelized case, and the deviation from the correct result and the standard error $\sigma^2/\sqrt{N}$, can be found in table 3.
-
-\begin{comment}
+The results achieved using Monte Carlo simulation and uniform distributions for Cartesian coordinates as well as time use for both the parallelized and the nonparallelized case, and the deviation from the correct result and the standard error $\sigma^2/\sqrt{N}$, can be found in table 3.
 
 \begin{table}[H]
 \caption[Cartesian Monte Carlo without importance sampling]{Achieved results, relative error, time-usage in seconds (averaged over 5 simulations) for both the nonparallel and the parallel program (without optimization flags) as well as standard error for different values of N for Cartesian Monte Carlo without importance sampling. The result with the median relative error is presented, the standard error is calculated from the averaged variance over 5 runs.}
@@ -440,14 +429,10 @@ $10^9$ & 0.192261 & 0.00261722 & 91.32978     & -         & 0.0003159 \\ \hline
 \end{tabular}
 \end{table}
 
-\end{comment}
-
 As expected, larger values of N lead to more correct results, and the standard error goes down (but for $N=10^4$, where the result is completely off. However, this only happened for one of the 5 simulations).
 Compared to the Legendre polynomials, that solve exactly the same integral, the results are closer to the real result. However, the result for for $N=10^9$, which is $0.192261$, is more than one standard error smaller than the analytical solution, which can give the wrong impression that this wrong result indeed is correct. This is due to the fact that parts of the integral are omitted. Choosing a larger threshold value $\lambda$ would likely lead to a more correct result, but we did not test this further. 
 \subsection{Spherical Monte Carlo with importance sampling}
 The results achieved using Monte Carlo simulation with importance sampling as described earlier in spherical coordinates as well as time use for both the parallelized and the nonparallelized case, and the deviation from the correct result and the standard error $\sigma^2/\sqrt{N}$, can be found in table 4.
-
-\begin{comment}
 
 \begin{table}[H]
 \caption[Spherical Monte Carlo with importance sampling]{Achieved results, relative error, time-usage in seconds (averaged over 5 simulations) for both the nonparallel and the parallel program (without optimization flags) as well as standard error for Cartesian Monte Carlo with importance sampling.  The result with the median relative error is presented, the standard error is calculated from the averaged variance over 5 runs.}
@@ -464,41 +449,37 @@ $10^9$ & 0.192784 & 9.70237E-05 & 141.535      & -       & 3.287$\cdot10^{-5}$\\
 \end{tabular}
 \end{table}
 
-\end{comment}
-
 As expected, increasing N leads to more correct results. Compared to the other methods, this method leads to the most correct result, and we ended up having $0.192784\pm 3.287\cdot10^{-5}$ as our final result.Even for comparatively small values of N, such as $N=10^7$, the achieved result is closer to the analytical solution, and for  $N=10^9$, the standard error is in the magnitude of $N=10^{-5}$, with a result that is close enough to the analytical solution to be used further.
 \subsection{Time usage and parallelization}
 Figure 2 plots the relative error (in log-scale) of the different algorithms against the time use (in log-scale) for the parallelized algorithms.
 \begin{figure}[H]
 \centering
-\includegraphics[width=12cm]{Error_time_use.pdf}
-\caption[Time vs. relative error]{Time usage [s] of parallelized algorithms plotted against the methods' relative error. Logarithmic scales for both axes were used. The data from the tables 1-4 was used.}
+\includegraphics[width=11cm]{Error_time_use.pdf}
+\caption[Time vs. relative error]{Time usage [s] of parallelized algorithms plotted against the methods' relative error. Logarithmic scales for both axes were used. The data from the tables 1-4 was used.}\label{Error_time_use}
 \end{figure}
 This graph clearly shows that both Monte Carlo approaches lead to better results than the Gaussian quadrature methods, but for the "lucky" result in the Laguerre results. It also shows that clever importance sampling can further decrease the relative error in a magnitude of almost $10^{-2}$, compared to the  other Monte Carlo approach. It also gives the impression that neither of the quadrature approaches would lead to much better results, even upon increasing N, while the Monte Carlo methods, especially the one with importance sampling, could decrease the error even further. It should be mentioned that a possible reason why the Monte Carlo approach without importance sampling gives a worse result for it's most time consuming calculation (with $N=10^9$), might be due to the way the represented value was chosen - the median value. \\\\
 Figure 3 plots the value N against the relative difference in time use when the nonparallelized algorithm is compared to the parallelized algorithm for the Monte Carlo case with importance sampling.
 \begin{figure}[H]
 \centering
-\includegraphics[width=12cm]{Relative_difference_time.pdf}
-\caption[N vs. relative time use]{N (logarithmic scale) plotted against the relative difference in time use between the nonparallelized and the parallelized algorithm. Data from table 4 was used.}
+\includegraphics[width=11cm]{Relative_difference_time.pdf}
+\caption[N vs. relative time use]{N (logarithmic scale) plotted against the relative difference in time use between the nonparallelized and the parallelized algorithm. Data from table 4 was used.}\label{N vs. relative time use}
 \end{figure}
 One can clearly see how parallelization, or at least the way we implemented it, does not give faster results for small values of N. To the contrary, for N up to $10^4$, parallelization increases the average run time. However, for larger values of N, such as $10^8$, parallelization makes the program run 3 to 3.5 times faster. This is less than theoretically possible (one could get a boost of up to 4 on 4 identical CPU cores), but still clearly justifies the process of parallelizing a program, especially when the run times are large. The other 3 approaches gave similar results, as can be seen in tables 1-3. The reason why no perfect time enhancement was achieved probably lies in an imperfect implementation, as each process has to run some functions, that in theory do not need to be re-run several times, and in that only the time-sensitive parts are parallelized.\\\\
 We also tested the impact of the "-O3" parallelization flag on the run time. The results can be seen in figure 4:
 \begin{figure}[H]
 \centering
-\includegraphics[width=12cm]{Parrallelisation_flag.pdf}
+\includegraphics[width=11cm]{Parrallelisation_flag.pdf}
 \caption[Vectorization flags]{N (logarithmic scale) plotted against the relative difference in time use between the non-vectorized and the vectorized program. }
 \end{figure}
 The "-O3"-flag seems to have a small, but not negligible impact on the run time of both the parallelized and the non-parallelized code, and for large N, the compiler flag seems to give an additional speed boost.
 However, that behaviour is quite erratic, and the time improvement is very small, making this data not completely reliable. It is possible that careful coding of loops could improve these results.
 \section{Conclusion}
-
-\section{Critique}
-
+The application of Gauss- Legendre quadrature was for this particular integral, a poor choice. In this instance, errors were introduced at several points. When approximating the function value of the integrand to be zero at inputs greater that 2, and when approximating the function by a polynomial of degree $2N-1$.\\Instead, by using the more appropriate choice of the Gauss- Laguerre quadrature, for the two radial variables; those ranging from zero to infinity and Gauss- Legendre for the remaining variables through a change of variables. Errors are only introduced in approximating the function values with that of polynomials of degree $2N-1$.\\\\Monte- Carlo integration is an excellent choice for six- dimensional integrals and higher, as the error scales with $\frac{1}{\sqrt{N}}$ for a number of mesh points $N$ regardless of the dimensionality of the integral. The choice of whether or not to tailor the PDF to suit the integrand, proved to have a tremendous effect on the time expenditure and accuracy of the program, with importance sampling accounting for an approximately  $97\%$ decrease in relative error, measured at $N = 10^9$ mesh points. See appendix(\ref{Monte- Carlo relative error improvement}), but also an approximately $55\%$ increase in time expenditure (measured for the parallelized programs at $N = 10^9$. See appendix (\ref{Monte- Carlo time increase}).\\\\The implementation of parallelization proved to be especially worth while for $N>10^5$ as is seen in figure \ref{N vs. relative time use}. The speed up should on the surface be 4 times greater on computers with quad- core computer chips, however factors such as writing and fetching to and from memory impacts this effect negatively, especially when moving from fast to slow memory. The effect could still be primarily because of a potentially non- optimal implementation of parallelization flags.
 \section{Appendix}
 \subsection{Proof that \textbf{L} is invertible}\label{Proof that big ass matrix is invertible}
 For the matrix $\textbf{L}$ in equation \ref{Big ass matrix}; each column is constructed of constants multiplied with the Laguerre polynomial $L_n$ for each row in column $n$. With the Laguerre polynomials being orthogonal with respect to the inner product
 \begin{equation}
-\braket{L_n|L_m} = \int\limits_0^\infty x^\alpha e^{-x} L_n(x) L_m(x) dx = \delta_{mn}
+\braket{L_n|L_m} = \int\limits_0^\infty  e^{-x} L_n(x) L_m(x) dx = \delta_{mn}
 \end{equation}
 no column can be expressed as a linear combination of any of the others (at least not for $x \in [0,\infty]$, so \textbf{L} is an $N\times N$ matrix with $N$ linearly independent columns. As such it is necessarily non-singular and therefore, must be invertible.
 \subsection{Proof that $F^{-1}(U)$ has cumulative function F(x)}
@@ -507,6 +488,18 @@ Let U be standard uniformly distributed and let G be it's CDF, that is, $G(u)=u$
 Assume that $X=F^{-1}(U)$. Then
 $$F(x)=P(X\leq x)=P(F^{-1}(U)\leq x)=P(U\leq F(x))=G(F(x))=F(x) 
 $$ 
+\subsection{Monte- Carlo relative error improvement with importance sampling}\label{Monte- Carlo relative error improvement}
+Relative error in the Monte- Carlo method with and without importance sampling at $N = 10^9$
+$$
+\frac{0.00261722-0.0000970237}{0.00261722}\cdot 100 \approx 96.3\%.
+$$
+The absolute error decreased by approximately $96.3\%$ when implementing importance sampling at $N = 10^9$.
+\subsection{Monte- Carlo time expenditure increase with importance sampling}\label{Monte- Carlo time increase}
+The increased time expenditure for Monte- Carlo with importance sampling at $N = 10^9$
+$$
+\frac{141.535-91.330}{91.330}\cdot 100 \approx 55\%.
+$$
+The time expenditure increased by approximately $55\%$ when implementing importance sampling at $N = 10^9$.
 \subsection{List of programs}
 All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} in the folder "project 3".
 
@@ -529,33 +522,7 @@ All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} 
 \item[15.] plot\_function.py - Plots the function.
 \end{itemize}
 
-\subsection{Tables}
 \bibliographystyle{Plain}
 \bibliography{citations}
-
-
-
-\begin{comment}
-
-$$
-\begin{bmatrix}
-0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 \\
-\end{bmatrix}
-$$
-
-\begin{lstlisting}[caption=insert caption]
-for (unsigned int i = 0; i<100;i++{
-}
-\end{lstlisting}
-
-\begin{figure}[h]
-\includegraphics[width=8cm]{}
-\caption{include caption}
-\end{figure}
-
-\end{comment}
 
 \end{document}
