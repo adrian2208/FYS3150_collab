@@ -119,6 +119,16 @@ int main(int argc, char** argv){
     result_energySquared+=energy*energy;
     result_magnetSquared+=magnet*magnet;
     result_magnetAbs+=fabs(magnet);
+    result_magnet+=magnet;
   }
-  cout <<"Absolute magnet: " <<result_magnetAbs/amount <<"Magnet: " <<result_magnet/amount << "Energy: " << result_energy/amount<<endl;
+  result_energy=result_energy/amount;
+  result_magnet=result_magnet/amount;
+  result_magnetAbs=result_magnetAbs/amount;
+  result_energySquared=result_energySquared/amount;
+  result_magnetSquared=result_magnetSquared/amount;
+  double stdev_energy=sqrt(result_energySquared-result_energy*result_energy);
+  double stdev_magnet=sqrt(result_magnetSquared-result_magnet*result_magnet);
+  double stdev_magnetAbs=sqrt(result_magnetSquared-result_magnetAbs*result_magnetAbs);
+  cout <<"Absolute magnet: " <<result_magnetAbs <<"Magnet: " <<result_magnet << "Energy: " << result_energy<<endl;
+  cout << "result_magnetSquared: " <<result_magnetSquared<<" result_energySquared: "<<result_energySquared<<endl;
 }
