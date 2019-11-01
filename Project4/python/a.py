@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 A=np.zeros((2,2),dtype=int)
 E_avg=0
 E_squared=0
@@ -8,6 +9,8 @@ M_abs_avg=0
 M_squared=0
 
 T=10
+if len(sys.argv)>1:
+	T=float(sys.argv[1])
 beta=1/T
 energies=[]
 magnetics=[]
@@ -15,7 +18,12 @@ def calculate_energy(A):
 	return -(2*A[0,0]*A[0,1]+2*A[0,0]*A[1,0]+2*A[1,0]*A[1,1]+2*A[0,1]*A[1,1])
 def calculate_magnetic(A):
 	return A[0][0]+A[0][1]+A[1][0]+A[1][1]
-
+def calculate_Cv(E_avg,E_squared):
+	pass
+	return (E_squared-E_avg**2)/(T**2)
+def calculate_Xi(M_avg,M_squared):
+	return (M_squared-M_avg**2)/(T)
+	pass
 for i in range(-1,2,2):
 	for j in range(-1,2,2):
 		for k in range(-1,2,2):
@@ -36,4 +44,7 @@ for i in range(len(energies)):
 	M_abs_avg=M_abs_avg+np.exp(-beta*energies[i])*np.abs(magnetics[i])
 	M_squared=M_squared+np.exp(-beta*energies[i])*magnetics[i]**2
 E_avg/=Z;E_squared/=Z;M_avg/=Z;M_abs_avg/=Z;M_squared/=Z;
+Cv=calculate_Cv(E_avg,E_squared)
+Xi=calculate_Xi(M_avg,M_squared)
 print("Average Energy: %.5f\nAverage Magnetisation: %.5f\nAverage absolute magnetisation: %.5f\nE**2: %.5f\nM**2: %.5f"%(E_avg,M_avg,M_abs_avg,E_squared,M_squared))
+print("Cv:%f \nXi:%f\n"%(Cv,Xi))
