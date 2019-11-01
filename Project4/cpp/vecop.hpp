@@ -2,6 +2,7 @@
 #include <cmath>
 #include <string>
 #include <iomanip>
+#include <random>
 using namespace std;
 int** createNNMatrix_int(int n);
 void deleteNNMatrix_int(int** A,int n);
@@ -26,3 +27,5 @@ void jacobi_diag(double **A,double **R, int n, double tol);
 int jacobi_diag2(double **A,double **R, int n, double tol);
 
 double ** copyMatrix(double**A,int n);
+int ** setUpUpMatrix(int n);
+int** setUpRandomMatrix(int n);

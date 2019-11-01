@@ -1,5 +1,6 @@
 #include "vecop.hpp"
 using namespace std;
+
 string createFileName(string name,double n){
   return name.append(to_string(n)).append(".txt");
 }
@@ -256,4 +257,35 @@ void printMatrix(double **A, int n){
     }
     cout << endl;
   }
+}
+
+
+
+
+
+int ** setUpUpMatrix(int n){
+  int **A=createNNMatrix_int(n);
+  for (int i=0; i<n; i++){
+    for(int j=0;j<n;j++){
+      A[i][j]=1;
+    }
+  }
+  return A;
+}
+int** setUpRandomMatrix(int n){
+  std::random_device rd;
+  std::mt19937_64 gen(rd()); //Each thread gets a different seed, as the rank is included
+  std::uniform_real_distribution<double> RnG(0.0,1.0);
+  int **A=createNNMatrix_int(n);
+  for (int i=0; i<n; i++){
+    for(int j=0;j<n;j++){
+      if (RnG(gen)>0.5){
+        A[i][j]=1;
+      }
+      else{
+        A[i][j]=-1;
+      }
+    }
+  }
+  return A;
 }
