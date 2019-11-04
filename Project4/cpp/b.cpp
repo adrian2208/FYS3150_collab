@@ -4,11 +4,33 @@
 #include <random>
 #include <cmath>
 #include <fstream>
+
 using namespace std;
 int getPeriodic(int i, int n){
   return (i+n)%n;
 }
-
+void append_to_file(int total,int matrix_size,double temp, double *results, ofstream* ofile){ // Writes relevant data (per spin particle) to file
+  int num_spins=matrix_size*matrix_size;
+  double result_energy=results[0]/total;
+  double result_magnet=results[2]/total;
+  double result_magnetAbs=results[4]/total;
+  double result_energySquared=results[1]/total;
+  double result_magnetSquared=results[3]/total;
+  double energy_variance = (result_energySquared- result_energy*result_energy)/num_spins;
+  double Mvariance = (result_magnetSquared - result_magnet*result_magnet)/num_spins;
+  double xi=Mvariance/temp;
+  double cv=energy_variance/(temp*temp);
+  *ofile << setiosflags(ios::showpoint | ios::uppercase);
+  *ofile << setprecision(8) << total<<",";
+  *ofile << setprecision(8) << matrix_size<<",";
+  *ofile << setprecision(8) << temp<<",";
+  *ofile << setprecision(8) << result_energy/num_spins<<",";
+  *ofile << setprecision(8) << cv<<",";
+  *ofile << setprecision(8) << result_magnet/num_spins<<",";
+  *ofile << setprecision(8) << xi<<",";
+  *ofile << setprecision(8) << result_magnetAbs/num_spins << endl;
+  (*ofile).close();
+}
 int findStartEnergy(int** A, int n){
   int tot_eng=0; // Total energy
   for (int i=0;i<n-1;i++){
@@ -44,13 +66,7 @@ int findStartMagnetization(int** A, int n){
   }
   return tot_mag;
 }
-/*
-void random_permute(int** A,int n,int* swap_positions,double* RnG(mt19937_64),mt19937_64* gen){
-  swap_positions[0]=(int) (((*RnG)(*gen)) * n);
-  swap_positions[1]=(int) (((*RnG)(*gen)) * n);
-  A[swap_positions[0]][swap_positions[1]]*=-1;
-}
-*/
+
 int main(int argc, char** argv){
   std::random_device rd;
   std::mt19937_64 gen(rd());
@@ -82,19 +98,25 @@ int main(int argc, char** argv){
   double* absolute_magnetisations=new double[amount/when_dump];
   long long int* i_values=new long long int[amount/when_dump];
   long long int* accepted_configurations_arr=new long long int[amount/when_dump];
+  int warmUp=1000000; // How many runs are "ignored" before the system is in equilibrium
   if(argc>4){
     all_results_write=true;
+    warmUp=0; //In case I want to write the intermediate results, I do not need the warmup time.
   }
   double exponents[17];
   for(int i=-8;i<=8;i+=4){
     exponents[i+8]=exp(-i/temp);
   }
-  //int ** A=setUpRandomMatrix(n);
-  int ** A=setUpUpMatrix(n);
+  int ** A=setUpRandomMatrix(n);
+  //int ** A=setUpUpMatrix(n);
   int magnet=findStartMagnetization(A, n);
   int energy=findStartEnergy(A, n);
   int swap_i,swap_j;
   int deltaE,deltaM,newSpin;
+  double * results=new double[5]; //Sum of energies, sum of energies squared, magnetical moment, magnetical moment squared, absolute magnetical moment
+  for(int i=0;i<5;i++){
+    results[i]=0;
+  }
   double result_energy=0,result_magnet=0,result_energySquared=0,result_magnetSquared=0,result_magnetAbs=0;
 
   for(int i=0;i<amount;i++){
@@ -109,28 +131,30 @@ int main(int argc, char** argv){
       energy+=deltaE;
       accepted_configurations++;
     }
-    result_energy+=energy;
-    result_energySquared+=energy*energy;
-    result_magnetSquared+=magnet*magnet;
-    result_magnetAbs+=fabs(magnet);
-    result_magnet+=magnet;
+    if (i>=warmUp){ // When the system is done equilbriating
+      results[0]+=energy;
+      results[1]+=energy*energy;
+      results[3]+=magnet*magnet;
+      results[4]+=fabs(magnet);
+      results[2]+=magnet;
+    }
     if(all_results_write && (i%when_dump==0)){ //When I want to write to file, and i is a multiple of "when_dump"
       index=i/when_dump;
       i_values[index]=i;
       accepted_configurations_arr[index]=accepted_configurations;
       if(index==0){
-        energies[index]=result_energy;
-        absolute_magnetisations[index]=result_magnet;
+        energies[index]=results[0];
+        absolute_magnetisations[index]=results[2];
 
       }
       else{
-        energies[index]=(result_energy)/(double)(i);
-        absolute_magnetisations[index]=result_magnetAbs/(double)(i);
+        energies[index]=results[0]/(double)(i);
+        absolute_magnetisations[index]=results[4]/(double)(i);
       }
     }
   }
-  deleteNNMatrix_int(A,n);
-  if(all_results_write){
+  deleteNNMatrix_int(A,n); // Free matrix space
+  if(all_results_write){ //If everything is to be written to file
     all_results <<"Temperature,matrix_size,index,energies,magnetisation,accepted_configurations";
     for(int i=0;i<amount/when_dump;i++){
       all_results <<"\n"<<temp<<","<<n<<","<<  i_values[i]<<","<<energies[i]<<","<<absolute_magnetisations[i]<<","<<accepted_configurations_arr[i];
@@ -138,17 +162,5 @@ int main(int argc, char** argv){
   }
   delete [] energies;
   all_results.close();
-  result_energy=result_energy/amount;
-  result_magnet=result_magnet/amount;
-  result_magnetAbs=result_magnetAbs/amount;
-  result_energySquared=result_energySquared/amount;
-  result_magnetSquared=result_magnetSquared/amount;
-  double stdev_energy=sqrt(result_energySquared-result_energy*result_energy);
-  double stdev_magnet=sqrt(result_magnetSquared-result_magnet*result_magnet);
-  double stdev_magnetAbs=sqrt(result_magnetSquared-result_magnetAbs*result_magnetAbs);
-  single_results <<"\n"<<temp<<","<<n<<","<<amount<<","<<result_energy<<","<<stdev_energy<<",";
-  single_results <<result_magnet<<","<<stdev_magnet<<","<<result_magnetAbs<<","<<stdev_magnetAbs;
-  single_results.close();
-  cout <<"Absolute magnet: " <<result_magnetAbs <<"Magnet: " <<result_magnet << "Energy: " << result_energy<<endl;
-  cout << "result_magnetSquared: " <<result_magnetSquared<<" result_energySquared: "<<result_energySquared<<endl;
+  append_to_file(amount-warmUp,n,temp,results,&single_results);
 }
