@@ -19,11 +19,10 @@ def calculate_energy(A):
 def calculate_magnetic(A):
 	return A[0][0]+A[0][1]+A[1][0]+A[1][1]
 def calculate_Cv(E_avg,E_squared):
-	pass
-	return (E_squared-E_avg**2)/(T**2)
+	Evar=(E_squared-E_avg**2)/4
+	return Evar/(T**2)
 def calculate_Xi(M_avg,M_squared):
-	return (M_squared-M_avg**2)/(T)
-	pass
+	return (M_squared-M_avg**2)/4/(T)
 for i in range(-1,2,2):
 	for j in range(-1,2,2):
 		for k in range(-1,2,2):
@@ -46,5 +45,6 @@ for i in range(len(energies)):
 E_avg/=Z;E_squared/=Z;M_avg/=Z;M_abs_avg/=Z;M_squared/=Z;
 Cv=calculate_Cv(E_avg,E_squared)
 Xi=calculate_Xi(M_avg,M_squared)
-print("Average Energy: %.5f\nAverage Magnetisation: %.5f\nAverage absolute magnetisation: %.5f\nE**2: %.5f\nM**2: %.5f"%(E_avg,M_avg,M_abs_avg,E_squared,M_squared))
+E_avg/=4;M_avg/=4;
+print("Average Energy: %.5f\nAverage Magnetisation: %.5f\nAverage absolute magnetisation: %.5f"%(E_avg,M_avg,M_abs_avg))
 print("Cv:%f \nXi:%f\n"%(Cv,Xi))
