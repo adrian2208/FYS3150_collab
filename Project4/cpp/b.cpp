@@ -4,10 +4,24 @@
 #include <random>
 #include <cmath>
 #include <fstream>
-
+#include <algorithm> //to get "count" function
 using namespace std;
 int getPeriodic(int i, int n){
   return (i+n)%n;
+}
+void write_energies(int total,int matrix_size,double temp,int *energies){
+  ofstream energyfile;
+  string name="../results/individual_energies_"+std::to_string(temp)+".txt";
+  energyfile.open(name);
+  energyfile << setiosflags(ios::showpoint | ios::uppercase);
+  energyfile << "Steps, Matrix_size,temp"<<endl;
+  energyfile << setprecision(2)<< total<<","<<matrix_size<<","<<temp<<endl;
+  int count;
+  for(int i=-2*matrix_size*matrix_size;i<=2*matrix_size*matrix_size;i+=4){
+    //As energy varies between -2*J*n_particles and 2*J*n_particles
+    energyfile<<i <<"," <<std::count(energies,energies+total,i)<<endl;
+  }
+  energyfile.close();
 }
 void append_to_file(int total,int matrix_size,double temp, double *results, ofstream* ofile){ // Writes relevant data (per spin particle) to file
   int num_spins=matrix_size*matrix_size;
@@ -99,6 +113,7 @@ int main(int argc, char** argv){
   long long int* i_values=new long long int[amount/when_dump];
   long long int* accepted_configurations_arr=new long long int[amount/when_dump];
   int warmUp=1000000; // How many runs are "ignored" before the system is in equilibrium
+  bool count_energy=true;
   if(argc>4){
     all_results_write=true;
     warmUp=0; //In case I want to write the intermediate results, I do not need the warmup time.
@@ -113,6 +128,7 @@ int main(int argc, char** argv){
   int energy=findStartEnergy(A, n);
   int swap_i,swap_j;
   int deltaE,deltaM,newSpin;
+  int * energy_count=new int[amount-warmUp]; // The occurence of the individual energies
   double * results=new double[5]; //Sum of energies, sum of energies squared, magnetical moment, magnetical moment squared, absolute magnetical moment
   for(int i=0;i<5;i++){
     results[i]=0;
@@ -132,6 +148,9 @@ int main(int argc, char** argv){
       accepted_configurations++;
     }
     if (i>=warmUp){ // When the system is done equilbriating
+      if(count_energy){
+        energy_count[i-warmUp]=energy;
+      }
       results[0]+=energy;
       results[1]+=energy*energy;
       results[3]+=magnet*magnet;
@@ -153,6 +172,8 @@ int main(int argc, char** argv){
       }
     }
   }
+  write_energies(amount-warmUp,n,temp,energy_count);
+  delete [] energy_count;
   deleteNNMatrix_int(A,n); // Free matrix space
   if(all_results_write){ //If everything is to be written to file
     all_results <<"Temperature,matrix_size,index,energies,magnetisation,accepted_configurations";
