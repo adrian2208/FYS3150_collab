@@ -57,13 +57,13 @@ int main(int argc, char** argv){
     cout << "You need to state the amount of iterations, the start temperature, the end temperature and the steplength" << endl;
     exit(1);
   }
-  int tot_temp=(int)(ceil((t_end-t_start)/dt)+1e-8); //Amount of temperature calculations
+  int tot_temp=(int)((t_end-t_start)/dt+1e-8)+1; //Amount of temperature calculations
   int warmUp=1000000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
-  int L[4]={20,20,20,20};
+  int L[4]={40,60,80,100};
   double *temperatures=new double[tot_temp];
 
   int counter=0;double t_pos=t_start;
-  while (t_pos<t_end-1e-10){
+  while (t_pos<t_end+1e-10){
     temperatures[counter]=t_pos;
     cout << temperatures[counter] << endl;
     counter++;t_pos+=dt;
