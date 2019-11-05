@@ -8,7 +8,7 @@ M_avg=0
 M_abs_avg=0
 M_squared=0
 
-T=10
+T=1
 if len(sys.argv)>1:
 	T=float(sys.argv[1])
 beta=1/T
@@ -45,6 +45,6 @@ for i in range(len(energies)):
 E_avg/=Z;E_squared/=Z;M_avg/=Z;M_abs_avg/=Z;M_squared/=Z;
 Cv=calculate_Cv(E_avg,E_squared)
 Xi=calculate_Xi(M_avg,M_squared)
-E_avg/=4;M_avg/=4;
+E_avg/=4;M_avg/=4;M_abs_avg/=4;
 print("Average Energy: %.5f\nAverage Magnetisation: %.5f\nAverage absolute magnetisation: %.5f"%(E_avg,M_avg,M_abs_avg))
 print("Cv:%f \nXi:%f\n"%(Cv,Xi))
