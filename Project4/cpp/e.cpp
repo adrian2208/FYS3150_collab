@@ -58,17 +58,16 @@ int main(int argc, char** argv){
     exit(1);
   }
   int tot_temp=(int)((t_end-t_start)/dt+1e-8)+1; //Amount of temperature calculations
-  int warmUp=1000000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
+  int warmUp=10000000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
   int L[4]={40,60,80,100};
   double *temperatures=new double[tot_temp];
-
   int counter=0;double t_pos=t_start;
   while (t_pos<t_end+1e-10){
     temperatures[counter]=t_pos;
     cout << temperatures[counter] << endl;
     counter++;t_pos+=dt;
   }
-  double time_start,time_end,total_time,temp;
+  double time_start,time_end,total_time,temp,energy_variance,magnetic_variance;
   int numprocs,my_rank; // numprocs __needs__ to be 4, otherwise the program has to go through quite some changes...
   int magnet,energy,swap_i,swap_j,deltaE,deltaM,newSpin,accepted_configurations=0;
   double exponents[17];
@@ -76,15 +75,16 @@ int main(int argc, char** argv){
   for(int i=0;i<5;i++){
     results[i]=0;
   }
-  double all_results_total[4*tot_temp][8]; // Array storing all results
+  double all_results_total[4*tot_temp][12]; // Array storing all results
   for(int i=0; i<4*tot_temp;i++){
-    for(int j=0;j<4*tot_temp;j++){
+    for(int j=0;j<12;j++){
       all_results_total[i][j]=0;
     }
   }
-  double all_results[4*tot_temp][8]; // Array storing all results
+
+  double all_results[4*tot_temp][12]; // Array storing all results
   for(int i=0; i<4*tot_temp;i++){
-    for(int j=0;j<4*tot_temp;j++){
+    for(int j=0;j<12;j++){
       all_results[i][j]=0;
     }
   }
@@ -95,7 +95,7 @@ int main(int argc, char** argv){
   std::random_device rd;
   std::mt19937_64 gen(rd()+my_rank); //Each thread gets a different seed, as the rank is included
   std::uniform_real_distribution<double> RnG(0.0,1.0);
-  int ** A=setUpRandomMatrix(L[my_rank]);
+  int ** A=setUpUpMatrix(L[my_rank]);
   magnet=findStartMagnetization(A, L[my_rank]);
   energy=findStartEnergy(A, L[my_rank]);
   int result_start=tot_temp*my_rank, actualpos;
@@ -125,27 +125,39 @@ int main(int argc, char** argv){
       }
 
     }
-    all_results[actualpos][0]=temp;
-    all_results[actualpos][1]=L[my_rank];
-    all_results[actualpos][2]=amount-warmUp;
+
     for(int l=3;l<8;l++){
       all_results[actualpos][l]/=(double)(amount-warmUp);
     }
+    cout << "Temp: " << temp << "Size: " << L[my_rank] << "Magnetic variance:" << all_results[actualpos][6] << "Magnetic absolute: " << all_results[actualpos][7] << endl;
+    all_results[actualpos][0]=temp;
+    all_results[actualpos][1]=L[my_rank];
+    all_results[actualpos][2]=amount-warmUp;
+    energy_variance = (all_results[actualpos][4]- all_results[actualpos][3]*all_results[actualpos][3])/(L[my_rank]*L[my_rank]);
+    magnetic_variance = (all_results[actualpos][6] - all_results[actualpos][7]*all_results[actualpos][7])/(L[my_rank]*L[my_rank]);
+
+    all_results[actualpos][3]/=(double)(L[my_rank]*L[my_rank]); //Convert energy to per particle
+    all_results[actualpos][7]/=(double)(L[my_rank]*L[my_rank]); //Convert magnetic to per particle
+    all_results[actualpos][5]/=(double)(L[my_rank]*L[my_rank]); //Convert magnetic_abs to per particle
+    all_results[actualpos][8]=energy_variance;
+    all_results[actualpos][9]=magnetic_variance;
+    all_results[actualpos][10]=energy_variance/(temp*temp);
+    all_results[actualpos][11]=magnetic_variance/(temp);
   }
   for(int i=0;i<4*tot_temp;i++){
-    for(int j=0;j<8;j++){
+    for(int j=0;j<12;j++){
       MPI_Reduce(&all_results[i][j],&all_results_total[i][j],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
     }
   }
   if (my_rank==0){
     ofstream outfile;
     outfile.open("../results/results_calculations.csv"); //time-info file
-    outfile << "temperature,matrix_size,steps,energy_total,energySquared_total,magnetic_total,magneticSquared_total,magneticAbsolute_total\n";
+    outfile << "temperature,matrix_size,steps,energy_pP,energySquared_total,magnetic_pP,magneticSquared_total,magneticAbsolute_pP,E_var,M_abs_var,Cv,Xi\n";
     for(int i=0;i<4*tot_temp;i++){
-      for(int j=0;j<7;j++){
+      for(int j=0;j<11;j++){
         outfile << setprecision(8) << all_results_total[i][j] << ",";
       }
-      outfile << setprecision(8) << all_results_total[i][7] << "\n";
+      outfile << setprecision(8) << all_results_total[i][11] << "\n";
     }
     outfile.close();
   }
