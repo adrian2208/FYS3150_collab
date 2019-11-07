@@ -149,11 +149,14 @@ int main(int argc, char** argv){
       MPI_Reduce(&all_results[i][j],&all_results_total[i][j],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
     }
   }
+  cout << my_rank<<endl;
   if (my_rank==0){
     ofstream outfile;
+
     outfile.open("../results/results_calculations.csv"); //time-info file
     outfile << "temperature,matrix_size,steps,energy_pP,energySquared_total,magnetic_pP,magneticSquared_total,magneticAbsolute_pP,E_var,M_abs_var,Cv,Xi\n";
     for(int i=0;i<4*tot_temp;i++){
+      cout << all_results_total[i][0]<<endl;
       for(int j=0;j<11;j++){
         outfile << setprecision(8) << all_results_total[i][j] << ",";
       }
