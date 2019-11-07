@@ -60,7 +60,7 @@ int main(int argc, char** argv){
     exit(1);
   }
   int tot_temp=(int)((t_end-t_start)/dt+1e-8)+1; //Amount of temperature calculations
-  int warmUp=10000000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
+  int warmUp=30000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
   int L[4]={40,60,80,100};
   double *temperatures=new double[tot_temp];
   int counter=0;
@@ -100,55 +100,63 @@ int main(int argc, char** argv){
   std::random_device rd;
   std::mt19937_64 gen(rd()+my_rank); //Each thread gets a different seed, as the rank is included
   std::uniform_real_distribution<double> RnG(0.0,1.0);
-  int ** A=setUpUpMatrix(L[my_rank]);
-  magnet=findStartMagnetization(A, L[my_rank]);
-  energy=findStartEnergy(A, L[my_rank]);
+
+
   int result_start=tot_temp*my_rank, actualpos;
   time_start=MPI_Wtime();
-  for (int tempcounter=0;tempcounter<tot_temp;tempcounter++){
-    temp=temperatures[tempcounter];
-    actualpos=result_start+tempcounter;
-    for(int i=-8;i<=8;i+=4){
-      exponents[i+8]=exp(-i/temp);
-    }
-    for(int i=0;i<amount;i++){
-      swap_i=(int)(L[my_rank]*RnG(gen));
-      swap_j=(int)(L[my_rank]*RnG(gen));
-      deltaE=2*A[swap_i][swap_j]*(A[getPeriodic(swap_i+1,L[my_rank])][swap_j]+A[getPeriodic(swap_i-1,L[my_rank])][swap_j]+A[swap_i][getPeriodic(swap_j-1,L[my_rank])]+A[swap_i][getPeriodic(swap_j+1,L[my_rank])]);
-      newSpin=-A[swap_i][swap_j];
-      deltaM=2*newSpin;
-      if(exponents[deltaE+8]>=RnG(gen)){
-        A[swap_i][swap_j]*=-1;
-        magnet+=deltaM;
-        energy+=deltaE;
+  for (int l=0;l<4;l++){
+    for (int tempcounter=my_rank;tempcounter<tot_temp;tempcounter+=numprocs){
+      int ** A=setUpUpMatrix(L[l]);
+      magnet=findStartMagnetization(A, L[l]);
+      energy=findStartEnergy(A, L[l]);
+      temp=temperatures[tempcounter];
+      actualpos=tempcounter+l*tot_temp;
+      for(int i=-8;i<=8;i+=4){
+        exponents[i+8]=exp(-i/temp);
       }
-      if (i>=warmUp){ // When the system is done equilbriating
-        all_results[actualpos][3]+=energy;
-        all_results[actualpos][4]+=energy*energy;
-        all_results[actualpos][6]+=magnet*magnet;
-        all_results[actualpos][7]+=fabs(magnet);
-        all_results[actualpos][5]+=magnet;
+      for(int i=0;i<amount;i++){
+        for(int x=0;x<L[l];x++){
+          for(int y=0;y<L[l];y++){
+            swap_i=(int)(L[l]*RnG(gen));
+            swap_j=(int)(L[l]*RnG(gen));
+            deltaE=2*A[swap_i][swap_j]*(A[getPeriodic(swap_i+1,L[l])][swap_j]+A[getPeriodic(swap_i-1,L[l])][swap_j]+A[swap_i][getPeriodic(swap_j-1,L[l])]+A[swap_i][getPeriodic(swap_j+1,L[l])]);
+            newSpin=-A[swap_i][swap_j];
+            deltaM=2*newSpin;
+            if(exponents[deltaE+8]>=RnG(gen)){
+              A[swap_i][swap_j]*=-1;
+              magnet+=deltaM;
+              energy+=deltaE;
+            }
+          }
+        }
+        if (i>=warmUp){ // When the system is done equilbriating
+          all_results[actualpos][3]+=energy;
+          all_results[actualpos][4]+=energy*energy;
+          all_results[actualpos][6]+=magnet*magnet;
+          all_results[actualpos][7]+=fabs(magnet);
+          all_results[actualpos][5]+=magnet;
+        }
+
       }
 
-    }
+      for(int l=3;l<8;l++){
+        all_results[actualpos][l]/=(double)(amount-warmUp);
+      }
+      cout << "Temp: " << temp << "Size: " << L[l] << "Magnetic variance:" << all_results[actualpos][6] << "Magnetic absolute: " << all_results[actualpos][7] << endl;
+      all_results[actualpos][0]=temp;
+      all_results[actualpos][1]=L[l];
+      all_results[actualpos][2]=amount-warmUp;
+      energy_variance = (all_results[actualpos][4]- all_results[actualpos][3]*all_results[actualpos][3])/(L[l]*L[l]);
+      magnetic_variance = (all_results[actualpos][6] - all_results[actualpos][7]*all_results[actualpos][7])/(L[l]*L[l]);
 
-    for(int l=3;l<8;l++){
-      all_results[actualpos][l]/=(double)(amount-warmUp);
+      all_results[actualpos][3]/=(double)(L[l]*L[l]); //Convert energy to per particle
+      all_results[actualpos][7]/=(double)(L[l]*L[l]); //Convert magnetic to per particle
+      all_results[actualpos][5]/=(double)(L[l]*L[l]); //Convert magnetic_abs to per particle
+      all_results[actualpos][8]=energy_variance;
+      all_results[actualpos][9]=magnetic_variance;
+      all_results[actualpos][10]=energy_variance/(temp*temp); // Cv
+      all_results[actualpos][11]=magnetic_variance/(temp); // Xi
     }
-    cout << "Temp: " << temp << "Size: " << L[my_rank] << "Magnetic variance:" << all_results[actualpos][6] << "Magnetic absolute: " << all_results[actualpos][7] << endl;
-    all_results[actualpos][0]=temp;
-    all_results[actualpos][1]=L[my_rank];
-    all_results[actualpos][2]=amount-warmUp;
-    energy_variance = (all_results[actualpos][4]- all_results[actualpos][3]*all_results[actualpos][3])/(L[my_rank]*L[my_rank]);
-    magnetic_variance = (all_results[actualpos][6] - all_results[actualpos][7]*all_results[actualpos][7])/(L[my_rank]*L[my_rank]);
-
-    all_results[actualpos][3]/=(double)(L[my_rank]*L[my_rank]); //Convert energy to per particle
-    all_results[actualpos][7]/=(double)(L[my_rank]*L[my_rank]); //Convert magnetic to per particle
-    all_results[actualpos][5]/=(double)(L[my_rank]*L[my_rank]); //Convert magnetic_abs to per particle
-    all_results[actualpos][8]=energy_variance;
-    all_results[actualpos][9]=magnetic_variance;
-    all_results[actualpos][10]=energy_variance/(temp*temp); // Cv
-    all_results[actualpos][11]=magnetic_variance/(temp); // Xi
   }
   time_end=MPI_Wtime();
   total_time=time_end-time_start;

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <algorithm> //to get "count" function
 using namespace std;
-int getPeriodic(int i, int n){
+int getPeriodic(int i, int n){ // Takes a number i, returns the rest (used in periodic boundaries)
   return (i+n)%n;
 }
 void write_energies(int total,int matrix_size,double temp,int *energies){
@@ -136,16 +136,20 @@ int main(int argc, char** argv){
   double result_energy=0,result_magnet=0,result_energySquared=0,result_magnetSquared=0,result_magnetAbs=0;
 
   for(int i=0;i<amount;i++){
-    swap_i=(int)(n*RnG(gen));
-    swap_j=(int)(n*RnG(gen));
-    deltaE=2*A[swap_i][swap_j]*(A[getPeriodic(swap_i+1,n)][swap_j]+A[getPeriodic(swap_i-1,n)][swap_j]+A[swap_i][getPeriodic(swap_j-1,n)]+A[swap_i][getPeriodic(swap_j+1,n)]);
-    newSpin=-A[swap_i][swap_j];
-    deltaM=2*newSpin;
-    if(exponents[deltaE+8]>=RnG(gen)){
-      A[swap_i][swap_j]*=-1;
-      magnet+=deltaM;
-      energy+=deltaE;
-      accepted_configurations++;
+    for(int x=0;x<n;x++){
+      for(int y=0;y<n;y++){
+        swap_i=(int)((double)n*RnG(gen));
+        swap_j=(int)((double)n*RnG(gen));
+        deltaE=2*A[swap_i][swap_j]*(A[getPeriodic(swap_i+1,n)][swap_j]+A[getPeriodic(swap_i-1,n)][swap_j]+A[swap_i][getPeriodic(swap_j-1,n)]+A[swap_i][getPeriodic(swap_j+1,n)]);
+        newSpin=-A[swap_i][swap_j];
+        if(exponents[deltaE+8]>=RnG(gen)){
+          deltaM=2*newSpin;
+          A[swap_i][swap_j]*=-1;
+          magnet+=deltaM;
+          energy+=deltaE;
+          accepted_configurations++;
+        }
+      }
     }
     if (i>=warmUp){ // When the system is done equilbriating
       if(count_energy){
