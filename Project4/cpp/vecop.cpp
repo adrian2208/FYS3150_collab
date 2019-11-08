@@ -289,3 +289,9 @@ int** setUpRandomMatrix(int n){
   }
   return A;
 }
+void writeTime(double time, int temperaturecount,string parallel, string flags){
+  ofstream outfile;
+  outfile.open("../results/time.csv",ios::out | ios::app); //time-info file
+  outfile << time << "," << temperaturecount << "," << parallel<<"," << flags <<endl;
+  outfile.close();
+}

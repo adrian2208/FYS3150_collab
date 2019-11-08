@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip>
 #include <random>
+#include <fstream>
 using namespace std;
 int** createNNMatrix_int(int n);
 void deleteNNMatrix_int(int** A,int n);
@@ -29,3 +30,4 @@ int jacobi_diag2(double **A,double **R, int n, double tol);
 double ** copyMatrix(double**A,int n);
 int ** setUpUpMatrix(int n);
 int** setUpRandomMatrix(int n);
+void writeTime(double time, int temperaturecount,string parallel, string flags);

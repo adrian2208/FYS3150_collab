@@ -3,7 +3,7 @@
 #include <random>
 #include <cmath>
 #include <fstream>
-#include <mpi.h>
+#include <ctime>
 using namespace std;
 int getPeriodic(int i, int n){
   return (i+n)%n;
@@ -60,7 +60,7 @@ int main(int argc, char** argv){
     exit(1);
   }
   int tot_temp=(int)((t_end-t_start)/dt+1e-8)+1; //Amount of temperature calculations
-  int warmUp=30000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
+  int warmUp=30000; // How many runs are "ignored" before the system is in equilibrium. Thirty thousand
   int L[4]={40,60,80,100};
   double *temperatures=new double[tot_temp];
   int counter=0;
@@ -71,40 +71,25 @@ int main(int argc, char** argv){
     counter++;t_pos+=dt;
   }
   double time_start,time_end,total_time,temp,energy_variance,magnetic_variance;
-  int numprocs,my_rank; // numprocs __needs__ to be 4, otherwise the program has to go through quite some changes...
   int magnet,energy,swap_i,swap_j,deltaE,deltaM,newSpin,accepted_configurations=0;
   double exponents[17];
   double * results=new double[5]; //Sum of energies, sum of energies squared, magnetical moment, magnetical moment squared, absolute magnetical moment
   for(int i=0;i<5;i++){
     results[i]=0;
   }
-  double all_results_total[4*tot_temp][12]; // Array storing all results
-  for(int i=0; i<4*tot_temp;i++){
-    for(int j=0;j<12;j++){
-      all_results_total[i][j]=0;
-    }
-  }
-
   double all_results[4*tot_temp][12]; // Array storing all results
   for(int i=0; i<4*tot_temp;i++){
     for(int j=0;j<12;j++){
       all_results[i][j]=0;
     }
   }
-
-  MPI_Init(&argc, &argv);
-  MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
-  MPI_Comm_rank (MPI_COMM_WORLD,&my_rank);
-  time_start=MPI_Wtime();
+  time_start=clock();
   std::random_device rd;
-  std::mt19937_64 gen(rd()+my_rank); //Each thread gets a different seed, as the rank is included
+  std::mt19937_64 gen(rd()); //Each thread gets a different seed, as the rank is included
   std::uniform_real_distribution<double> RnG(0.0,1.0);
-
-
   int actualpos;
-  time_start=MPI_Wtime();
   for (int l=0;l<4;l++){
-    for (int tempcounter=my_rank;tempcounter<tot_temp;tempcounter+=numprocs){
+    for (int tempcounter=0;tempcounter<tot_temp;tempcounter++){
       int ** A=setUpUpMatrix(L[l]);
       magnet=findStartMagnetization(A, L[l]);
       energy=findStartEnergy(A, L[l]);
@@ -141,7 +126,7 @@ int main(int argc, char** argv){
       for(int l=3;l<8;l++){
         all_results[actualpos][l]/=(double)(amount-warmUp);
       }
-      cout << "Temp: " << temp << "Size: " << L[l] << endl;
+      cout << "Temp: " << temp << "Size: " << L[l] <<endl;
       all_results[actualpos][0]=temp;
       all_results[actualpos][1]=L[l];
       all_results[actualpos][2]=amount-warmUp;
@@ -157,26 +142,22 @@ int main(int argc, char** argv){
       all_results[actualpos][11]=magnetic_variance/(temp); // Xi
     }
   }
-  time_end=MPI_Wtime();
-  total_time=time_end-time_start;
-  for(int i=0;i<4*tot_temp;i++){
-    for(int j=0;j<12;j++){
-      MPI_Reduce(&all_results[i][j],&all_results_total[i][j],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-    }
-  }
-  if (my_rank==0){
-    writeTime(total_time,tot_temp,"yes","-Ofast");
+  time_end=clock();
+  total_time=((time_end-time_start)/(float)CLOCKS_PER_SEC);
+  writeTime(total_time,tot_temp,"no","-Ofast");
+  /*
+  if (true){
     ofstream outfile;
     cout << "Total time: " << total_time << " seconds"<<endl;
     outfile.open("../results/results_calculations.csv"); //time-info file
     outfile << "temperature,matrix_size,steps,energy_pP,energySquared_total,magnetic_pP,magneticSquared_total,magneticAbsolute_pP,E_var,M_abs_var,Cv,Xi\n";
     for(int i=0;i<4*tot_temp;i++){
       for(int j=0;j<11;j++){
-        outfile << setprecision(8) << all_results_total[i][j] << ",";
+        outfile << setprecision(8) << all_results[i][j] << ",";
       }
-      outfile << setprecision(8) << all_results_total[i][11] << "\n";
+      outfile << setprecision(8) << all_results[i][11] << "\n";
     }
     outfile.close();
   }
-  MPI_Finalize ();
+  */
 }
