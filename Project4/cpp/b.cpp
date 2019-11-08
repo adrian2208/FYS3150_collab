@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm> //to get "count" function
+#include <string>
 using namespace std;
 int getPeriodic(int i, int n){ // Takes a number i, returns the rest (used in periodic boundaries)
   return (i+n)%n;
@@ -88,7 +89,11 @@ int main(int argc, char** argv){
   ofstream single_results;
   ofstream all_results;
   single_results.open("../results/single_results.csv",ios::out | ios::app); //Collected results (Numbers)
-  all_results.open("../results/all_results.csv");
+
+  string matrixtype="random"; //Random or up
+  string filename;
+  filename = "../results/all_results_"+matrixtype+".csv";
+  all_results.open(filename);
   clock_t start, finish; //Start and end time
   int n;
   double temp;
@@ -112,7 +117,7 @@ int main(int argc, char** argv){
   double* absolute_magnetisations=new double[amount/when_dump];
   long long int* i_values=new long long int[amount/when_dump];
   long long int* accepted_configurations_arr=new long long int[amount/when_dump];
-  int warmUp=1000000; // How many runs are "ignored" before the system is in equilibrium
+  int warmUp=50000; // How many runs are "ignored" before the system is in equilibrium
   bool count_energy=true;
   if(argc>4){
     all_results_write=true;
@@ -122,10 +127,15 @@ int main(int argc, char** argv){
   for(int i=-8;i<=8;i+=4){
     exponents[i+8]=exp(-i/temp);
   }
-  int ** A=setUpRandomMatrix(n);
-  //int ** A=setUpUpMatrix(n);
-  int magnet=findStartMagnetization(A, n);
-  int energy=findStartEnergy(A, n);
+  int **A;
+  if(matrixtype.compare("random") == 0){
+    A=setUpRandomMatrix(n);
+  }
+  else{
+    A=setUpUpMatrix(n);
+  }
+  int magnet=absolute_magnetisations[0]=findStartMagnetization(A, n);
+  int energy=energies[0]=findStartEnergy(A, n);
   int swap_i,swap_j;
   int deltaE,deltaM,newSpin;
   int * energy_count=new int[amount-warmUp]; // The occurence of the individual energies
@@ -134,7 +144,6 @@ int main(int argc, char** argv){
     results[i]=0;
   }
   double result_energy=0,result_magnet=0,result_energySquared=0,result_magnetSquared=0,result_magnetAbs=0;
-
   for(int i=0;i<amount;i++){
     for(int x=0;x<n;x++){
       for(int y=0;y<n;y++){
@@ -161,19 +170,12 @@ int main(int argc, char** argv){
       results[4]+=fabs(magnet);
       results[2]+=magnet;
     }
-    if(all_results_write && (i%when_dump==0)){ //When I want to write to file, and i is a multiple of "when_dump"
+    if(all_results_write && (i%when_dump==0) && i!=0){ //When I want to write to file, and i is a multiple of "when_dump"
       index=i/when_dump;
       i_values[index]=i;
       accepted_configurations_arr[index]=accepted_configurations;
-      if(index==0){
-        energies[index]=results[0];
-        absolute_magnetisations[index]=results[2];
-
-      }
-      else{
-        energies[index]=results[0]/(double)(i);
-        absolute_magnetisations[index]=results[4]/(double)(i);
-      }
+      energies[index]=results[0]/(double)(i);
+      absolute_magnetisations[index]=results[4]/(double)(i);
     }
   }
   write_energies(amount-warmUp,n,temp,energy_count);
