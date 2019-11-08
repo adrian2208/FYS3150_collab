@@ -16,25 +16,18 @@ energies_1=[]
 energies=np.asarray(energies)
 temp_1_dist=np.asarray(temp_1_dist)/sum(temp_1_dist)
 temp_24_dist=np.asarray(temp_24_dist)/sum(temp_24_dist)
-"""
-for i in range(len(temp_1_dist)):
-    while  temp_1_dist[i]>0:
-        energies_1.append(energies[i])
-        temp_1_dist[i]-=1;
-plt.hist(energies_1)
-"""
-print(temp_1_dist)
+plt.figure(figsize=(20,5))
+
+plt.subplot(121)
 plt.bar(energies[:10],temp_1_dist[:10],width=4)
 plt.xticks(energies[:10])
-plt.title("Distribution at T=1.0")
+plt.title("T=1.0, spins 400, runs:1e6")
 plt.xlabel("Energy in units of J")
 plt.ylabel("Relative occurence")
-plt.savefig("../plots/Dist_1.0.pdf")
-plt.show()
-plt.bar(energies,temp_24_dist,width=4)
-#plt.xticks(energies)
-plt.title("Distribution at T=2.4")
+plt.subplot(122)
+plt.bar(energies[:int((len(energies)/2))],temp_24_dist[:int((len(energies)/2))],width=4)
+plt.title("T=2.4, spins 400, runs:1e6")
 plt.xlabel("Energy in units of J")
 plt.ylabel("Relative occurence")
-plt.savefig("../plots/Dist_2.4.pdf")
+plt.savefig("../plots/Dist.pdf")
 plt.show()

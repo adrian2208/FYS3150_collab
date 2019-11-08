@@ -90,7 +90,7 @@ int main(int argc, char** argv){
   ofstream all_results;
   single_results.open("../results/single_results.csv",ios::out | ios::app); //Collected results (Numbers)
 
-  string matrixtype="random"; //Random or up
+  string matrixtype="up"; //Random or up
   string filename;
   filename = "../results/all_results_"+matrixtype+".csv";
   all_results.open(filename);
@@ -117,7 +117,7 @@ int main(int argc, char** argv){
   double* absolute_magnetisations=new double[amount/when_dump];
   long long int* i_values=new long long int[amount/when_dump];
   long long int* accepted_configurations_arr=new long long int[amount/when_dump];
-  int warmUp=50000; // How many runs are "ignored" before the system is in equilibrium
+  int warmUp=3000; // How many runs are "ignored" before the system is in equilibrium
   bool count_energy=true;
   if(argc>4){
     all_results_write=true;
