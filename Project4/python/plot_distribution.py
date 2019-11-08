@@ -16,7 +16,7 @@ energies_1=[]
 energies=np.asarray(energies)
 temp_1_dist=np.asarray(temp_1_dist)/sum(temp_1_dist)
 temp_24_dist=np.asarray(temp_24_dist)/sum(temp_24_dist)
-plt.figure(figsize=(20,5))
+plt.figure(figsize=(20,10))
 
 plt.subplot(121)
 plt.bar(energies[:10],temp_1_dist[:10],width=4)
