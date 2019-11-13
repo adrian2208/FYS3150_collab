@@ -7,9 +7,6 @@
 #include <algorithm> //to get "count" function
 #include <string>
 using namespace std;
-int getPeriodic(int i, int n){ // Takes a number i, returns the rest (used in periodic boundaries)
-  return (i+n)%n;
-}
 void write_energies(int total,int matrix_size,double temp,int *energies){
   ofstream energyfile;
   string name="../results/individual_energies_"+std::to_string(temp)+".txt";
@@ -46,41 +43,7 @@ void append_to_file(int total,int matrix_size,double temp, double *results, ofst
   *ofile << setprecision(8) << result_magnetAbs/num_spins << endl;
   (*ofile).close();
 }
-int findStartEnergy(int** A, int n){
-  int tot_eng=0; // Total energy
-  for (int i=0;i<n-1;i++){
-    /*Calculate the energy of the neighbours under for each row*/
-    for (int j=0;j<n-1;j++){
-      tot_eng+=A[i][j]*A[i+1][j];
-    }
-  }
-  for (int i=0;i<n-1;i++){
-    /*Calculate the energy of the neighbours to the right for each row*/
-    for (int j=0;j<n-1;j++){
-      tot_eng+=A[i][j]*A[i][j+1];
-    }
-  }
-  for(int i=0;i<n-1;i++){
-    /*Calculate last row and last column, but not boundary conditions*/
-    tot_eng+=A[i][n-1]*A[i+1][n-1];
-    tot_eng+=A[n-1][i]*A[n-1][i+1];
-  }
-  for (int i=0;i<n;i++){
-    /*Calculate the energy due to boundary conditions*/
-    tot_eng+=A[i][n-1]*A[i][0];
-    tot_eng+=A[n-1][i]*A[0][i];
-  }
-  return -tot_eng;
-}
-int findStartMagnetization(int** A, int n){
-  int tot_mag=0;
-  for (int i=0;i<n;i++){
-    for (int j=0;j<n;j++){
-      tot_mag+=A[i][j];
-    }
-  }
-  return tot_mag;
-}
+
 
 int main(int argc, char** argv){
   std::random_device rd;
@@ -117,7 +80,7 @@ int main(int argc, char** argv){
   double* absolute_magnetisations=new double[amount/when_dump];
   long long int* i_values=new long long int[amount/when_dump];
   long long int* accepted_configurations_arr=new long long int[amount/when_dump];
-  int warmUp=3000; // How many runs are "ignored" before the system is in equilibrium
+  int warmUp=20000; // How many runs are "ignored" before the system is in equilibrium
   bool count_energy=true;
   if(argc>4){
     all_results_write=true;

@@ -1,6 +1,26 @@
+#I used 40.000 (memo to myself)
 498.127,4,no,-O3
 148.137,4,yes,-O3
 148.829,4,yes,none
 534.698,4,no,none
-152.887,4,yes,-Ofast
 495.402,4,no,-Ofast
+149.857,4,yes,-O3
+152.804,4,yes,-O3
+154.035,4,yes,none
+157.283,4,yes,none
+149,4,yes,-O2
+152.81,4,yes,-O2
+144.584,4,yes,-O2
+144.367,4,yes,-Ofast
+132.386,4,yes,-Ofast
+133.86,4,yes,-Ofast
+507.62,4,no,-Ofast
+507.158,4,no,-Ofast
+510.637,4,no,-O2
+505.126,4,no,-O2
+505.367,4,no,-O2
+496.134,4,no,-O3
+493.608,4,no,-O3
+513.456,4,no,none
+503.219,4,no,none
+505.004,4,no,none

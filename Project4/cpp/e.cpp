@@ -5,46 +5,6 @@
 #include <fstream>
 #include <mpi.h>
 using namespace std;
-int getPeriodic(int i, int n){
-  return (i+n)%n;
-}
-int findStartEnergy(int** A, int n){
-  /**Finds the start energy of a spin system A*/
-  int tot_eng=0; // Total energy
-  for (int i=0;i<n-1;i++){
-    /*Calculate the energy of the neighbours under for each row*/
-    for (int j=0;j<n-1;j++){
-      tot_eng+=A[i][j]*A[i+1][j];
-    }
-  }
-  for (int i=0;i<n-1;i++){
-    /*Calculate the energy of the neighbours to the right for each row*/
-    for (int j=0;j<n-1;j++){
-      tot_eng+=A[i][j]*A[i][j+1];
-    }
-  }
-  for(int i=0;i<n-1;i++){
-    /*Calculate last row and last column, but not boundary conditions*/
-    tot_eng+=A[i][n-1]*A[i+1][n-1];
-    tot_eng+=A[n-1][i]*A[n-1][i+1];
-  }
-  for (int i=0;i<n;i++){
-    /*Calculate the energy due to boundary conditions*/
-    tot_eng+=A[i][n-1]*A[i][0];
-    tot_eng+=A[n-1][i]*A[0][i];
-  }
-  return -tot_eng;
-}
-int findStartMagnetization(int** A, int n){
-  /**Finds the start magnetisation of a spin system A*/
-  int tot_mag=0;
-  for (int i=0;i<n;i++){
-    for (int j=0;j<n;j++){
-      tot_mag+=A[i][j];
-    }
-  }
-  return tot_mag;
-}
 int main(int argc, char** argv){
   int amount; // One billion
 
@@ -60,15 +20,17 @@ int main(int argc, char** argv){
     exit(1);
   }
   int tot_temp=(int)((t_end-t_start)/dt+1e-8)+1; //Amount of temperature calculations
-  int warmUp=30000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
+  int warmUp=20000; // How many runs are "ignored" before the system is in equilibrium. One million seems about reasonabel
   int L[4]={40,60,80,100};
   double *temperatures=new double[tot_temp];
   int counter=0;
-  double t_pos=t_start;
-  while (t_pos<t_end+1e-10){
+  while (counter<tot_temp){
     /*Fill the temperature array with the temperatures from t_start to t_end with steplength dt*/
-    temperatures[counter]=t_pos; //
-    counter++;t_pos+=dt;
+    temperatures[counter]=t_start+dt*counter; //
+    counter++;
+  }
+  for(int i=0;i<=tot_temp;i++){
+    cout << temperatures[i] << " ";
   }
   double time_start,time_end,total_time,temp,energy_variance,magnetic_variance;
   int numprocs,my_rank; // numprocs __needs__ to be 4, otherwise the program has to go through quite some changes...
@@ -165,7 +127,7 @@ int main(int argc, char** argv){
     }
   }
   if (my_rank==0){
-    writeTime(total_time,tot_temp,"yes","-Ofast");
+    writeTime(total_time,tot_temp,"yes","none");
     ofstream outfile;
     cout << "Total time: " << total_time << " seconds"<<endl;
     outfile.open("../results/results_calculations.csv"); //time-info file

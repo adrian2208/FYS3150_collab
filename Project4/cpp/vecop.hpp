@@ -31,3 +31,6 @@ double ** copyMatrix(double**A,int n);
 int ** setUpUpMatrix(int n);
 int** setUpRandomMatrix(int n);
 void writeTime(double time, int temperaturecount,string parallel, string flags);
+int getPeriodic(int i, int n);
+int findStartEnergy(int** A, int n);
+int findStartMagnetization(int** A, int n);

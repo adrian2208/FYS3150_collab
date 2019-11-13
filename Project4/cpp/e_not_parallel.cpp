@@ -5,46 +5,7 @@
 #include <fstream>
 #include <ctime>
 using namespace std;
-int getPeriodic(int i, int n){
-  return (i+n)%n;
-}
-int findStartEnergy(int** A, int n){
-  /**Finds the start energy of a spin system A*/
-  int tot_eng=0; // Total energy
-  for (int i=0;i<n-1;i++){
-    /*Calculate the energy of the neighbours under for each row*/
-    for (int j=0;j<n-1;j++){
-      tot_eng+=A[i][j]*A[i+1][j];
-    }
-  }
-  for (int i=0;i<n-1;i++){
-    /*Calculate the energy of the neighbours to the right for each row*/
-    for (int j=0;j<n-1;j++){
-      tot_eng+=A[i][j]*A[i][j+1];
-    }
-  }
-  for(int i=0;i<n-1;i++){
-    /*Calculate last row and last column, but not boundary conditions*/
-    tot_eng+=A[i][n-1]*A[i+1][n-1];
-    tot_eng+=A[n-1][i]*A[n-1][i+1];
-  }
-  for (int i=0;i<n;i++){
-    /*Calculate the energy due to boundary conditions*/
-    tot_eng+=A[i][n-1]*A[i][0];
-    tot_eng+=A[n-1][i]*A[0][i];
-  }
-  return -tot_eng;
-}
-int findStartMagnetization(int** A, int n){
-  /**Finds the start magnetisation of a spin system A*/
-  int tot_mag=0;
-  for (int i=0;i<n;i++){
-    for (int j=0;j<n;j++){
-      tot_mag+=A[i][j];
-    }
-  }
-  return tot_mag;
-}
+
 int main(int argc, char** argv){
   int amount; // One billion
 
@@ -60,7 +21,7 @@ int main(int argc, char** argv){
     exit(1);
   }
   int tot_temp=(int)((t_end-t_start)/dt+1e-8)+1; //Amount of temperature calculations
-  int warmUp=30000; // How many runs are "ignored" before the system is in equilibrium. Thirty thousand
+  int warmUp=20000; // How many runs are "ignored" before the system is in equilibrium. Thirty thousand
   int L[4]={40,60,80,100};
   double *temperatures=new double[tot_temp];
   int counter=0;
@@ -144,7 +105,7 @@ int main(int argc, char** argv){
   }
   time_end=clock();
   total_time=((time_end-time_start)/(float)CLOCKS_PER_SEC);
-  writeTime(total_time,tot_temp,"no","-Ofast");
+  writeTime(total_time,tot_temp,"no","none");
   /*
   if (true){
     ofstream outfile;

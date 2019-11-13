@@ -295,3 +295,49 @@ void writeTime(double time, int temperaturecount,string parallel, string flags){
   outfile << time << "," << temperaturecount << "," << parallel<<"," << flags <<endl;
   outfile.close();
 }
+int getPeriodic(int i, int n){ // Takes a number i, returns the rest (used in periodic boundaries)
+  return (i+n)%n;
+}
+int findStartEnergy(int** A, int n){
+  /**Finds the start energy of a spin system A*/
+  int tot_eng=0;
+  for(int i=0;i<n;i++){
+    for (int j=0;j<n;j++){
+      tot_eng+=A[getPeriodic(i,n)][getPeriodic(j,n)]*A[getPeriodic(i+1,n)][getPeriodic(j,n)];
+      tot_eng+=A[getPeriodic(i,n)][getPeriodic(j,n)]*A[getPeriodic(i,n)][getPeriodic(j+1,n)];
+    }
+  }
+  return -tot_eng;
+  for (int i=0;i<n-1;i++){
+    /*Calculate the energy of the neighbours under for each row*/
+    for (int j=0;j<n-1;j++){
+      tot_eng+=A[i][j]*A[i+1][j];
+    }
+  }
+  for (int i=0;i<n-1;i++){
+    /*Calculate the energy of the neighbours to the right for each row*/
+    for (int j=0;j<n-1;j++){
+      tot_eng+=A[i][j]*A[i][j+1];
+    }
+  }
+  for(int i=0;i<n-1;i++){
+    /*Calculate last row and last column, but not boundary conditions*/
+    tot_eng+=A[i][n-1]*A[i+1][n-1];
+    tot_eng+=A[n-1][i]*A[n-1][i+1];
+  }
+  for (int i=0;i<n;i++){
+    /*Calculate the energy due to boundary conditions*/
+    tot_eng+=A[i][n-1]*A[i][0];
+    tot_eng+=A[n-1][i]*A[0][i];
+  }
+  return -tot_eng;
+}
+int findStartMagnetization(int** A, int n){
+  int tot_mag=0;
+  for (int i=0;i<n;i++){
+    for (int j=0;j<n;j++){
+      tot_mag+=A[i][j];
+    }
+  }
+  return tot_mag;
+}
