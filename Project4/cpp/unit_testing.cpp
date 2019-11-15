@@ -2,7 +2,9 @@
 cpp -c unit_testing.cpp
 cpp -c tests_main.cpp
 cpp -o unit_testing_executable unit_testing.o vecop.o tests_main.o
+./unit_testing_executable
 */
+/*The sampling is explained better witth comments in e.cpp*/
 #include <algorithm>
 #include <random>
 #include <cmath>
@@ -25,17 +27,17 @@ TEST_CASE("Test that the analytical results match with the simulated results for
     cout << temp;
     for(int i=0;i<7;i++){
       cout << "   "<< analytical_results[i]/4;
-      if (fabs(analytical_results[i])>1e-5){
+      if (fabs(analytical_results[i])>1e-5){ //Most should be much larger
         relative_error=fabs((sampling_results[i]-analytical_results[i])/analytical_results[i]);
         if(relative_error>largest_relative_error){
           largest_relative_error=relative_error;
           largest_temp=temp;
           largest_i=i;
         }
-        REQUIRE(relative_error<1e-2); //Relative error
+        REQUIRE(relative_error<1e-2); //Relative error should be less than one percent
       }
       else{
-        REQUIRE(fabs(sampling_results[i]-analytical_results[i])<1e-1); // absolute error if analytical results is close to zero (only magnetics)
+        REQUIRE(fabs(sampling_results[i]-analytical_results[i])<1e-1); // absolute error if analytical results is close to zero (only magnetization)
       }
     }
     cout <<endl;
@@ -62,9 +64,9 @@ void analytical(double temp, double* results){ // n is assumed to be zero
       }
     }
   }
-  double Z=0;
+  double Z=0; // Partition function
   for (int i=0;i<16;i++){
-    Z+=exp(-beta*energies[i]);
+    Z+=exp(-beta*energies[i]); //Update for each energy
   }
   for (int i=0;i<16;i++){
     results[0]+=exp(-beta*energies[i])*energies[i];
@@ -74,7 +76,7 @@ void analytical(double temp, double* results){ // n is assumed to be zero
     results[3]+=exp(-beta*energies[i])*magnetics[i];
   }
   for(int i=0;i<5;i++){
-    results[i]/=Z;
+    results[i]/=Z; //divide everything by partition function
   }
   results[5]=(results[1]-results[0]*results[0])/(temp*temp);
   //results[6]=(results[4]-results[2]*results[2])/temp;

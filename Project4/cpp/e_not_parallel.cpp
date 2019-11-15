@@ -1,3 +1,14 @@
+/**
+compiles and runs as
+c++ -c e_not_parallel.cpp
+c++ -c vecop.cpp
+c++ -o e_not_parallel.exe vecop.o b.o
+./e_not_parallel.exe amont_of_simulations start_temp end_temp steplength
+*/
+/**
+Impementation of the Ising Model using the Metropolis algorithm.
+For explanation of code, see e.cpp, as much is quite identical.
+*/
 #include "vecop.hpp"
 #include <iostream>
 #include <random>
@@ -7,9 +18,8 @@
 using namespace std;
 
 int main(int argc, char** argv){
-  int amount; // One billion
-
-  double t_start,t_end,dt;
+  int amount;
+  double t_start,t_end,dt; //Temperature values
   if(argc>=5){
     amount=atoi(argv[1]);
     t_start=atof(argv[2]);
@@ -32,7 +42,7 @@ int main(int argc, char** argv){
     counter++;t_pos+=dt;
   }
   double time_start,time_end,total_time,temp,energy_variance,magnetic_variance;
-  int magnet,energy,swap_i,swap_j,deltaE,deltaM,newSpin,accepted_configurations=0;
+  int magnet,energy,swap_i,swap_j,deltaE,deltaM,newSpin;
   double exponents[17];
   double * results=new double[5]; //Sum of energies, sum of energies squared, magnetical moment, magnetical moment squared, absolute magnetical moment
   for(int i=0;i<5;i++){

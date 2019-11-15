@@ -1,4 +1,17 @@
-//more to add here
+/**
+compiles and runs as
+c++ -c b.cpp
+c++ -c vecop.cpp
+c++ -o b.exe vecop.o b.once
+./b.exe amont_of_simulations L temp
+*/
+/**
+Impementation of the Ising Model using the Metropolis algorithm.
+The purpose of this program is mainly testing. and analyzing intermediate results.
+ Though the main algorithm and thus the results are identical to e_not_parallel.cpp, this program also stores some extra
+information, such as the occurance of specific energies, and also has the possibility to write intermediate steps to file.
+Thus, it is slower than e__not_parallel.cpp. It also lacks the possibility to run more than one L and temp.
+*/
 #include "vecop.hpp"
 #include <iostream>
 #include <random>

@@ -1,3 +1,7 @@
+"""
+NOT UP TO DATE, rather use unit_testing.cpp to get analytical results for this 2x2 matrix!!
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 import sys

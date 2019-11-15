@@ -66,14 +66,14 @@ plt.subplot(223)
 for i in range(len(energy)):
     plt.plot(temperatures,energy[i],color=colors[i],label="L=%s"%str(lens[i]))
 plt.xlabel("Temperature [kT/J]")
-plt.ylabel("Energy per particle [J]")
+plt.ylabel("Avg. energy per particle [J]")
 plt.legend()
 plt.subplot(224)
 
 for i in range(len(magnetisation)):
     plt.plot(temperatures,magnetisation[i],color=colors[i],label="L=%s"%str(lens[i]))
 plt.xlabel("Temperature [kT/J]")
-plt.ylabel("Absolute Magnetisation per particle [unitless]")
+plt.ylabel("Avg. abs. Magnetisation per particle [unitless]")
 plt.legend()
 plt.tight_layout()
 
