@@ -30,7 +30,7 @@ int main(int argc, char** argv){
     counter++;
   }
   for(int i=0;i<=tot_temp;i++){
-    cout << temperatures[i] << " ";
+    cout << temperatures[i] << " "<<endl;
   }
   double time_start,time_end,total_time,temp,energy_variance,magnetic_variance;
   int numprocs,my_rank; // numprocs __needs__ to be 4, otherwise the program has to go through quite some changes...
@@ -126,7 +126,7 @@ int main(int argc, char** argv){
       MPI_Reduce(&all_results[i][j],&all_results_total[i][j],1,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
     }
   }
-  if (my_rank==0){
+  if (my_rank==0){ // Only one thread is allowed to do this 
     writeTime(total_time,tot_temp,"yes","none");
     ofstream outfile;
     cout << "Total time: " << total_time << " seconds"<<endl;
