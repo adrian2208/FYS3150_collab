@@ -2,8 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import sys
-infilename="results_calculations_general.csv"
-
+def readfromtwo():
+    infilename="results_calculations_40.csv"
+    data=np.loadtxt("../results/%s"%infilename,skiprows=1,dtype=float,delimiter=",")
+    temperatures2=data[:,0]
+    print(temperatures)
+    xi=data[:,-1]
+    return temperatures2,xi
+def calculate_regression(x_val,y_val):
+    regression=np.poly1d(np.polyfit(x_val,y_val,deg=1))
+    mse=0;
+    for i in range(len(x_val)):
+        mse+=(y_val[i]-regression(x_val[i]))**2
+    return regression(0),np.sqrt(mse/(len(x_val)-2))
+infilename="results_calculations_superaccurate.csv"
 if len(sys.argv) >=2:
     infilename=sys.argv[1]
 
@@ -15,14 +27,11 @@ lens=[40,60,80,100]
 inv_lens=np.asarray(lens,dtype=float)**(-1)
 crit_temp_cv=[]
 crit_temp_chi=[]
-print(temperatures)
 cv=[[] for lenny in lens]
 energy=[[] for lenny in lens]
 xi=[[] for lenny in lens]
 magnetisation=[[] for lenny in lens]
 
-print(data[:,0])
-print(data[0,:])
 for i in range(len(lens)):
     for temperature in temperatures:
         relevant=data[np.logical_and(abs(data[:,0]-temperature)<1e-10,data[:,1]==lens[i])][0][-2]
@@ -34,6 +43,10 @@ for i in range(len(lens)):
         relevant=data[np.logical_and(abs(data[:,0]-temperature)<1e-10,data[:,1]==lens[i])][0][7]
         magnetisation[i].append(relevant)
 
+temperatures2=temperatures
+if infilename=="results_calculations_superaccurate.csv":
+    temperatures2,xi[0] = readfromtwo()
+    print(temperatures2)
 colors=["blue","orange","green","red"]
 font = {'family' : 'normal',
         'weight' : 'normal',
@@ -54,10 +67,16 @@ plt.legend()
 plt.subplot(222)
 
 for i in range(len(xi)):
-    plt.plot(temperatures,xi[i],color=colors[i],label="L=%s"%str(lens[i]))
-    maxindex=np.argmax(xi[i])
-    crit_temp_chi.append(temperatures[maxindex])
-    plt.plot(temperatures[maxindex],xi[i][maxindex], "o",color=colors[i])
+    if i==0:
+        plt.plot(temperatures2,xi[i],color=colors[i],label="L=%s"%str(lens[i]))
+        maxindex=np.argmax(xi[i])
+        crit_temp_chi.append(temperatures2[maxindex])
+        plt.plot(temperatures2[maxindex],xi[i][maxindex], "o",color=colors[i])
+    else:
+        plt.plot(temperatures,xi[i],color=colors[i],label="L=%s"%str(lens[i]))
+        maxindex=np.argmax(xi[i])
+        crit_temp_chi.append(temperatures[maxindex])
+        plt.plot(temperatures[maxindex],xi[i][maxindex], "o",color=colors[i])
 plt.xlabel("Temperature [kT/J]")
 plt.ylabel(r"Susceptibility $\chi$ per particle [$\frac{1}{J}$]")
 plt.legend()
@@ -80,13 +99,11 @@ plt.tight_layout()
 plt.savefig("../plots/%s.pdf"%infilename[:-4])
 plt.show()
 
-regression_cv=np.poly1d(np.polyfit(inv_lens,crit_temp_chi,deg=1))
-print(inv_lens,crit_temp_chi)
-print(regression_cv)
-regression_chi=np.poly1d(np.polyfit(inv_lens,crit_temp_cv,deg=1))
-x=np.linspace(0,1,1000)
+krit_cv,rmse_cv=calculate_regression(inv_lens,crit_temp_cv)
+krit_chi,rmse_chi=calculate_regression(inv_lens,crit_temp_chi)
+print("The critical temperature using Cv is found to be %f, with an RMSD value of %f "%(krit_cv,rmse_cv))
+print("The critical temperature using chi is found to be %f, with an RMSD value of %f "%(krit_chi,rmse_chi))
+print("\n\n%8s%8s%8s"%("L", "Tc(Cv)", "Tc(chi)"))
 
-plt.plot(x,regression_cv(x))
-plt.plot(x,regression_chi(x))
-plt.ylim(2.2,2.3)
-plt.show()
+for i in range(len(lens)):
+    print("%8d%8.4f%8.4f"%(lens[i],crit_temp_cv[i],crit_temp_chi[i]))
