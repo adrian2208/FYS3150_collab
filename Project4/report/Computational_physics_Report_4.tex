@@ -66,7 +66,12 @@ The Ising model is a way of modelling macroscopic systems by simulating interact
 E=-J\sum_{< kl >}^{N}s_ks_l 
 \end{equation}
 $s_k=\pm 1$. Where E is the total energy of the system and the quantity $N$ representing the total number of spins and $J$ being the coupling constant expressing the strength of the interaction between
-neighboring spins \cite{Lecture_Notes_Fall_2015}.\\For a $2\times2$ lattice with binary microstates, there are 16 possible spin configurations:
+neighboring spins \cite{Lecture_Notes_Fall_2015}. The magnetization is simply a sum over all spin states
+\begin{equation}
+S_{total} = \sum_{i} S_i
+\end{equation}
+$S_i$ being either $1$ or $-1$ depending on the spin configuration.
+For a $2\times2$ lattice with binary microstates, there are 16 possible spin configurations:
 \begin{table}[H]
 \begin{tabular}{llllllllllllllll}
  $\uparrow$ $\uparrow$ &  $\uparrow$ $\uparrow$ &  $\uparrow$ $\uparrow$ &  $\uparrow$ $\uparrow$ &  $\uparrow$ $\downarrow$ &  $\uparrow$ $\downarrow$ & $\uparrow$ $\downarrow$ & $\uparrow$ $\downarrow$ \\
@@ -150,7 +155,7 @@ Z =  2\left( e^{-\beta (8J)} +e^{\beta (8J)} \right)+12
 By virtue of the partition function $Z$, the sum of the probabilities $P_i(\beta)$ for all states $i \in [1,2,\cdots,16]$ is normalized to $1$. 
 \paragraph{The mean energy} of a system at a given temperature is 
 \begin{equation}\label{mean energy equation}
-|E| = \sum_{i=1}^{M} E_iP_i(\beta) = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M E_ie^{-\beta E_i}
+\braket{E} = \sum_{i=1}^{M} E_iP_i(\beta) = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M E_ie^{-\beta E_i}
 \end{equation}
 summing over the products of the energy of a configuration with the probability of the system being in that way, then dividing by the normalization factor $Z$.\\The energy variance is calculated as
 \begin{equation}\label{C_V definition equation}
@@ -163,7 +168,7 @@ C_V = \frac{1}{kT^2} \left(  \braket{E^2}-\braket{E}^2  \right)
 with $k$ again, being the Boltzmann constant and $T$ being the temperature.
 \paragraph{The mean magnetization} is similarly calculated:
 \begin{equation} \label{Mean magnetization definition equation}
- |\mathcal{M}| = \sum_{i=1}^{M} \mathcal{M}_iP_i(\beta) = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M \mathcal{M}_ie^{-\beta E_i}
+ \braket{\mathcal{M}} = \sum_{i=1}^{M} \mathcal{M}_iP_i(\beta) = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M \mathcal{M}_ie^{-\beta E_i}
 \end{equation} 
 with the variance
 \begin{equation}
@@ -173,13 +178,21 @@ The magnetic susceptibility then is defined as
 \begin{equation}\label{Magnetic susceptibility definition equation}
 \chi = \frac{1}{kT} \left( \braket{\mathcal{M}^2}-\braket{\mathcal{M}}^2 \right).
 \end{equation}
+Because the mean magnetisation will always be zero in the Ising model, as the state with all spins inverted has the same energy and thus the same probability, we look at the absolute magnetisation and the absolute susceptibility, defined as
+\begin{equation} \label{Mean magnetization definition equation}
+ \braket{|M|} = \sum_{i=1}^{M} |\mathcal{M}_i|P_i(\beta) = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M |\mathcal{M}_i|e^{-\beta E_i}
+\end{equation} 
+\begin{equation}\label{Magnetic susceptibility definition equation}
+\chi_{abs} = \frac{1}{kT} \left( \braket{\mathcal{M}^2}-\braket{|\mathcal{M}|}^2 \right).
+\end{equation}
+Each time we refer to the magnetic susceptibility, we in fact refer to $\xi_{abs}$.
 \subsubsection{$2\times2$ Lattice}
-From the analytical expressions, we can calculate the expectation value for the energy, the mean absolute value of the magnetic moment, the specific heat capacity and the magnetic susceptibility of the $2\times 2$ lattice.\\Starting with the energy terms, $|E|$ and $\braket{E^2}$ are calculated first using equation \eqref{mean energy equation}.
+From the analytical expressions, we can calculate the expectation value for the energy, the mean absolute value of the magnetic moment, the specific heat capacity and the magnetic susceptibility of the $2\times 2$ lattice.\\Starting with the energy terms, $\braket{E}$ and $\braket{E^2}$ are calculated first using equation \eqref{mean energy equation}.
 \begin{equation*}
-|E|(\beta) = \frac{1}{\sum_{i=1}^{16} e^{-\beta E_i}} \sum_{i=1}^{16} E_ie^{-\beta E_i}
+\braket{E}(\beta) = \frac{1}{\sum_{i=1}^{16} e^{-\beta E_i}} \sum_{i=1}^{16} E_ie^{-\beta E_i}
 \end{equation*}
 \begin{equation}
-|E|(\beta) = \frac{8J\left( e^{-\beta (8J)} -e^{\beta (8J)} \right)}{ e^{-\beta (8J)} +e^{\beta (8J)} +6}.
+\braket{E}(\beta) = \frac{8J\left( e^{-\beta (8J)} -e^{\beta (8J)} \right)}{ e^{-\beta (8J)} +e^{\beta (8J)} +6}.
 \end{equation}
 Inserting $E_i^2$ for $E_i$ into equation \eqref{mean energy equation} gives
 \begin{equation*}
@@ -195,7 +208,7 @@ C_V = \frac{1}{kT^2}\left( \frac{32J^2\left( e^{-\beta (8J)} +e^{\beta (8J)} \ri
 
 Next is calculating the mean absolute value of the magnetic moment. In doing this, the magnetization is treated the same if it is of the same magnitude but in the opposite direction. Magnetization from this point forward will mean exactly this. That means the instances of magnetization are as in table \ref{energies and magnetizations for a 2x2 lattice}, but with negative instances of magnetization counting towards their respective absolute value. Using equation \eqref{Mean magnetization definition equation},
 \begin{equation*}
-|\mathcal{M}| = \frac{\left( 2\left( 4e^{\beta (8J)} \right) +8\left( 2\cdot1 \right)\right)}{2\left( e^{-\beta (8J)} +e^{\beta (8J)} \right)+12} = \frac{4\left(  e^{\beta (8J)}  +2\right)}{ e^{-\beta (8J)} +e^{\beta (8J)}+6}.
+\braket{\mathcal{M}} = \frac{\left( 2\left( 4e^{\beta (8J)} \right) +8\left( 2\cdot1 \right)\right)}{2\left( e^{-\beta (8J)} +e^{\beta (8J)} \right)+12} = \frac{4\left(  e^{\beta (8J)}  +2\right)}{ e^{-\beta (8J)} +e^{\beta (8J)}+6}.
 \end{equation*}
 For calculating $\braket{\mathcal{M}^2}$, $\mathcal{M}^2$ is inserted for $\mathcal{M}$ in equation \eqref{Mean magnetization definition equation}.
 \begin{equation*}
@@ -206,7 +219,7 @@ For calculating $\braket{\mathcal{M}^2}$, $\mathcal{M}^2$ is inserted for $\math
 \end{equation}
 The magnetic susceptibility can then be calculated using equation \eqref{Magnetic susceptibility definition equation}.
 \begin{equation}
-\chi = \frac{1}{kt}\left( \frac{ 16\left( e^{\beta (8J)}  +1 \right)}{\left( e^{-\beta (8J)} +e^{\beta (8J)} \right)+6} - \left( \frac{4\left(  e^{\beta (8J)}  +2\right)}{ e^{-\beta (8J)} +e^{\beta (8J)}+6} \right)^2 \right)
+\chi = \frac{1}{kT}\left( \frac{ 16\left( e^{\beta (8J)}  +1 \right)}{\left( e^{-\beta (8J)} +e^{\beta (8J)} \right)+6} - \left( \frac{4\left(  e^{\beta (8J)}  +2\right)}{ e^{-\beta (8J)} +e^{\beta (8J)}+6} \right)^2 \right)
 \end{equation}
 These equations will later be useful for benchmarking our program by comparing computed values to the analytical expressions.
 \subsubsection{Phase transition}
@@ -235,9 +248,15 @@ C_V(T) \sim |T_C-T|^{-\alpha}
 with $\beta=\frac{1}{8}$, $\alpha=0$ and $\gamma = -\frac{7}{4}$ \cite{Lecture_Notes_Fall_2015}
 \subsection{The Metropolis algorithm}
 We seek to model a system moving from an initial state to an equilibrium state. A Markov process used in this application needs to fulfil the conditions of ergodicity and detailed balance. A popular algorithm for applying Markov chains with these conditions is the Metropolis algorithm \cite{Lecture_Notes_Fall_2015}. Firstly, assigning a random walk with a normalized transition probability, the stochastic matrix $\hat{W}$ with matrix elements $ij$ giving the probability of moving from state $i$ to state $j$. This will act on the normalized state $\hat{\omega}(t)$, preserving normalization, giving the next state $\hat{\omega}(t+\epsilon)$.
-\paragraph{The Markov chain}employs the repeated application of a stationary, stochastic transition matrix $\hat{W}$ to a starting state $\hat{\omega}(t=0)$
-
-The transition probability is not known for the system we seek to model and so it is modelled as the product of the transition probability $T \in[0,1]$ and the probability of the transition being accepted $A\in[0,1]$:
+\paragraph{The Markov chain}employs the repeated application of a stationary, stochastic transition matrix $\hat{W}$ to a starting state $\hat{\omega}(t=0)$ with the sum of every entry being normalized to 1 and every entry $\omega_i \in \mathcal{R} | \{0\leq \omega_i \leq 1\}$ such that
+\begin{equation}
+\hat{\omega}(t= n\Delta t) = \hat{W}^n\hat{\omega}(t=0),\hspace{4mm} \Delta t \textit{ is the time step}.
+\end{equation}
+The largest eigenvalue of such a matrix $\hat{W}$ being 1 \cite{Lecture_Notes_Fall_2015} for an eigenstate
+\begin{equation}
+\hat{\omega}(t) = \hat{W}\hat{\omega}(t)
+\end{equation}
+and the lowest possible eigenvalue being greater than or equal to 0, meaning the repeated application of the  matrix $\hat{W}$ on the state $\hat{\omega}(t=0)$ will always converge to a steady state.\\\\The transition probability is not known for the system we seek to model and so it is modelled as the product of the transition probability $T \in[0,1]$ and the probability of the transition being accepted $A\in[0,1]$:
 \begin{equation}
 W(j\rightarrow i) = \underbrace{T(j\rightarrow i)}_{P(transition)}\cdot\underbrace{A(j\rightarrow i)}_{P(acceptance)}
 \end{equation}
@@ -416,10 +435,11 @@ This data fits very well with our expectations: The critical temperatures approa
 \subsection{Critical temperature}
 The critical temperature can be calculated using the procedure described in section \ref{Extracting the critical temperature}. Doing this, and using the maximum values from figure \ref{Superaccurate critical temperature plot}, which can be found in table \ref{Table of critical temperatures} in the appendix, we find that $T_C(L_{\rightarrow \infty})\approx2.269\pm0.002$ using data from the heat capacity and  $T_C(L_{\rightarrow \infty})\approx2.265\pm0.005$ using data from the susceptibility. Both results are very close to the analytical result, and the analytical result is within one standard deviation both times. Clearly, the obtained values for $T_C(L)$ are only approximations, as it may well lie at temperatures that were not simulated, and only testing all temperatures with infinite Monte Carlo cycles would yield the exact results for these systems. That is why the results are not perfectly identical to the analytical result.
 \section{Conclusion}
-Using simulations, it is possible to learn a lot about physical systems. The Metropolis algorithm has shown to be quite reliable, and the simulated result is quite close to the analytical result. The Ising model is quite primitive in the sense that several quantities showing up in real systems are ignored, such as length or charge, or that particles only interact with their nearest neighbours, or that matter in fact is three- dimensional. But it still has many important physical attributes that one can calculate. In more sensitive simulations, this is something to be taken into consideration, but it exceeds the frame of this article. Using gradient-based techniques, it might be possible to approximate a simulated system's critical temperature without having to do simulations for each temperature where one might suspect the critical temperature to be. 
+We found that using simulations, one can learn a lot about physical systems. The Metropolis algorithm has shown to be very reliable, and the simulated result for both the critical temperature and the energy distribution match with the expectations from the analytical expressions. Simulating several lattice sizes, the larger the lattice is, the more it resembles bulk matter, and it is possible to extrapolate to the behaviour at infinite size. This extrapolation is clearly necessary, as these simulations are very time-intensive, and simulating for example L=1000 with the same amount of Monte Carlo cycles would have taken weeks. Our result matched very well with the analytical result for the critical temperature. The Ising model is quite primitive in the sense that several quantities showing up in real systems are ignored, such as length or charge, or that particles only interact with their nearest neighbours, or that matter in fact is three-dimensional. But it still has many important physical attributes that one can calculate, out of which the fact that it employs phase transitions is most important. The loss of magnetisation in ferromagnetic matter above a critical temperature has been observed. In more sensitive simulations, the lack of the model's complexity is something to be taken into consideration, but it exceeds the frame of this article. Using gradient-based techniques, it might be possible to approximate a simulated system's critical temperature without having to do simulations for each temperature where one might suspect the critical temperature to be. 
 We did not employ methods such as reshuffling (Bootstrap, for example) to get better guesses on the critical temperature, and we did not include aspects such as covariance that might be caused by, for example, the random number generator. This could be done in future articles.
-\section{Critique}
 
+\section{Critique}
+Not being physics students, applying the principles of statistical physics was quite demanding and at times frustrating since the concepts were so foreign. An alternative approach to the application of the Metropolis algorithm or a more thorough description behind the principles that were taken for granted would for us be a more helpful approach.
 \section{Appendix}
 \subsection{Figures}
 \begin{figure}[H]
