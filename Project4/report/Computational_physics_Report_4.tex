@@ -58,7 +58,7 @@
 Studying phase transitions as a function of temperature is an important aspect in the physical and chemical sciences. Following Boltzmann-statistics, analytical studies become infeasible as the size of the system increases.  We implemented the two-dimensional Ising model for different lattice sizes and sampled using the Metropolis algorithm at varying temperatures. We found that it takes roughly 20,000 Monte Carlo cycles times the amounts of spins simulated for the system to equilibrate. Using the heat capacity, the critical temperature for an infinitely large system was found to be $T_C(L_{\rightarrow \infty})\approx2.269\pm0.002$, which is in accordance with the article by Lars Onsager \cite{onsager1944two}. We also found that the energy distribution clearly resembles the expected Boltzmann distribution. 
 \section{Introduction}
 The purpose of this article is to apply the widely popular Ising model in two dimensions to simulate phase transitions in a binary spin, two- dimensional lattice using periodic boundary conditions. \\As the system's state depends on the partition function Z, a function of all microstates, analytical descriptions of the system become infeasible, as the amount of microstates is given as $\#microstates=2^N$ where N is the amount of particles simulated. Thus, even with the help of a powerful computer, solving the analytical function even for small N, such as N=400, would exceed the universe's lifetime.\\ In order to get an approximation of the system's distribution function, we will apply a Markov chain Monte Carlo method, specifically the Metropolis algorithm.
-By simulating such a lattice for varying lattice sizes, the aim is to extrapolate the critical temperature of a macroscopic solid using comparatively microscopic lattice sizes using approximate values for the energy and the magnetisation and their respective variance. By comparing values calculated from this model with the exact result obtained by Lars Onsager \cite{onsager1944two}, we can evaluate the accuracy of the model. In addition, we study the energy distributions as functions of energy and compare them to the familiar Boltzmann distribution. Finally, the distribution of magnetization as a function of temperature, and the phase transition from spontaneous magnetization to zero magnetization observed.\\\\The model is implemented using C++ and parallelized using MPI. The effectiveness of parallelization and compiler flags is tested.
+By simulating such a lattice for varying lattice sizes, the aim is to extrapolate the critical temperature of a macroscopic solid using comparatively microscopic lattice sizes using approximate values for the energy and the magnetisation and their respective variance. By comparing values calculated from this model with the exact result obtained by Lars Onsager \cite{onsager1944two}, we can evaluate the accuracy of the model. In addition, we study the energy distributions as functions of energy and compare them to the familiar Boltzmann distribution. Finally, the distribution of magnetization as a function of temperature, and the phase transition from spontaneous magnetization to zero magnetization is observed.\\\\The model is implemented using C++ and parallelized using MPI. The effectiveness of parallelization and compiler flags is tested.
 \section{Methods}
 \subsection{The Ising model in two dimensions}
 The Ising model is a way of modelling macroscopic systems by simulating interactions between nearest neighbouring microscopic entities.\\The intent is to examine phase transitions in materials at finite temperatures by modelling the 2- dimensional atomic lattice as neighbouring units switching between  binary spin states. In the absence of any external magnetic field their interactions are determined by the equation
@@ -68,9 +68,9 @@ E=-J\sum_{< kl >}^{N}s_ks_l
 $s_k=\pm 1$. Where E is the total energy of the system and the quantity $N$ representing the total number of spins and $J$ being the coupling constant expressing the strength of the interaction between
 neighboring spins \cite{Lecture_Notes_Fall_2015}. The magnetization is simply a sum over all spin states
 \begin{equation}
-S_{total} = \sum_{i} S_i
+\mathcal{M}_{total} = \sum_{i} s_i
 \end{equation}
-$S_i$ being either $1$ or $-1$ depending on the spin configuration.
+$s_i$ being either $1$ or $-1$ depending on the spin configuration.
 For a $2\times2$ lattice with binary microstates, there are 16 possible spin configurations:
 \begin{table}[H]
 \begin{tabular}{llllllllllllllll}
@@ -141,7 +141,7 @@ The inverse operations naturally giving the negative of their corresponding $\De
 \begin{equation}
 P_i(\beta) = \frac{e^{-\beta E_i}}{Z}.
 \end{equation}
-With $\beta = \frac{1}{kT}$ being the inverse of the temperature and $k$ being the Boltzmann constant. $E_i$ is the energy of the system in the configuration $i$ and $Z$ is the partition function for the canonical ensemble
+With $\beta = \frac{1}{kT}$ being the inverse of the product of the temperature and $k$, $k$ being the Boltzmann constant. $E_i$ is the energy of the system in the configuration $i$ and $Z$ is the partition function for the canonical ensemble
 \begin{equation}
 Z = \sum_{i=1}^M e^{-\beta E_i}
 \end{equation}
@@ -157,7 +157,7 @@ By virtue of the partition function $Z$, the sum of the probabilities $P_i(\beta
 \begin{equation}\label{mean energy equation}
 \braket{E} = \sum_{i=1}^{M} E_iP_i(\beta) = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M E_ie^{-\beta E_i}
 \end{equation}
-summing over the products of the energy of a configuration with the probability of the system being in that way, then dividing by the normalization factor $Z$.\\The energy variance is calculated as
+summing over the products of the energy of a configuration with the probability of the system being in that configuration, then dividing by the normalization factor $Z$.\\The energy variance is calculated as
 \begin{equation}\label{C_V definition equation}
 \sigma_E^2 = \braket{E^2}-\braket{E}^2 = \frac{1}{\sum_{i=1}^M e^{-\beta E_i}} \sum_{i=1}^M E_i^2e^{-\beta E_i} - \left( \frac{\sum_{i=1}^M E_ie^{-\beta E_i}}{\sum_{i=1}^M e^{-\beta E_i}} \right)^2
 \end{equation}
@@ -185,7 +185,7 @@ Because the mean magnetisation will always be zero in the Ising model, as the st
 \begin{equation}\label{Magnetic susceptibility definition equation}
 \chi_{abs} = \frac{1}{kT} \left( \braket{\mathcal{M}^2}-\braket{|\mathcal{M}|}^2 \right).
 \end{equation}
-Each time we refer to the magnetic susceptibility, we in fact refer to $\xi_{abs}$.
+Each time we refer to the magnetic susceptibility, we in fact refer to $\chi_{abs}$.
 \subsubsection{$2\times2$ Lattice}
 From the analytical expressions, we can calculate the expectation value for the energy, the mean absolute value of the magnetic moment, the specific heat capacity and the magnetic susceptibility of the $2\times 2$ lattice.\\Starting with the energy terms, $\braket{E}$ and $\braket{E^2}$ are calculated first using equation \eqref{mean energy equation}.
 \begin{equation*}
@@ -234,7 +234,10 @@ Through finite size scaling relations \cite{Problem_set_4}, behaviours of finite
 \begin{equation}\label{Critical temperature with infinity equation}
 T_C(L) -T_C(L_{\rightarrow \infty}) \propto aL^{-\frac{1}{\nu}}
 \end{equation}
-\cite{Lecture_Notes_Fall_2015}, with $a$ being a constant and $\nu$ being defined in equation \eqref{correlation length close to T_C}.
+\cite{Lecture_Notes_Fall_2015}, with $a$ being a constant and $\nu$ being defined in equation \eqref{correlation length close to T_C}. Alternatively the proportionality constant can be absorbed into $a$, giving the equation
+\begin{equation*}
+T_C(L) -T_C(L_{\rightarrow \infty}) = aL^{-\frac{1}{\nu}}.
+\end{equation*}
 \paragraph{Mean magnetization, heat capacity and magnetic susceptibility}are related to the critical temperature by the relations
 \begin{equation}
 \braket{\mathcal{M}(T)} \sim (T-T_C)^\beta
@@ -311,7 +314,7 @@ the former part of that equation being the so-called Master equation derived fro
 \end{equation}
 indicating the steady state.
 \subsection{Periodic boundary conditions}
-Because it is not computationally possible to simulate a system in the magnitude of real matter (which is close to Avogadro's number), a simulated system has a much higher surface-per-volume ratio \footnote{In the case of a two-dimensional system, it is technically a border-per-surface ratio.} than a real system. This needs to be taken into consideration, because otherwise, simulation results would ignore a large part of interactions existing in larger systems. One way to tackle this issue, is to employ periodic boundary conditions. The idea is that the particles on the system's borders interact with each other. That is, in a lattice of size $n\times n$, the particles in the $n$\textsuperscript{th} row or column interact with the particles in the first row or column, as if they were in the  $(n+1)$\textsuperscript{th} row or column. The advantage of this is that there are no surface particles, thus simulating an infinitely large system, resembling reality closer than a very small system. The disadvantage is that particles are correlated in an unnatural way. Especially in smaller systems, this will lead to particles interacting with their own "mirror image", where a particle's spin conformation might affect the surrounding in a way that the particle itself will be affected by its own spin.
+Because it is not computationally possible to simulate a system in the magnitude of real matter (which is close to Avogadro's number), a simulated system has a much higher surface-per-volume ratio \footnote{In the case of a two-dimensional system, it is technically a border-per-surface ratio.} than a real system. This needs to be taken into consideration, because otherwise, simulation results would ignore a large part of interactions existing in larger systems. One way to tackle this issue, is to employ periodic boundary conditions. The idea is that the particles on the system's borders interact with each other. That is, in a lattice of size $n\times n$, the particles in the $n$\textsuperscript{th} row or column interact with the particles in the first row or column, as if they were in the  $(n+1)$\textsuperscript{th} row or column\footnote{Technically, by correlating spins in this way, we are simulating spins interacting on the surface of a torus}. The advantage of this is that there are no surface particles, thus simulating an infinitely large system, resembling reality closer than a very small system. The disadvantage is that particles are correlated in an unnatural way. Especially in smaller systems, this will lead to particles interacting with their own "mirror image", where a particle's spin conformation might affect the surrounding in a way that the particle itself will be affected by its own spin.
 All simulations were done using periodic boundary conditions.
 \subsection{Computational implementation}
 
@@ -339,7 +342,7 @@ This can be precomputed for each individual $\Delta E$ for a given temperature a
 The lattice was implemented as a two-dimensional integer matrix with values -1 or 1, representing the spin states. The initial matrix is either randomized or has all spins pointing in the same direction (see Results-part). 
 Then, the initial energy and magnetisation can be calculated using the formulas above.
 The Metropolis algorithm was then implemented the following way after the system has been set up:\\
-N times, where $N=L^2$ and L is the lattice size, a suggested spin to flip is suggested. Then the change in energy and $exp(-\Delta E/T)$ are calculated.If $exp(-\Delta E/T)$ is larger than a randomly distributed number r \footnote{The Mersenne-Twister RnG is used to create this number}, the move is accepted, otherwise the loop over N is continued. If the move is accepted, the system's magnetisation and the energy are updated. After the loop is finished, the expectation values for $E$, $E^2$, $M$, $M^2$ are updated. The loop is then repeated for the desired amount of simulation steps. Finally, the final expectation values for $E$, $E^2$, $M$, $M^2$, $C_V$ and $\chi$ are calculated. To reiterate, for each Monte Carlo cycle, the energy- and magnetization- difference is added to the total energy and magnetization:
+N times, where $N=L^2$ and L is the lattice size, a suggested spin to flip is suggested. Then the change in energy and $exp(-\Delta E/T)$ are calculated.If $exp(-\Delta E/T)$ is larger than a randomly distributed number $R$ \footnote{The Mersenne-Twister RnG is used to create this number}, the move is accepted, otherwise the loop over N is continued. If the move is accepted, the system's magnetisation and the energy are updated. After the loop is finished, the expectation values for $E$, $E^2$, $M$, $M^2$ are updated. The loop is then repeated for the desired amount of simulation steps. Finally, the final expectation values for $E$, $E^2$, $M$, $M^2$, $C_V$ and $\chi$ are calculated. To reiterate, for each Monte Carlo cycle, the energy- and magnetization- difference is added to the total energy and magnetization:
 \begin{equation*}
 E \mathrel{{+}{=}} \Delta E,\hspace{6mm} M\mathrel{{+}{=}} \Delta M.
 \end{equation*}
@@ -391,7 +394,7 @@ Another interesting observation is that many more states are accepted at the hig
 Parallelization gave a substantial time benefit, however, different compilation flags barely changed the program's run time. The program was run on a computer with a CPU with 4 cores, and 8GB RAM. Table \ref{Runtime compiler flags} shows the time usage (single runs) achieved with different compilation flags, with- and without parallelization. A rather short timing experiment was conducted, and it is run over 4 temperatures in order to achieve the ideal speedup from parallelization.
 \begin{table}[H]
 \centering
-\caption[Time usage parallel/non-parallel, compilation flags]{Time consumption of a simulation using $4\cdot10^4$ simulation steps for 4 different temperatures (T=2.0,2.1,2.2,2.3) and 4 matrix sizes (L=40,60,80,100) with different compiler flags. All results were averaged over 4 runs}
+\caption[Time usage parallel/non-parallel, compilation flags]{Time consumption of a simulation using $4\cdot10^4$ simulation steps for 4 different temperatures (T=2.0,2.1,2.2,2.3) and 4 matrix sizes (L=40,60,80,100) with different compiler flags. All results were averaged over 3 runs.}
 \centering
 \begin{tabular}{|r|r|r|}
 \hline
@@ -406,7 +409,7 @@ The big improvement in timing clearly comes from parallelization: The time usage
 
 \subsection{Results achieved using $2\times2$ lattice}
 Using a $2\times2$ lattice, the same results where achieved as for the analytical solution, which indicates that the algorithm was implemented correctly and gives reasonable results. The actual results are not interesting and not presented here. Because these simulations are comparatively fast to run, it is feasible to compute the relative error found in these calculations and use them to get a very general idea on error estimation for the calculations where no analytical solution can be computed.
-Using $10^6$ simulation steps, the relative error could be reduced to less than one percent for all physical quantities for temperatures between 2.0 and 3.0. However, there were huge fluctuations in the maximum relative error, and the maximum relative error was always found in the heat capacity. Example data can be found in the appendix.
+Using $10^6$ simulation steps, the relative error could be reduced to less than one percent for all physical quantities for temperatures between 2.0 and 3.0. However, there were huge fluctuations in the maximum relative error, and the maximum relative error was always found in the heat capacity. Example data can be found in table \ref{Table 3} and \ref{Table 4} in the appendix.
 \subsection{Energy distribution in a $20\times20$ lattice}
 As the temperature is increased, the system's average energy increases as well. The energies' probability distribution is changed as well. These probability distributions for a T=1.0 and T=2.4 in a $20\times20$ lattice are shown in figure \ref{Energy probability distributions in a 20x20 lattice at T1.0  T2.4}.
 \begin{figure}[H]
@@ -414,7 +417,7 @@ As the temperature is increased, the system's average energy increases as well. 
 %\centering
 \caption[Energy probability distributions in a $20\times20$ lattice at T=1.0 \& T=2.4]{Distribution of energies in a $20\times20$ lattice at T=1.0 and T=2.4 with $10^6$ simulation steps.}\label{Energy probability distributions in a 20x20 lattice at T1.0  T2.4}
 \end{figure}
-This data fits well with the calculated standard deviations. At T=1.0, the standard deviation in energy is $\sigma_E\approx3.05J$ around the average value $E=-798.8J$, at T=2.4, the standard deviation in energy is $\sigma_E\approx57.1J$ around the average value $E=-495.0J$. At the higher temperature, the energies are distributed over a much broader range, and far more individual energies have a nonzero distribution. This data fits also very well with Figure \ref{Average energy, average absolute magnetisation and accepted spins at T1.0} and Figure \ref{Average energy, average absolute magnetisation and accepted spins at T2.4} - far more suggested configurations are accepted at T=2.4, which clearly increases the fluctuation in energy and thus the standard deviation, compared to the low-temperature state. From this, we can also see that the system at T=2.4 has a much higher heat capacity, which is closely related to the standard deviation. This fits with the calculated data, where the individual particle's heat capacity is given as $C_V$=1.4 for T=2.4 and $C_V$=0.023 for T=1.0. 
+This data fits well with the calculated standard deviations. At T=1.0, the standard deviation in energy is $\sigma_E\approx3.05J$ around the average value $E=-798.8J$, at T=2.4, the standard deviation in energy is $\sigma_E\approx57.1J$ around the average value $E=-495.0J$. At the higher temperature, the energies are distributed over a much broader range, and far more individual energies have a nonzero distribution. This data fits also very well with Figure \ref{Average energy, average absolute magnetisation and accepted spins at T1.0} and Figure \ref{Average energy, average absolute magnetisation and accepted spins at T2.4} - far more suggested configurations are accepted at T=2.4, which clearly increases the fluctuation in energy and thus the standard deviation, compared to the low-temperature state. From this, we can also see that the system at T=2.4 has a much higher heat capacity, which is closely related to the standard deviation. This fits with the calculated data, where the individual particle's heat capacity is given as $C_V$=1.4k for T=2.4 and $C_V$=0.023k for T=1.0. 
 \subsection{Behaviour of the system close to the critical temperature}
 Thanks to calculations done by Lars Onsager \cite{onsager1944two}, we know that the Ising model has an analytical critical temperature of $T_C\approx2.269$, where a phase transition should occur. This behaviour is also expected to show up in a simulation, and a large enough lattice with enough simulation steps should give a result close to the analytical solution.\\We ran a simulation of lattices of sizes L $\forall L \in \{40,60,80,100\}$ for temperatures ranging from 2.0 to 2.35 with a step length of $\Delta T=0.05$ in order to get an overview over the systems' behaviour in the vicinity of the critical temperature. These simulations were run with $10^6-20,000$ simulation steps. The results are shown in figure \ref{for T between 2.0 and 2.35}. Note that the susceptibility $\chi$ is calculated from the absolute magnetization. 
 \begin{figure}[H]
@@ -461,7 +464,7 @@ Relative error & Temperature & Physical quantity \\ \hline
 0.00180        & 2.1         & Heat Capacity     \\ \hline
 0.00156        & 2.0         & Heat Capacity     \\ \hline
 0.000819       & 2.6         & Heat Capacity     \\ \hline
-\end{tabular}
+\end{tabular}\label{Table 3}
 \end{table}
 \begin{table}[H]
 \centering
@@ -474,14 +477,14 @@ Relative error & Temperature & Physical quantity \\ \hline
 0.00882        & 2.0        & Heat Capacity     \\ \hline
 0.00823        & 2.1        & Heat Capacity     \\ \hline
 0.00282       & 2.9         & Heat Capacity     \\ \hline
-\end{tabular}
+\end{tabular}\label{Table 4}
 \end{table}
 \begin{table}[H]
 \centering
 \caption[Critical Temperatures]{Critical temperatures at different lattice sizes L for both the susceptibility $\chi$ and the heat capacity $C_V$. The critical temperature is the temperature where $C_V$/$\chi$ reached their maximum values.}
 \begin{tabular}{|r|r|r|}
 \hline
-Lattice size L & Critical Temperature ($C_V$) & Critical Temperature ($\chi$) \\ \hline
+Lattice size L & Critical Temperature (from $C_V$) & Critical Temperature (from $\chi$) \\ \hline
 40             & 2.2917                        & 2.3200                       \\ \hline
 60             & 2.2817                        & 2.3083                       \\ \hline
 80             & 2.2817                        & 2.2883                       \\ \hline
