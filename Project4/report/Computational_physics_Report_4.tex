@@ -55,7 +55,7 @@
 \clearpage
 
 \section{Abstract}
-
+Studying phase transitions as a function of temperature is an important aspect in the physical and chemical sciences. Following Boltzmann-statistics, analytical studies become infeasible as the size of the system increases.  We implemented the two-dimensional Ising model for different lattice sizes and sampled using the Metropolis algorithm at varying temperatures. We found that it takes roughly 20,000 Monte Carlo cycles times the amounts of spins simulated for the system to equilibrate. Using the heat capacity, the critical temperature for an infinitely large system was found to be T_C(L_{\rightarrow \infty})\approx2.269\pm0.002$, which is in accordance with earlier studies. We also found that the energy distribution clearly resembles the expected Boltzmann distribution. 
 \section{Introduction}
 The purpose of this article is to apply the widely popular Ising model in two dimensions to simulate phase transitions in a binary spin, two- dimensional lattice using periodic boundary conditions. To do this, we will apply a Markov chain Monte Carlo method, specifically the Metropolis algorithm.\\By simulating such a lattice for varying lattice sizes, the aim is to extrapolate the critical temperature of a macroscopic solid using comparatively microscopic lattice sizes. By comparing values calculated from this model with the exact result obtained by Lars Onsager \cite{onsager1944two}, we can evaluate the accuracy of the model. In addition, we study the energy distributions as functions of energy and compare them to the familiar Boltzmann distribution. Finally, the distribution of magnetization as a function of temperature, and the phase transition from spontaneous magnetization to zero magnetization observed.\\\\The model is implemented using C++ and parallelized using MPI. The effectiveness of parallelization and compiler flags is tested.
 \section{Methods}
@@ -340,10 +340,10 @@ In order to improve the run time even more, we also tested several compiler flag
 We tested that the system was sat up correctly and that the resulting numbers and calculations are correct  by comparing the simulation for a $2\times2$-lattice with the analytical solution at different temperatures. The requirement is that, after $10^6$ simulations, the standard error compared to the analytical solution is required to be less than than 1\%.
 \subsubsection{Calculating the critical temperature}
 The critical temperature can, as described earlier, be extracted using the formula 
-$$T_C(L)-T_C(L=\infty)=a\cdot L^{-1/\nu}$$
+$$T_C(L)-T_C(L_{\rightarrow \infty})=a\cdot L^{-1/\nu}$$
 where L is the lattice size and $T_C(L)$ is the critical temperature in the non-infinite system. Here, $\nu=1$. This can be reformulated as 
-$$T_C(L)=a\cdot L^{-1}+T_C(L=\infty)$$
-As $T_C(L)$ will be known from the simulations, and L is a preset factor, there are only two unknown constants: $a$ and $T_C(L=\infty)$. Those can then be found using linear regression, and the insecurity in the critical temperature at $L=\infty$ can be estimated to be standard deviation, which for linear regression lines is defined as 
+$$T_C(L)=a\cdot L^{-1}+T_C(L_{\rightarrow \infty})$$
+As $T_C(L)$ will be known from the simulations, and L is a preset factor, there are only two unknown constants: $a$ and $T_C(L_{\rightarrow \infty})$. Those can then be found using linear regression, and the insecurity in the critical temperature as $L_{\rightarrow \infty}$ can be estimated to be standard deviation, which for linear regression lines is defined as 
 \begin{equation}
 \sigma=\sqrt{\frac{\sum_{i=1}^{N}(y_i-\hat{y}_i)^2}{N-2}}
 \end{equation}
@@ -413,7 +413,7 @@ In order to get a better estimate on the simulated systems' critical temperature
 \end{figure}
 This data fits very well with our expectations: The critical temperatures approach the analytical value for larger values of L. The data is not perfect, as the maximum heat capacity is identical for L=60 and L=80, and the susceptibility is identical for L=80 and L=100, something that might not have happened when running yet more simulation steps with even smaller step lengths. 
 \subsection{Critical temperature}
-The critical temperature can be calculated using the procedure described in section \ref{Extracting the critical temperature}. Doing this, and using the maximum values from figure \ref{Superaccurate critical temperature plot}, which can be found in table \ref{Table of critical temperatures} in the appendix, we find that $T_C(L=\infty)\approx2.269\pm0.002$ using data from the heat capacity and  $T_C(L=\infty)\approx2.265\pm0.005$ using data from the susceptibility. Both results are very close to the analytical result, and the analytical result is within one standard deviation both times. Clearly, the obtained values for $T_C(L)$ are only approximations, as it may well lie at temperatures that were not simulated, and only testing all temperatures with infinite Monte Carlo cycles would yield the exact results for these systems. That is why the results are not perfectly identical to the analytical result.
+The critical temperature can be calculated using the procedure described in section \ref{Extracting the critical temperature}. Doing this, and using the maximum values from figure \ref{Superaccurate critical temperature plot}, which can be found in table \ref{Table of critical temperatures} in the appendix, we find that $T_C(L_{\rightarrow \infty})\approx2.269\pm0.002$ using data from the heat capacity and  $T_C(L_{\rightarrow \infty})\approx2.265\pm0.005$ using data from the susceptibility. Both results are very close to the analytical result, and the analytical result is within one standard deviation both times. Clearly, the obtained values for $T_C(L)$ are only approximations, as it may well lie at temperatures that were not simulated, and only testing all temperatures with infinite Monte Carlo cycles would yield the exact results for these systems. That is why the results are not perfectly identical to the analytical result.
 \section{Conclusion}
 Using simulations, it is possible to learn a lot about physical systems. The Metropolis algorithm has shown to be quite reliable, and the simulated result is quite close to the analytical result. The Ising model is quite primitive in the sense that several quantities showing up in real systems are ignored, such as length or charge, or that particles only interact with their nearest neighbours, or that matter in fact is three- dimensional. But it still has many important physical attributes that one can calculate. In more sensitive simulations, this is something to be taken into consideration, but it exceeds the frame of this article. Using gradient-based techniques, it might be possible to approximate a simulated system's critical temperature without having to do simulations for each temperature where one might suspect the critical temperature to be. 
 We did not employ methods such as reshuffling (Bootstrap, for example) to get better guesses on the critical temperature, and we did not include aspects such as covariance that might be caused by, for example, the random number generator. This could be done in future articles.
@@ -479,7 +479,7 @@ All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} 
 \item[5.] vecop.cpp - Functions, out of which some are used.
 \item[6.] tests\_main.cpp - Unit testing.
 \item[7.] a.py - Analytical solution. Not properly up to date!
-\item[8.] plot\_cv.py - Creates $2\times2$ plot for the larger simulations, also calculates $T_C(L=\infty)$
+\item[8.] plot\_cv.py - Creates $2\times2$ plot for the larger simulations, also calculates $T_C(L_{\rightarrow \infty})$
 \item[9.] plot\_distribution.py Plots the distribution histograms at different temperatures.
 \item[10.] plot\_energy\_simulation\_step.py Plots the  avg. energy, the avg. magnetisation and the amount of accepted steps as a function of simulation step.
 \item[11.] functions.hpp \& functions.cpp - Contains functions for parallelization, and all the integrands, and some more.
