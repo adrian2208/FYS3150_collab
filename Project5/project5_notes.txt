@@ -1,0 +1,11 @@
+---Delete this before pushing the final push --- 
+
+General comments:
+
+The wave-function is clearly symmetric. For that reason, the spin-wave-function needs to be antisymmetric. Thus, it needs to be in a
+triplet state, which means that the only option is that it's total spin S=0.
+
+Other comments on object orientation:
+See OOExamples in doc/Programs
+Solar system - system class (planets) plus solver class (algorithms)
+

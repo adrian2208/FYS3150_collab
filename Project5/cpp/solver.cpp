@@ -2,28 +2,13 @@
 #include <cmath>
 #include <fstream>
 #include <string>
+#include "System.h"
+#include "VMC.h"
 using namespace std;
-class Solver{
-  private:
-    double alpha;
-    double beta;
-    double omega;
-  public:
-    Solver(double alpha, double beta){
-       this->alpha = alpha;
-       this->beta = beta;
-       this->omega = omega;
-    }
-    double El1(){
 
-    }
-    double function(){
-
-    }
-    double EL2(){
-
-    }
-
-};
 int main(int argc, char** argv){
+  System1 per=System1(1.0,2.0,1.0);
+  for (int i=0;i<=100;i++){
+    cout << per.energy(i+0.1,0.0,0.0,0.0,0.0,0.1)<<endl;
+  }
 }
