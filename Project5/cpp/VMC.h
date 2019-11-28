@@ -6,6 +6,8 @@
 #include <fstream>
 #include <string>
 #include "System.h"
+#include "functions.h"
+
 #include <ctime>
 class VRMonteCarlo{
   private:
@@ -18,6 +20,6 @@ class VRMonteCarlo{
     double rand();
   public:
     VRMonteCarlo(System * system, double dr, int amount, int skip, int seed);
-    void sample(double * energy, double * energysquared, double * time);
+    void sample(double * energy, double * energysquared, double * time, double **pos);
 };
 #endif
