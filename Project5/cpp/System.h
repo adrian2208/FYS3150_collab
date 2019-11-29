@@ -12,7 +12,7 @@ class System{
     double beta;
     double omega;
   public:
-    System(double alpha,double beta, double omega);
+    System(double alpha1,double beta1, double omega1);
     double functionCart(double **pos);
     double functionCart(double x1, double y1, double z1, double x2, double y2, double z2);
     double energyCart(double x1, double y1, double z1, double x2, double y2, double z2);
@@ -37,3 +37,8 @@ class System2: public System{
     //double function(double ** pos);
 };
 #endif
+class Testsystem: public System{
+  using System::System;
+  double energy(double r1, double r2,double r12);
+  double function(double r1, double r2, double r12);
+};

@@ -31,7 +31,8 @@ void VRMonteCarlo::sample(double * energy, double * energysquared, double * time
   double **posnew=createNMatrix(2,3);
   double wfold=(*system).functionCart(posold);
   double wfnew;
-  double local_energy=(*system).energyCart(posold);
+  double local_energy=system->energyCart(posold);
+  double accepted_moves_last10000;
   for(i=0;i<amount+skip;i++){ // For each iteration
     /** Suggest new position**/
     for (particle=0;particle<2;particle++){ // For each particle step
@@ -40,21 +41,30 @@ void VRMonteCarlo::sample(double * energy, double * energysquared, double * time
       }
     }
     wfnew=(*system).functionCart(posnew);
-    if (wfnew*wfnew/(wfold*wfold) > rand()){
+    if (wfnew*wfnew/(wfold*wfold) > rand()+0.5){
+      if (i>skip){
+        accepted++;
+      }
+      accepted_moves_last10000++;
       local_energy=(*system).energyCart(posnew);
+
       for (particle=0;particle<2;particle++){ // For each particle step
         for(dim=0;dim<3;dim++){
           posold[particle][dim]=posnew[particle][dim];
         }
       }
-      accepted++;
-      if (i>skip){
-        *energy+=local_energy;
-        *energysquared+=local_energy*local_energy;
-      }
+
+      wfold=wfnew;
+    }
+
+    if (i>skip){
+      *energy+=local_energy;
+      *energysquared+=local_energy*local_energy;
     }
   }
   *energy=*energy/(float)(amount);
+  *energysquared=*energysquared/(float)(amount);
+  cout <<"accepted moves: " << accepted << endl;
 }
 double VRMonteCarlo::rand(){ // Returns a random number between -0.5 and 0.5
   return prob_dist(mt_eng)-0.5;
