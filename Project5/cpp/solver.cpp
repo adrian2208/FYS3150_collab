@@ -25,13 +25,13 @@ int main(int argc, char** argv){
     cout << "You need to give omega, alpha and beta, and dr, and the sampling size, as parameters"<<endl;
     exit(1);
   }
-  double **pos=createNMatrix(2,3);pos[0][0]=0;pos[1][1]=0;pos[1][2]=0;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
-  Testsystem per=Testsystem(alpha,1.0,omega); // alpha, beta (not relevant for system1) and omega
+  double **pos=createNMatrix(2,3);pos[0][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
+  Testsystem per=Testsystem(alpha,beta,omega); // alpha, beta (not relevant for system1) and omega
   VRMonteCarlo vrc=VRMonteCarlo(&per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
   double energy=0,energysquared=0,time=0;
   double sigma;
-  for (int i=0;i<=1;i++){
+  for (int i=0;i<1;i++){
     vrc.sample(&energy,&energysquared,&time,pos);
     sigma=sqrt(energysquared-energy*energy);
     cout <<"Energy: "<<energy<<" Energy squared: "<<energysquared<< "sigma: "<<sigma<<endl;
