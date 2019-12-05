@@ -19,7 +19,8 @@ class VRMonteCarlo{
     std::uniform_real_distribution<double> prob_dist;
     double rand();
   public:
-    VRMonteCarlo(System * system, double dr, int amount, int skip, int seed);
-    void sample(double * energy, double * energysquared, double * time, double **pos);
+    VRMonteCarlo(System * system, double dr, int amount, int skip=2e5, int seed=0);
+    void sample(double * energy, double * energysquared,double *distance_, double * time, double **posold);
+    double * sample_detailed(double * energy, double * energysquared,double *distance_, double * time, double **posold);
 };
 #endif

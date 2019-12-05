@@ -15,7 +15,7 @@ double** createNMatrix(int n,int m){
   return A;
 }
 */
-VRMonteCarlo::VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
+VRMonteCarlo::VRMonteCarlo(System* system, double dr, int amount, int skip, int seed){
       this->system=system;
       this->dr=dr;
       this->amount=amount;
@@ -25,7 +25,8 @@ VRMonteCarlo::VRMonteCarlo(System* system, double dr, int amount, int skip, int 
       mt_eng= mt19937(rd()+seed); //Each thread gets a different seed, as the rank is included
       prob_dist= uniform_real_distribution<double>(0.0,1.0);
     }
-void VRMonteCarlo::sample(double * energy, double * energysquared, double * time, double **posold){
+double * VRMonteCarlo::sample_detailed(double * energy, double * energysquared, double *distance_,double * time, double **posold){
+  int original_skip=skip;
   int i,particle,dim;
   int accepted=0;
   double **posnew=createNMatrix(2,3);
@@ -33,6 +34,12 @@ void VRMonteCarlo::sample(double * energy, double * energysquared, double * time
   double wfnew;
   double local_energy=system->energyCart(posold);
   double accepted_moves_last10000=0;
+  bool equilibrium=false;
+  double *e_avg=new double[amount];
+  int check_size=10000;
+  if (skip<check_size){
+    skip=check_size;
+  }
   for(i=0;i<amount+skip;i++){ // For each iteration
     /** Suggest new position**/
     for (particle=0;particle<2;particle++){ // For each particle step
@@ -54,27 +61,100 @@ void VRMonteCarlo::sample(double * energy, double * energysquared, double * time
       }
       wfold=wfnew;
     }
-    if (i%100000==0 && i!=0){ //each 10.000th time
-      if (accepted_moves_last10000>51000){
+    if (i%check_size==0 && i!=0){ //each 10.000th time
+      if (accepted_moves_last10000>0.6*check_size && i!=0){
         (this->dr)*=1.1;
-        cout << "  increased "<< dr << " ";
+        if(!equilibrium){
+          skip+=check_size;
+        }
       }
-      else if (accepted_moves_last10000<49000){
+      else if (accepted_moves_last10000<0.4*check_size && i!=0){
         (this->dr)*=0.9;
-        cout << "  decreased " << dr << " ";
+        if(!equilibrium){
+          skip+=check_size;
+        }
       }
-      cout << "  accepted: "<< accepted_moves_last10000<<endl;
+      else{
+        equilibrium=true;
+      }
       accepted_moves_last10000=0;
     }
-
-    if (i>skip){
+    if (i>skip && equilibrium){
+      *energy+=local_energy;
+      *energysquared+=local_energy*local_energy;
+      e_avg[i-skip]=*energy/(float)(i-skip);
+    }
+  }
+  *energy=*energy/(float)(amount);
+  *energysquared=*energysquared/(float)(amount);
+  skip=original_skip;
+  cout <<"accepted moves: " << accepted << endl;
+  return e_avg;
+}
+void VRMonteCarlo::sample(double * energy, double * energysquared,double *distance_,double * time, double **posold){
+  int original_skip=skip;
+  int i,particle,dim;
+  int accepted=0;
+  double **posnew=createNMatrix(2,3);
+  double wfold=(*system).functionCart(posold);
+  double wfnew;
+  double local_energy=system->energyCart(posold);
+  double accepted_moves_last10000=0;
+  bool equilibrium=false;
+  int check_size=10000;
+  if (skip<check_size){
+    skip=check_size;
+  }
+  for(i=0;i<amount+skip;i++){ // For each iteration
+    /** Suggest new position**/
+    for (particle=0;particle<2;particle++){ // For each particle step
+      for(dim=0;dim<3;dim++){
+        posnew[particle][dim]=posold[particle][dim]+dr*rand();
+      }
+    }
+    wfnew=(*system).functionCart(posnew);
+    if (wfnew*wfnew/(wfold*wfold) > rand()+0.5){
+      accepted_moves_last10000++;
+      if (i>skip){
+        accepted++;
+      }
+      local_energy=(*system).energyCart(posnew);
+      for (particle=0;particle<2;particle++){ // For each particle step
+        for(dim=0;dim<3;dim++){
+          posold[particle][dim]=posnew[particle][dim];
+        }
+      }
+      wfold=wfnew;
+    }
+    if (i%check_size==0 && i!=0){ //each 10.000th time
+      if (accepted_moves_last10000>0.6*check_size && i!=0){
+        (this->dr)*=1.1;
+        if(!equilibrium){
+          skip+=check_size;
+        }
+      }
+      else if (accepted_moves_last10000<0.4*check_size && i!=0){
+        (this->dr)*=0.9;
+        if(!equilibrium){
+          skip+=check_size;
+        }
+      }
+      else{
+        equilibrium=true;
+      }
+      accepted_moves_last10000=0;
+    }
+    if (i>skip && equilibrium){
+      *distance_+=distance(posold);
       *energy+=local_energy;
       *energysquared+=local_energy*local_energy;
     }
   }
   *energy=*energy/(float)(amount);
   *energysquared=*energysquared/(float)(amount);
+  *distance_=*distance_/(float)(amount);
   cout <<"accepted moves: " << accepted << endl;
+  skip=original_skip;
 }
 double VRMonteCarlo::rand(){ // Returns a random number between -0.5 and 0.5
   return prob_dist(mt_eng)-0.5;
