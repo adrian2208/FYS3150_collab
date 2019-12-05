@@ -1,0 +1,131 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\newcommand{\RomanNumeralCaps}[1]
+    {\MakeUppercase{\romannumeral #1}}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{pbox}
+\usepackage{graphicx}
+%bibliography packages, bibliography files are plain text files marked .bib
+%... in the same directory as the .tex file.
+\usepackage[nottoc,numbib]
+{tocbibind}
+\usepackage{cite}
+\usepackage{braket}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{C:/Users/adria/Pictures/FYS3150/}}
+\author{Adrian Martinsen Kleven, Simon Schrader}
+\title{Project 5}
+
+\lstset{
+ 	language =C++,
+    frame=tb, % draw a frame at the top and bottom of the code block
+    tabsize=4, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    commentstyle=\color{green}, % comment color
+    keywordstyle=\color{blue}, % keyword color
+    stringstyle=\color{red} % string color
+}
+\setlength{\columnsep}{10mm}
+%\setlength{\tabcolsep}{18pt}
+%\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+
+\part*{-Project 5 - FYS3150/FYS4150-
+}
+{\large \textbf{Quantum Monte Carlo of confined electrons}}\\
+{\large By Simon Schrader (4150), Adrian Kleven (3150) - autumn 2019
+}
+\tableofcontents
+
+\listoffigures
+\listoftables
+
+
+\clearpage
+
+\section{Abstract}
+
+\cite{Project2}
+\cite{hammond1994monte}
+\section{Introduction}
+The purpose of this article is to apply the Variational Monte Carlo (VMC) method to two electrons in a quantum dot modelled by a 3- dimensional harmonic oscillator potential. This is in order to evaluate their ground state energy, relative distance, and the expectation values of their kinetic and potential energies.\\In order to benchmark the results of this method, we are comparing the results of the ground state energy with analytical solutions for specific harmonic oscillator frequencies (henceforth $\omega$) as found in M. Taut's \cite{PhysRevA.48.3561} and our previous article \cite{Project2} on the topic of electron confinement in 3- dimensional harmonic oscillator potentials.\\\\The idealized Hamiltonian used in this article, models the Coulombic interaction between electrons and the 3- dimensional harmonic oscillator potential: 
+\begin{equation}
+  \label{eq:finalH}
+  \hat{H}=\sum_{i=1}^{N} \left(  -\frac{1}{2} \nabla_i^2 + \frac{1}{2} \omega^2r_i^2  \right)+\sum_{i<j}\frac{1}{r_{ij}}
+\end{equation}
+\cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively.
+\section{Methods}
+
+\section{Results}
+
+\section{Conclusion}
+
+\section{Critique}
+
+\section{Appendix}
+\subsection{Figures}
+
+\subsection{Tables}
+
+\subsection{List of programs}
+All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} in the folder "Project5".
+
+
+\begin{itemize}
+\item[1.] b.cpp - Program with several options of writing to file, different matrices etc., for a given temperature and lattice size
+\item[2.] e\_not\_parallel.cpp - Like b, but can run over several lattices and temperatures, more efficient
+\item[3.] e.cpp - Same as above, but parallelized with openMPI
+\item[4.] vecop.hpp - Several functions
+\item[5.] vecop.cpp - Functions, out of which some are used.
+\item[6.] tests\_main.cpp - Unit testing.
+\item[7.] a.py - Analytical solution. Not properly up to date!
+\item[8.] plot\_cv.py - Creates $2\times2$ plot for the larger simulations, also calculates $T_C(L_{\rightarrow \infty})$
+\item[9.] plot\_distribution.py Plots the distribution histograms at different temperatures.
+\item[10.] plot\_energy\_simulation\_step.py Plots the  avg. energy, the avg. magnetisation and the amount of accepted steps as a function of simulation step.
+\item[11.] functions.hpp \& functions.cpp - Contains functions for parallelization, and all the integrands, and some more.
+\end{itemize}
+
+\bibliographystyle{Plain}
+
+
+
+\bibliography{citations}
+
+
+
+\begin{comment}
+
+$$
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+\end{bmatrix}
+$$
+
+\begin{lstlisting}[caption=insert caption]
+for (unsigned int i = 0; i<100;i++{
+}
+\end{lstlisting}
+
+\begin{figure}[h]
+\includegraphics[width=8cm]{}
+\caption{include caption}
+\end{figure}
+
+\end{comment}
+
+\end{document}
