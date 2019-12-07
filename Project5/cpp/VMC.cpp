@@ -153,7 +153,7 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *distan
   *energy=*energy/(float)(amount);
   *energysquared=*energysquared/(float)(amount);
   *distance_=*distance_/(float)(amount);
-  cout <<"accepted moves: " << accepted << endl;
+  cout <<"accepted moves: " << accepted << "  Energy: " << *energy<< endl;
   skip=original_skip;
 }
 double VRMonteCarlo::rand(){ // Returns a random number between -0.5 and 0.5

@@ -19,15 +19,17 @@ void energy_equilibrium(){
   double omega=1.0;
   double distance=0;
   double **pos=createNMatrix(2,3);pos[0][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
-  System1 per=System1(0,0,0);
-  VRMonteCarlo vrc=VRMonteCarlo(&per, 0,0,0,0);;
-  per=System1(alpha,beta,omega); // alpha, beta (not relevant for system1) and omega
-  vrc=VRMonteCarlo(&per, dr,amount,skip,0); //System, dr, amount of samplings, how many skips
-  double *energies=vrc.sample_detailed(&energy,&energysquared,&distance,&time,pos);
+  System1 *per;//=System1(0,0,0);
+  VRMonteCarlo *vrc;//=VRMonteCarlo(&per, 0,0,0,0);;
+  per=new System1(alpha,beta,omega); // alpha, beta (not relevant for system1) and omega
+  vrc=new VRMonteCarlo(per, dr,amount,skip,0); //System, dr, amount of samplings, how many skips
+  double *energies=vrc->sample_detailed(&energy,&energysquared,&distance,&time,pos);
   outfile << "Index,Energy,omega,alpha"<<endl;
   for(int i=1000;i<amount;i+=1000){
     outfile << i << ","<<energies[i]<<","<<omega<<","<<alpha<<endl;
   }
+  delete per;
+  delete vrc;
 }
 int main(int argc, char** argv){
   energy_equilibrium();
@@ -46,16 +48,16 @@ int main(int argc, char** argv){
   double dr=1.0;
   double beta=0;
   double **pos=createNMatrix(2,3);pos[0][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
-  System1 per=System1(0,0,0);
-  VRMonteCarlo vrc=VRMonteCarlo(&per, 0,0,0,0);;
+  System1* per;//= new System1(0,0,0);
+  VRMonteCarlo* vrc;///= new VRMonteCarlo(per, 0,0,0,0);
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
   double energy=0,energysquared=0,time=0,distance=0;
   double sigma;
   for (int j=0;j<3;j++){
     for (int i=0;i<n;i++){
-      per=System1(alpha_start+i*d_alpha,beta,omega[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=VRMonteCarlo(&per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
-      vrc.sample(&energy,&energysquared,&distance,&time,pos);
+      per=new System1(alpha_start+i*d_alpha,beta,omega[j]); // alpha, beta (not relevant for system1) and omega
+      vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+      vrc->sample(&energy,&energysquared,&distance,&time,pos);
       sigma=sqrt(energysquared-energy*energy);
       energy_list[j*n+i]=energy;
       sigma_list[j*n+i]=sigma;
@@ -63,6 +65,8 @@ int main(int argc, char** argv){
       outfile<<omega[j] <<","<<alpha_start+i*d_alpha << ","<< energy << "," << sigma<<","<<distance<<endl;
       cout <<"Omega: "<<omega[j]<<" alpha: " <<alpha_start+i*d_alpha<< " Energy: "<<energy<<" Energy squared: "<<energysquared<< " sigma: "<<sigma<< "distance: "<<distance<<endl;
       energy=energysquared=distance=0;
+      delete per;
+      delete vrc;
     }
   }
   outfile.close();
