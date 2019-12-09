@@ -57,17 +57,133 @@
 
 \section{Abstract}
 
-\cite{Project2}
-\cite{hammond1994monte}
+
 \section{Introduction}
-The purpose of this article is to apply the Variational Monte Carlo (VMC) method to two electrons in a quantum dot modelled by a 3- dimensional harmonic oscillator potential. This is in order to evaluate their ground state energy, relative distance, and the expectation values of their kinetic and potential energies.\\In order to benchmark the results of this method, we are comparing the results of the ground state energy with analytical solutions for specific harmonic oscillator frequencies (henceforth $\omega$) as found in M. Taut's \cite{PhysRevA.48.3561} and our previous article \cite{Project2} on the topic of electron confinement in 3- dimensional harmonic oscillator potentials.\\\\The idealized Hamiltonian used in this article, models the Coulombic interaction between electrons and the 3- dimensional harmonic oscillator potential: 
+The purpose of this article is to apply the Variational Monte Carlo (VMC) method to two electrons in a quantum dot, modelled by a 3- dimensional harmonic oscillator potential. This is in order to evaluate their ground state energy, relative distance, and the expectation values of their kinetic and potential energies.\\In order to benchmark the results of this method, we are comparing the results of the ground state energy with analytical solutions for specific harmonic oscillator frequencies (henceforth $\omega$) as found in M. Taut's \cite{PhysRevA.48.3561} and our previous article \cite{Project2} on the topic of electron confinement in 3- dimensional harmonic oscillator potentials.\\\\The idealized Hamiltonian used in this article, models the Coulombic interaction between electrons and the 3- dimensional harmonic oscillator potential: 
 \begin{equation}
   \label{eq:finalH}
   \hat{H}=\sum_{i=1}^{N} \left(  -\frac{1}{2} \nabla_i^2 + \frac{1}{2} \omega^2r_i^2  \right)+\sum_{i<j}\frac{1}{r_{ij}}
 \end{equation}
-\cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively.
+\cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively. The natural units ($\hbar = c = e = m_e =1$) are used, and energy is given in atomic units. \\\\The VMC method is implemented using C++ (see list of programs: \ref{Listofprograms}).
 \section{Methods}
+\subsection{VMC}
+\subsection{The variational principle}
+The variational principle in quantum mechanics gives rise to a method by which you can get an upper bound for the ground state energy of a (time- independent) Hamiltonian which you are otherwise unable to solve.\\ 
+By choosing any normalizable trial wave function $\ket{\psi}$, the expectation value of the Hamiltonian is certain to be equal to or greater than the ground state energy ($E_{gs}$) of the system.
+$$
+\braket{H}\equiv \frac{\braket{\psi|\hat{H}|\psi}}{\braket{\psi|\psi}} \geq E_{gs}
+$$
+(see \ref{Proof_variational_principle}). We then have a procedure for estimating $E_{gs}$:
+\begin{enumerate}
+\item Pick/guess a class of states $\ket{\psi_\beta}$ that depends on one or more (variational) parameters $\beta$.
+\item calculate $E_{trial}=\frac{\braket{\psi_\beta|\hat{H}|\psi_\beta}}{\braket{\psi_\beta|\psi_\beta}}$
+\item minimize $E_{trial}$ with respect to $\beta$ (and any other variational parameters). This can be done computationally or by finding the zeros of the derivative.
+\end{enumerate}
+$E_{trial}$ is then an upper bound on $E_{gs}$. The variational method gives the lowest upper bound within the class of trial wave functions. It is therefore of greatest importance to choose an appropriate trial wave function in order to minimize the energy discrepancy.
+\subsubsection{Trial wave functions}
+\paragraph{Cusp condition}
+\paragraph{The total spin of the system is zero}
 
+\subsection{Values of interest}
+The two trial wave functions to be used in this model are 
+\begin{equation}
+\Psi_{T1}(\mathbf{r}_1,\mathbf{r}_2) = C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+\end{equation}
+and
+\begin{equation}
+\Psi_{T2}(\mathbf{r}_1,\mathbf{r}_2) =
+    C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+    \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}.
+\end{equation}
+The Hamiltonian for a two- electron system with electron- electron repulsion is
+\begin{equation}
+\hat{H}_{N=2} = \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)+\frac{1}{r_{12}}
+\end{equation}
+With kinetic energy 
+\begin{equation}
+\hat{T} = - \frac{1}{2}\left( \nabla_1^2 + \nabla_2^2 \right) 
+\end{equation}
+and potential energy 
+\begin{equation}
+\hat{V}=  \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) +\frac{1}{r_{12}}.
+\end{equation}
+We are interested in obtaining the expectation value of the energy of the system:
+\begin{equation}
+\langle H \rangle = \frac{\int d{\bf
+R}\Psi^{\ast}_T({\bf R})\hat{H}({\bf R})\Psi_T({\bf R})}
+{\int d{\bf
+R}\Psi^{\ast}_T({\bf R})\Psi_T({\bf R})}
+\end{equation}
+which, since $\Psi_T({\bf R})$ are eigenfunctions of $\hat{H}$, can be written as 
+\begin{equation}\label{Energy_expectation_value}
+\langle H \rangle =\int P({\bf R})E_L({\bf R})d{\bf R},
+\end{equation}
+Where $E_L({\bf R})$ is the local energy of the system, and $P({\bf R})$ is the probability distribution function of the wave function.
+\paragraph{The Virial theorem}states that the expectation value of the total kinetic energy is proportional to the expectation value of the total potential energy, and that for a pure harmonic oscillator, the constant of proportionality is 1 \cite{Problem_set_5}. We wish to examine whether this is true of our system, and so we need expressions for the total potential- and kinetic energy.\\Thanks to the linearity of the expectation value operator, we have 
+\begin{equation}
+\hat{H}=\hat{T}+\hat{V},
+\end{equation}
+\begin{equation}
+\braket{H} = \braket{T} + \braket{V}.
+\end{equation}
+$\hat{V}$ is a linear operator. Acting on a wave function then, it give the same relation as \eqref{Energy_expectation_value}:
+\begin{equation}
+\braket{V} = \int P({\bf R})V({\bf R})d{\bf R}.
+\end{equation}
+We wish to have two different expressions for $\braket{T}$ and $\braket{V}$ depending on whether we include electron repulsion or have a pure harmonic oscillator. We get
+\begin{equation}
+\braket{V} = \int P({\bf R})\left( \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) +\frac{1}{r_{12}} \right)d{\bf R}
+\end{equation}
+when including electron repulsion and 
+\begin{equation}
+\braket{V} = \int P({\bf R})\left( \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) \right)d{\bf R}
+\end{equation}
+for the pure harmonic oscillator potential.\\$\hat{T}$, unlike $\hat{V}$ gives different values for its corresponding observable value depending on the wave function it acts on and its computation is a little more involved, and so we will obtain $\braket{T}$ simply, by the relation
+\begin{equation}
+\braket{T} = \braket{H}-\braket{V}.
+\end{equation}
+
+\paragraph{To find $E_L$}, as required in \eqref{Energy_expectation_value}, we apply $\hat{H}_{N=2}$ to its eigenfunctions:
+\begin{equation*}
+\hat{H}_{N=2}\Psi_{T1} = \left( \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)+\frac{1}{r_{12}} \right)C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+\end{equation*}
+The radially dependent part of the Laplace operator being
+\begin{equation}
+\nabla_i^2 = \frac{1}{r_i^2}\frac{d}{dr_i}\left( r_i^2 \frac{d}{dr_i} \right).
+\end{equation}
+The Laplacian $\nabla_i^2$ with respect to $r_i$ acting on the wave function $\Psi_{T1}$ gives
+\begin{equation}
+\nabla_i^2Ce^{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)} = -\alpha\omega \left( 3 -\alpha \omega r_i^2 \right)Ce^{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+\end{equation}
+so that 
+\begin{equation}
+\nabla_i^2\Psi_{T1} = -\alpha\omega \left( 3 -\alpha \omega r_i^2 \right)\Psi_{T1}.
+\end{equation}
+Applying this for both $r_1$ and $r_2$, then gives
+\begin{equation}
+\left( \nabla_1^2 + \nabla_2^2 \right)\Psi_{T1} = \left( -6\alpha \omega+\alpha^2\omega^2\left( r_1^2+r_2^2 \right) \right)\Psi_{T1}
+\end{equation}
+while 
+\begin{equation}
+\hat{V}\Psi_{T1} = \left( \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) +\frac{1}{r_{12}} \right)\Psi_{T1}.
+\end{equation}
+We get
+\begin{equation}
+\hat{H}_{N=2}\Psi_{T1} = \left( \frac{1}{2}\omega^2\left( r_1^2+r_2^2\right)\left(1-\alpha^2\right) +3\alpha\omega+\frac{1}{r_{12}} \right)\Psi_{T1}
+\end{equation}
+which means the local energy expression is given by
+\begin{equation}
+E_{L1} =  \frac{1}{2}\omega^2\left( r_1^2+r_2^2\right)\left(1-\alpha^2\right) +3\alpha\omega+\frac{1}{r_{12}}.
+\end{equation}
+Similarly, when applied to the second trial wave function,
+\begin{equation*}
+\hat{H}_{N=2}\Psi_{T2} = \left( E_{L1}+\frac{1}{2(1+\beta r_{12})^2}\left\{\alpha\omega r_{12}-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+\frac{2\beta}{1+\beta r_{12}}\right\} \right)\Psi_{T2}
+\end{equation*}
+and so 
+\begin{equation}
+E_{L2} = E_{L1}+\frac{1}{2(1+\beta r_{12})^2}\left\{\alpha\omega r_{12}-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+\frac{2\beta}{1+\beta r_{12}}\right\}
+\end{equation}
+\cite{Problem_set_5}.
 \section{Results}
 
 \section{Conclusion}
@@ -75,11 +191,91 @@ The purpose of this article is to apply the Variational Monte Carlo (VMC) method
 \section{Critique}
 
 \section{Appendix}
+\subsection{Proof of the variational principle in quantum mechanics}\label{Proof_variational_principle}
+Given a normalized trial wave function $\ket{\psi}$. As any normalizable wave function can be expressed as a linear combination of energy eigenstates, we have that
+$$
+\ket{\psi} = \sum\limits_n C_n \ket{E_n}
+$$
+where $C_n$ is a complex coefficient, $\ket{E_n}$ is the energy eigenstate corresponding to the energy $E_n$ and $E_0=E_{gs}$. Now, calculating $\braket{H}$, 
+$$
+\braket{\psi|\hat{H}|\psi} = \sum\limits_{nm} \braket{E_m|C_m^*\hat{H}C_n|E_n}
+$$
+we get that 
+$$
+\braket{H}= \sum\limits_{nm} C_m^*C_n E_n \delta_{mn} =\sum\limits_{n} \big|  C_n \big|^2E_n
+$$
+where $\delta_{mn}$ is the Kronecker- delta.
+\begin{equation}
+\braket{H}=\sum\limits_{n} \big|  C_n \big|^2E_n \geq E_{gs}
+\end{equation}
+\subsection{Derivation of $E_{L2}$}
+\begin{equation}
+\nabla_i^2\Psi_{T2} = \nabla_i^2\left( \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} \right)
+\end{equation}
+\[
+\frac{d}{dr_i}\left(  \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} \right) = \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\frac{d}{dr_i}\Psi_{T1} + \Psi_{T1}\frac{d}{dr_i}\left( \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\right)
+\]
+\begin{equation*}
+\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\frac{d}{dr_i}\Psi_{T1} = -\alpha \omega r_i\Psi_{T2}
+\end{equation*}
+
+\begin{equation*}
+ \Psi_{T1}\frac{d}{dr_1}\left( \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\right) = \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2}  \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} =  \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2}\Psi_{T2}
+\end{equation*}
+
+\[
+\frac{d}{dr_1}\Psi_{T2} = \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\Psi_{T2}
+\]
+
+\[
+\frac{d}{dr_2}\Psi_{T2} = -\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)\Psi_{T2}
+\]
+
+\[
+\frac{d}{dr_1}\left( r_1^2 \frac{d}{dr_1}\Psi_{T2}\right) =  \frac{d}{dr_1}\left( r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\Psi_{T2} \right)
+\]
+
+\[
+= r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)^2\Psi_{T2}+\Psi_{T2} \frac{d}{dr_1}\left( r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\right).
+\]
+\[
+\frac{d}{dr_1}\left( r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\right)=
+\]
+\[
+\dfrac{r_1}{2r_{12}\left(\beta r_{12}+1\right)^2}-\dfrac{r_1^2}{8r_{12}^3\left(\beta r_{12}+1\right)^2}-\dfrac{\beta r_1^2}{4r_{12}^2\left(\beta r_{12}+1\right)^3}-3\alpha \omega r_1^2
+\]
+
+\[
+\nabla_1^2\Psi_{T2} = \left( \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)^2 +\dfrac{1}{2r_1r_{12}\left(\beta r_{12}+1\right)^2}-\dfrac{1}{8r_{12}^3\left(\beta r_{12}+1\right)^2}-\dfrac{\beta}{4r_{12}^2\left(\beta r_{12}+1\right)^3}-3\alpha \omega \right)\Psi_{T2}
+\]
+\\\\
+\[
+\frac{d}{dr_2}\left( r_2^2 \frac{d}{dr_2}\Psi_{T2}\right) =  \frac{d}{dr_2}\left( -r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)\Psi_{T2} \right)
+\]
+\[
+= r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)^2\Psi_{T2} - \Psi_{T2}\frac{d}{dr_2}\left( r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right) \right)
+\]\\
+\[
+\frac{d}{dr_2}\left( r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right) \right) = 
+\]
+\[
+\dfrac{r_2}{2r_{12}\left(\beta r_{12}+1\right)^2}-\dfrac{r_2^2}{8r_{12}^3\left(\beta r_{12}+1\right)^2}-\dfrac{r_2^2\beta}{4r_{12}^2\left(\beta r_{12}+1\right)^3}+3\alpha \omega r_2^2
+\]
+\[
+\nabla_2^2\Psi_{T2} = \left( \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)^2 -   \dfrac{1}{2r_2r_{12}\left(\beta r_{12}+1\right)^2}+\dfrac{1}{8r_{12}^3\left(\beta r_{12}+1\right)^2}+\dfrac{\beta}{4r_{12}^2\left(\beta r_{12}+1\right)^3}-3\alpha \omega \right)\Psi_{T2}
+\]
+
+\[
+\left( \nabla_1^2+\nabla_2^2 \right)\Psi_{T2} = \Bigg( \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)^2 +\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)^2- \cdots
+\]
+\[ 
+\cdots \dfrac{1}{2r_{12}\left(\beta r_{12}+1\right)^2}\left( \frac{1}{r_1}-\frac{1}{r_2} \right)-6\alpha \omega \Bigg)\Psi_{T2}
+\]
 \subsection{Figures}
 
 \subsection{Tables}
 
-\subsection{List of programs}
+\subsection{List of programs}\label{Listofprograms}
 All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} in the folder "Project5".
 
 
