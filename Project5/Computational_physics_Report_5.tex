@@ -67,6 +67,20 @@ The purpose of this article is to apply the Variational Monte Carlo (VMC) method
 \cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively. The natural units ($\hbar = c = e = m_e =1$) are used, and energy is given in atomic units. \\\\The VMC method is implemented using C++ (see list of programs: \ref{Listofprograms}).
 \section{Methods}
 \subsection{VMC}
+\subsection{Non- interacting system}
+The Hamiltonian for two non- interacting electrons in a harmonic oscillator potential is
+\begin{equation}
+\hat{H}_{0} = \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)
+\end{equation}
+with an exact energy of 3 atomic units (a.u) \cite{Problem_set_5}.\\The unperturbed wave function for the ground state of a two- electron system is 
+\begin{equation*}
+\Phi(\mathbf{r}_1,\mathbf{r}_2) = C\exp{\left(-\omega(r_1^2+r_2^2)/2\right)}
+\end{equation*}
+\cite{Problem_set_5}.\\This wave function is symmetric under the interchange of electron labels, meaning
+\begin{equation*}
+\hat{I}\Phi(\mathbf{r}_1,\mathbf{r}_2) = \Phi(\mathbf{r}_1,\mathbf{r}_2)
+\end{equation*}
+where $\hat{I}$ is the label- interchange operator. Electrons, being fermions are required to be anti- symmetric under the label- interchange operator which implies that their spins are necessarily oppositely oriented as to fulfil the requirement of anti- symmetry \cite{griffiths2018introduction}.
 \subsection{The variational principle}
 The variational principle in quantum mechanics gives rise to a method by which you can get an upper bound for the ground state energy of a (time- independent) Hamiltonian which you are otherwise unable to solve.\\ 
 By choosing any normalizable trial wave function $\ket{\psi}$, the expectation value of the Hamiltonian is certain to be equal to or greater than the ground state energy ($E_{gs}$) of the system.
@@ -80,21 +94,28 @@ $$
 \item minimize $E_{trial}$ with respect to $\beta$ (and any other variational parameters). This can be done computationally or by finding the zeros of the derivative.
 \end{enumerate}
 $E_{trial}$ is then an upper bound on $E_{gs}$. The variational method gives the lowest upper bound within the class of trial wave functions. It is therefore of greatest importance to choose an appropriate trial wave function in order to minimize the energy discrepancy.
-\subsubsection{Trial wave functions}
-\paragraph{Cusp condition}
-\paragraph{The total spin of the system is zero}
-
-\subsection{Values of interest}
-The two trial wave functions to be used in this model are 
-\begin{equation}
+\paragraph{The trial wave functions} used in this model are \begin{equation}\label{1sttrialwavefunction}
 \Psi_{T1}(\mathbf{r}_1,\mathbf{r}_2) = C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
 \end{equation}
 and
-\begin{equation}
+\begin{equation}\label{2ndtrialwavefunction}
 \Psi_{T2}(\mathbf{r}_1,\mathbf{r}_2) =
     C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
-    \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}.
+    \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
 \end{equation}
+with variational parameters $\alpha$ and $\beta$. 
+\subsubsection{The cusp condition}
+We examine the behaviour of the trial wave functions \eqref{1sttrialwavefunction} and \eqref{2ndtrialwavefunction} when $r_{12}\rightarrow 0$:
+\begin{equation}
+\Psi_{T1}(\mathbf{r}_1,\mathbf{r}_2)_{r_{12}\rightarrow 0} = C\exp{\left(-\alpha\omega r_1^2\right)}
+\end{equation}
+\begin{equation}
+\Psi_{T2}(\mathbf{r}_1,\mathbf{r}_2)_{r_{12}\rightarrow 0} = C\exp{\left(-\alpha\omega r_1^2\right)}
+\end{equation}
+\paragraph{The total spin of the system is zero}
+
+\subsection{Values of interest}
+
 The Hamiltonian for a two- electron system with electron- electron repulsion is
 \begin{equation}
 \hat{H}_{N=2} = \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)+\frac{1}{r_{12}}
