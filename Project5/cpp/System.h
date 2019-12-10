@@ -19,12 +19,14 @@ class System{
     double energyCart(double **pos);
     virtual double energy(double r1, double r2, double r12)=0;
     virtual double function(double r1,double r2,double r12)=0;
+    virtual void update(double alpha, double beta, double omega)=0;
 };
 class System1: public System{
   public:
     using System::System;
     double energy(double r1, double r2,double r12);;
     double function(double r1, double r2, double r12);
+    void update(double alpha, double beta, double omega);
 };
 class System2: public System{
   public:
@@ -33,6 +35,7 @@ class System2: public System{
     //double energy(double x1, double y1, double z1, double x2, double y2, double z2);
     double energy(double r1, double r2,double r12);
     double function(double r1, double r2, double r12);
+    void update(double alpha, double beta, double omega);
     //double energy(double ** pos);
     //double function(double ** pos);
 };

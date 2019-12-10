@@ -2,7 +2,6 @@
 #include <cmath>
 #include <fstream>
 #include <string>
-//#include "System.h"
 #include "VMC.h"
 #include "functions.h"
 #include <fstream>
@@ -21,15 +20,15 @@ int main(int argc, char** argv){
   double sigmas[3]={0,0,0};
   double distances[3]={0,0,0};
   double energies[3]={std::numeric_limits<float>::max(),std::numeric_limits<int>::max(),std::numeric_limits<int>::max()};
-  int samplings=5e8;
+  int samplings=1e6;
   int skip=2e5;
   double dr=1.0;
   int counter=0;
   double alpha,beta;
   double dalpha,dbeta; // Change in alpha and beta
   double **pos=createNMatrix(2,3);pos[0][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
-  System2 *per;//=new System2(0,0,0);
-  VRMonteCarlo *vrc;//=new VRMonteCarlo(&per, 0,0,0,0);// double dr, int amount, int skip, int seed
+  System2 *per=new System2(1,1,1);//=new System2(0,0,0);
+  VRMonteCarlo *vrc=new VRMonteCarlo(per, dr,samplings,skip,0);//=new VRMonteCarlo(&per, 0,0,0,0);// double dr, int amount, int skip, int seed
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
   double energy=0,energysquared=0,time=0,distance=0;
   double sigma=0;
@@ -37,8 +36,7 @@ int main(int argc, char** argv){
   for (int j=2;j<3;j++){ //General idea to find the lowest beta
     alpha=alphas[j];
       for(beta=0.1;beta<2;beta+=0.1){
-        per=new System2(alpha,beta,omegas[j]); // alpha, beta (not relevant for system1) and omega
-        vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+        vrc->update(alpha,beta,omegas[j]);
         vrc->sample(&energy,&energysquared,&distance,&time,pos);
         if (energy<energies[j]){
           betas[j]=beta;
@@ -47,8 +45,8 @@ int main(int argc, char** argv){
           distances[j]=distance;
         }
         energy=energysquared=distance=0;
-        delete per;
-        delete vrc;
+        //delete per;
+        //delete vrc;
     }
     if(j==2){
       cout << "omega: " << omegas[j] << endl;
@@ -64,18 +62,14 @@ int main(int argc, char** argv){
     do{
       energy_old=energy_prev=energies[j];sigma_prev=sigmas[j];distance_prev=distances[j];
       dalpha*=0.1;
-      per=new System2(alphas[j]+dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+      vrc->update(alphas[j]+dalpha,betas[j],omegas[j]);
       vrc->sample(&energy,&energysquared,&distance,&time,pos);
       energy_right=energy; sigma_right=sqrt((energy*energy-energysquared));distance_right=distance;
       energy=energysquared=distance=0;
-      delete per; delete vrc;
-      per=new System2(alphas[j]-dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+      vrc->update(alphas[j]-dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
       vrc->sample(&energy,&energysquared,&distance,&time,pos);
       energy_left=energy; sigma_left=sqrt((energy*energy-energysquared));distance_left=distance;
       energy=energysquared=distance=0;
-      delete per; delete vrc;
       energy_new=energy_right;
       if(energy_right>energy_left){
         direction=-1;
@@ -89,13 +83,11 @@ int main(int argc, char** argv){
         counter++;
         energy_prev=energy_new;
         sigma_prev=sigma_new;
-        per=new System2(alphas[j]+counter*direction*dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
-        vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+        vrc->update(alphas[j]+counter*direction*dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
         vrc->sample(&energy,&energysquared,&distance,&time,pos);
         energy_new=energy;
         sigma_new=sqrt((energy*energy-energysquared));
         energy=energysquared=distance=0;
-        delete per; delete vrc;
       }
       alphas[j]=alphas[j]+(counter-1)*direction*dalpha;
       energies[j]=energy_prev;
@@ -103,18 +95,14 @@ int main(int argc, char** argv){
         print(alphas[j],betas[j],energies[j]);
       }
       dbeta*=0.1;
-      per=new System2(alphas[j],betas[j]+dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+      vrc->update(alphas[j],betas[j]+dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
       vrc->sample(&energy,&energysquared,&distance,&time,pos);
       energy_right=energy;
       energy=energysquared=distance=0;
-      delete per; delete vrc;
-      per=new System2(alphas[j],betas[j]-dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+      vrc->update(alphas[j],betas[j]-dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
       vrc->sample(&energy,&energysquared,&distance,&time,pos);
       energy_left=energy;
       energy=energysquared=distance=0;
-      delete per; delete vrc;
       energy_new=energy_right;
       if(energy_right>energy_left){
         direction=-1;
@@ -127,12 +115,10 @@ int main(int argc, char** argv){
       while(energy_prev>energy_new){
         counter++;
         energy_prev=energy_new;
-        per=new System2(alphas[j],betas[j]+counter*direction*dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
-        vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+        vrc->update(alphas[j],betas[j]+counter*direction*dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
         vrc->sample(&energy,&energysquared,&distance,&time,pos);
         energy_new=energy;
         energy=energysquared=distance=0;
-        delete per; delete vrc;
       }
       betas[j]=betas[j]+(counter-1)*direction*dbeta;
       energies[j]=energy_prev;

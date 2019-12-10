@@ -15,16 +15,22 @@ double** createNMatrix(int n,int m){
   return A;
 }
 */
+
 VRMonteCarlo::VRMonteCarlo(System* system, double dr, int amount, int skip, int seed){
       this->system=system;
-      this->dr=dr;
+      this->dr=dr; this->dr_orig=dr;
       this->amount=amount;
-      this->skip=skip;
+      this->skip=skip; this->skip_orig=skip;
       //mt_eng{std::random_device{}()}, prob_dist(0.0, 1.0) {}
       random_device rd;
       mt_eng= mt19937(rd()+seed); //Each thread gets a different seed, as the rank is included
       prob_dist= uniform_real_distribution<double>(0.0,1.0);
     }
+void VRMonteCarlo::update(double alpha, double beta, double gamma){
+  skip=skip_orig;
+  dr=dr_orig;
+  system->update(alpha,beta,gamma);
+}
 double * VRMonteCarlo::sample_detailed(double * energy, double * energysquared, double *distance_,double * time, double **posold){
   int original_skip=skip;
   int i,particle,dim;

@@ -37,3 +37,14 @@ double System2::energy(double r1, double r2,double r12){
 double System2::function(double r1, double r2, double r12){
       return (system1.function(r1,r2,r12))*exp(r12/(1.0+beta*r12));
     }
+void System1::update(double alpha, double beta, double omega){
+  this->alpha=alpha;
+  this->beta=beta;
+  this->omega=omega;
+}
+void System2::update(double alpha, double beta, double omega){
+  this->alpha=alpha;
+  this->beta=beta;
+  this->omega=omega;
+  system1.update(alpha,beta,omega);
+}
