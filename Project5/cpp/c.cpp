@@ -35,9 +35,9 @@ int main(int argc, char** argv){
   energy_equilibrium();
   ofstream outfile;
   outfile.open("../results/function1.csv",ios::out | ios::app); //Collected results (Numbers)
-  double alpha_start=0.1;
-  double alpha_end=2.0;
-  double d_alpha=0.05;
+  double alpha_start=0.2;
+  double alpha_end=1.2;
+  double d_alpha=0.01;
   int n=(int)((alpha_end-alpha_start)/d_alpha)+1;
   double omega[3]={0.01,0.5,1.0};
   double * energy_list=new double[3*n];

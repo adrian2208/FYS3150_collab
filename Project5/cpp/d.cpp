@@ -12,13 +12,16 @@ void print(double alpha,double beta,double energy){
   cout << "alpha: "<< alpha <<endl<< "beta: "<< beta <<endl<< "energy: " << energy<<endl;
 }
 int main(int argc, char** argv){
+  ofstream outfile;
+  outfile.open("../results/function2.csv",ios::out | ios::app);
+
   double omegas[3]={0.01,0.5,1.0};
-  double alphas[3]={0.45,0.85,0.9};
+  double alphas[3]={0.45,0.84,0.88};
   double betas[3]={0,0,0};
   double sigmas[3]={0,0,0};
   double distances[3]={0,0,0};
   double energies[3]={std::numeric_limits<float>::max(),std::numeric_limits<int>::max(),std::numeric_limits<int>::max()};
-  int samplings=1e7;
+  int samplings=5e8;
   int skip=2e5;
   double dr=1.0;
   int counter=0;
@@ -31,7 +34,7 @@ int main(int argc, char** argv){
   double energy=0,energysquared=0,time=0,distance=0;
   double sigma=0;
   double direction=1;
-  for (int j=0;j<3;j++){ //General idea to find the lowest beta
+  for (int j=2;j<3;j++){ //General idea to find the lowest beta
     alpha=alphas[j];
       for(beta=0.1;beta<2;beta+=0.1){
         per=new System2(alpha,beta,omegas[j]); // alpha, beta (not relevant for system1) and omega
@@ -54,24 +57,23 @@ int main(int argc, char** argv){
   }
 
   double energy_right,energy_left,energy_prev,energy_old,energy_new;
-  for (int j=0;j<3;j++){
-    if(j<2){
-      continue;
-    }
+  double distance_right,distance_left,distance_prev,distance_new;
+  double sigma_right,sigma_left,sigma_prev,sigma_new;
+  for (int j=2;j<3;j++){
     dalpha=dbeta=1;
     do{
-      energy_old=energy_prev=energies[j];
+      energy_old=energy_prev=energies[j];sigma_prev=sigmas[j];distance_prev=distances[j];
       dalpha*=0.1;
       per=new System2(alphas[j]+dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
       vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
       vrc->sample(&energy,&energysquared,&distance,&time,pos);
-      energy_right=energy;
+      energy_right=energy; sigma_right=sqrt((energy*energy-energysquared));distance_right=distance;
       energy=energysquared=distance=0;
       delete per; delete vrc;
       per=new System2(alphas[j]-dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
       vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
       vrc->sample(&energy,&energysquared,&distance,&time,pos);
-      energy_left=energy;
+      energy_left=energy; sigma_left=sqrt((energy*energy-energysquared));distance_left=distance;
       energy=energysquared=distance=0;
       delete per; delete vrc;
       energy_new=energy_right;
@@ -86,10 +88,12 @@ int main(int argc, char** argv){
       while(energy_prev>energy_new){
         counter++;
         energy_prev=energy_new;
+        sigma_prev=sigma_new;
         per=new System2(alphas[j]+counter*direction*dalpha,betas[j],omegas[j]); // alpha, beta (not relevant for system1) and omega
         vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
         vrc->sample(&energy,&energysquared,&distance,&time,pos);
         energy_new=energy;
+        sigma_new=sqrt((energy*energy-energysquared));
         energy=energysquared=distance=0;
         delete per; delete vrc;
       }
@@ -135,6 +139,10 @@ int main(int argc, char** argv){
       if(j==2){
         print(alphas[j],betas[j],energies[j]);
       }
-    }while(fabs(energies[j]-energy_old)>1e-4);
+      if(energy_old==energies[j]){ // In case the energy hasn't been updated, let the loop rn again
+        energy_old=0;
+      }
+    }while(fabs(energies[j]-energy_old)>sigmas[j]/sqrt(samplings));
+  outfile << omegas[j]<<","<<alphas[j]<<","<<betas[j]<<energies[j]<<","<<sigmas[j]<<endl;
   }
 }
