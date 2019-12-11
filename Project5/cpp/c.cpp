@@ -11,7 +11,7 @@ void energy_equilibrium(){
   ofstream outfile;
   outfile.open("../results/energy_distribution.csv");
   double energy=0,energysquared=0,time=0;
-  double alpha=1.1;
+  double alpha=0.88;
   int skip=2e5;
   int amount=5e7;
   double dr=1.3;
@@ -39,7 +39,7 @@ int main(int argc, char** argv){
   double alpha_end=1.2;
   double d_alpha=0.01;
   int n=(int)((alpha_end-alpha_start)/d_alpha)+1;
-  double omega[3]={0.01,0.5,1.0,5.0};
+  double omega[3]={0.01,0.5,1.0};//;,5.0};
   double * energy_list=new double[3*n];
   double * sigma_list=new double[3*n];
   double *distance_list=new double[3*n];
