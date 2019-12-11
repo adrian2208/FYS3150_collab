@@ -105,6 +105,7 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,doub
   double wfold=(*system).functionCart(posold);
   double wfnew;
   double local_energy=system->energyCart(posold);
+  double potential=system->potentialCart(posold);
   double accepted_moves_last10000=0;
   bool equilibrium=false;
   int check_size=10000;
@@ -125,6 +126,7 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,doub
         accepted++;
       }
       local_energy=(*system).energyCart(posnew);
+      potential=(*system).potentialCart(posnew);
       for (particle=0;particle<2;particle++){ // For each particle step
         for(dim=0;dim<3;dim++){
           posold[particle][dim]=posnew[particle][dim];
@@ -154,6 +156,7 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,doub
       *distance_+=distance(posold);
       *energy+=local_energy;
       *energysquared+=local_energy*local_energy;
+      *v+=potential;
     }
   }
   *energy=*energy/(float)(amount);

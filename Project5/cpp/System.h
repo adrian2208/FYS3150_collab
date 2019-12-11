@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 #include "functions.h"
-
+using namespace std;
 class System{
   protected:
     double alpha;
@@ -22,7 +22,7 @@ class System{
     virtual void update(double alpha, double beta, double omega)=0;
     double potentialCart(double x1, double y1, double z1, double x2, double y2, double z2);
     double potentialCart(double **pos);
-    virtual double potential(double r1,double r2,double r12)=0;
+    double potential(double r1,double r2,double r12);
 };
 class System1: public System{
   public:

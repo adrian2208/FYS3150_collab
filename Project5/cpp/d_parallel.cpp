@@ -16,11 +16,12 @@ void print(double omega,double alpha,double beta,double energy, double sigma, do
 int main(int argc, char** argv){
 
   double omegas[4]={0.01,0.5,1.0,5.0};
-  double alphas[4]={0.45,0.84,0.88,1.0};
-  double betas[4]={0,0,0,0};
+  double alphas[4]={1.42,1.23,1.09,1.03};
+  double betas[4]={0.03,0.14,0.31,0.8};
   double sigmas[4]={0,0,0,0};
   double distances[4]={0,0,0,0};
-  double energies[4]={std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<int>::max(),std::numeric_limits<int>::max()};
+  //double energies[4]={std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<int>::max(),std::numeric_limits<int>::max()};
+  double energies[4]={0.073762436,1.9776574,3.7081356,16.686586};
   int samplings=5e8;
   int skip=2e5;
   double dr=1.0;
@@ -36,14 +37,16 @@ int main(int argc, char** argv){
   double time_start=MPI_Wtime();
   string filename="../results/function2_"+to_string(omegas[my_rank])+".csv";
   ofstream outfile;
-  outfile.open(filename);
-  outfile << "omega,alpha,beta,energy,sigma,distance"<<endl;
+  outfile.open(filename,ios::out | ios::app);
+  //outfile << "omega,alpha,beta,energy,sigma,distance"<<endl;
   VRMonteCarlo *vrc=new VRMonteCarlo(per, dr,samplings,skip,my_rank);//=new VRMonteCarlo(&per, 0,0,0,0);// double dr, int amount, int skip, int seed
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
   double energy=0,energysquared=0,time=0,distance=0,V=0;
   double sigma=0;
   double direction=1;
   int j=my_rank;
+  bool bad_start=false;
+    if(bad_start){
     alpha=alphas[j];
       for(beta=0.1;beta<2;beta+=0.1){
         vrc->update(alpha,beta,omegas[j]);
@@ -55,6 +58,7 @@ int main(int argc, char** argv){
           distances[j]=distance;
         }
         energy=energysquared=distance=0;
+    }
     }
   print(omegas[j],alphas[j],betas[j],energies[j],sigmas[j] , distances[j], &outfile);
   double energy_right,energy_left,energy_prev,energy_old,energy_new;
@@ -137,5 +141,6 @@ int main(int argc, char** argv){
     }while(fabs(energies[j]-energy_old)>sigmas[j]/sqrt(samplings));
   delete per; delete vrc;
   outfile.close();
+  cout << "Thread " << j << " finished" << endl;
   MPI_Finalize();
 }

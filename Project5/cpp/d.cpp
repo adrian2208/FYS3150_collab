@@ -15,8 +15,8 @@ int main(int argc, char** argv){
   outfile.open("../results/function2.csv",ios::out | ios::app);
 
   double omegas[3]={0.01,0.5,1.0};
-  double alphas[3]={0.45,0.84,0.88};
-  double betas[3]={0,0,0};
+  double alphas[3]={1.32,0.84,0.88};
+  double betas[3]={0.03,0,0};
   double sigmas[3]={0,0,0};
   double distances[3]={0,0,0};
   double energies[3]={std::numeric_limits<float>::max(),std::numeric_limits<int>::max(),std::numeric_limits<int>::max()};
