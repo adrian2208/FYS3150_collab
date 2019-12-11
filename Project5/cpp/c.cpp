@@ -7,6 +7,7 @@
 #include "functions.h"
 #include <fstream>
 #include <mpi.h>
+#include <iomanip>
 using namespace std;
 void energy_equilibrium(){
   ofstream outfile;
@@ -33,8 +34,8 @@ void energy_equilibrium(){
   delete vrc;
 }
 int main(int argc, char** argv){
-  double alpha_start=1.01;
-  double alpha_end=1.10;
+  double alpha_start=0.21;
+  double alpha_end=1.20;
   double d_alpha=0.01;
   int n=(int)((alpha_end-alpha_start)/d_alpha)+1;
   int howmany=4;
@@ -84,7 +85,7 @@ int main(int argc, char** argv){
     outfile.open("../results/function1.csv",ios::out | ios::app); //Collected results (Numbers)
     for(int i=0;i<howmany;i++){
       for (int k=0;k<n;k++){
-        outfile<<omega[i]<<","<<alpha_start+k*d_alpha<<","<<energy_list_final[k+n*i]<<","<<sigma_list_final[k+n*i]<<","<<distance_list_final[k+n*i]<<endl;
+        outfile<< setprecision(8)<<omega[i]<<","<<alpha_start+k*d_alpha<<","<<energy_list_final[k+n*i]<<","<<sigma_list_final[k+n*i]<<","<<distance_list_final[k+n*i]<<endl;
       }
     }
     outfile.close();

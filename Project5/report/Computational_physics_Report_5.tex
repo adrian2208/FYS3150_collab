@@ -1,0 +1,446 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\newcommand{\RomanNumeralCaps}[1]
+    {\MakeUppercase{\romannumeral #1}}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{pbox}
+\usepackage{graphicx}
+\usepackage[]{algorithm2e}
+%bibliography packages, bibliography files are plain text files marked .bib
+%... in the same directory as the .tex file.
+\usepackage[nottoc,numbib]
+{tocbibind}
+\usepackage{cite}
+
+
+
+\usepackage{braket}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{C:/Users/adria/Pictures/FYS3150/}}
+\author{Adrian Martinsen Kleven, Simon Schrader}
+\title{Project 5}
+
+\lstset{
+ 	language =C++,
+    frame=tb, % draw a frame at the top and bottom of the code block
+    tabsize=4, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    commentstyle=\color{green}, % comment color
+    keywordstyle=\color{blue}, % keyword color
+    stringstyle=\color{red} % string color
+}
+\setlength{\columnsep}{10mm}
+%\setlength{\tabcolsep}{18pt}
+%\renewcommand{\arraystretch}{1.5}
+
+\begin{document}
+
+\part*{-Project 5 - FYS3150/FYS4150-
+}
+{\large \textbf{Quantum Monte Carlo of confined electrons}}\\
+{\large By Simon Schrader (4150), Adrian Kleven (3150) - autumn 2019
+}
+\tableofcontents
+
+\listoffigures
+\listoftables
+
+
+\clearpage
+
+\section{Abstract}
+
+
+\section{Introduction}
+The purpose of this article is to apply the Variational Monte Carlo (VMC) method to two electrons in a quantum dot, modelled by a 3- dimensional harmonic oscillator potential. This is in order to evaluate their ground state energy, relative distance, and the expectation values of their kinetic and potential energies.\\In order to benchmark the results of this method, we are comparing the results of the ground state energy with analytical solutions for specific harmonic oscillator frequencies (henceforth $\omega$) as found in M. Taut's \cite{PhysRevA.48.3561} and our previous article \cite{Project2} on the topic of electron confinement in 3- dimensional harmonic oscillator potentials.\\\\The idealized Hamiltonian used in this article, models the Coulombic interaction between electrons and the 3- dimensional harmonic oscillator potential: 
+\begin{equation}
+  \label{eq:finalH}
+  \hat{H}=\sum_{i=1}^{N} \left(  -\frac{1}{2} \nabla_i^2 + \frac{1}{2} \omega^2r_i^2  \right)+\sum_{i<j}\frac{1}{r_{ij}}
+\end{equation}
+\cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively. The natural units ($\hbar = c = e = m_e =1$) are used, and energy is given in atomic units. \\\\The VMC method is implemented using C++ (see list of programs: \ref{Listofprograms}).
+\section{Methods}
+\subsection{VMC}
+\subsection{Non- interacting system}
+The Hamiltonian for two non- interacting electrons in a harmonic oscillator potential is
+\begin{equation}
+\hat{H}_{0} = \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)
+\end{equation}
+with an exact energy of 3 atomic units (a.u) \cite{Problem_set_5}.\\The unperturbed wave function for the ground state of a two- electron system is 
+\begin{equation*}
+\Phi(\mathbf{r}_1,\mathbf{r}_2) = C\exp{\left(-\omega(r_1^2+r_2^2)/2\right)}
+\end{equation*}
+\cite{Problem_set_5}.\\This wave function is symmetric under the interchange of electron labels, meaning
+\begin{equation*}
+\hat{I}\Phi(\mathbf{r}_1,\mathbf{r}_2) = \Phi(\mathbf{r}_1,\mathbf{r}_2)
+\end{equation*}
+where $\hat{I}$ is the label- interchange operator. Electrons, being fermions are required to be anti- symmetric under the label- interchange operator which implies that their spins are necessarily oppositely oriented as to fulfil the requirement of anti- symmetry \cite{griffiths2018introduction}.
+\subsection{The variational principle}
+The variational principle in quantum mechanics gives rise to a method by which you can get an upper bound for the ground state energy of a (time- independent) Hamiltonian which you are otherwise unable to solve.\\ 
+By choosing any normalizable trial wave function $\ket{\psi}$, the expectation value of the Hamiltonian is certain to be equal to or greater than the ground state energy ($E_{gs}$) of the system.
+$$
+\braket{H}\equiv \frac{\braket{\psi|\hat{H}|\psi}}{\braket{\psi|\psi}} \geq E_{gs}
+$$
+(see \ref{Proof_variational_principle}). We then have a procedure for estimating $E_{gs}$:
+\begin{enumerate}
+\item Pick/guess a class of states $\ket{\psi_\beta}$ that depends on one or more (variational) parameters $\beta$.
+\item calculate $E_{trial}=\frac{\braket{\psi_\beta|\hat{H}|\psi_\beta}}{\braket{\psi_\beta|\psi_\beta}}$
+\item minimize $E_{trial}$ with respect to $\beta$ (and any other variational parameters). This can be done computationally or by finding the zeros of the derivative.
+\end{enumerate}
+$E_{trial}$ is then an upper bound on $E_{gs}$. The variational method gives the lowest upper bound within the class of trial wave functions. It is therefore of greatest importance to choose an appropriate trial wave function in order to minimize the energy discrepancy.
+\paragraph{The trial wave functions} used in this model are \begin{equation}\label{1sttrialwavefunction}
+\Psi_{T1}(\mathbf{r}_1,\mathbf{r}_2) = C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+\end{equation}
+and
+\begin{equation}\label{2ndtrialwavefunction}
+\Psi_{T2}(\mathbf{r}_1,\mathbf{r}_2) =
+    C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+    \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
+\end{equation}
+with variational parameters $\alpha$ and $\beta$. 
+\subsubsection{The cusp condition}
+We examine the behaviour of the trial wave functions \eqref{1sttrialwavefunction} and \eqref{2ndtrialwavefunction} when $r_{12}\rightarrow 0$:
+\begin{equation}
+\Psi_{T1}(\mathbf{r}_1,\mathbf{r}_2)_{r_{12}\rightarrow 0} = C\exp{\left(-\alpha\omega r_1^2\right)}
+\end{equation}
+\begin{equation}
+\Psi_{T2}(\mathbf{r}_1,\mathbf{r}_2)_{r_{12}\rightarrow 0} = C\exp{\left(-\alpha\omega r_1^2\right)}
+\end{equation}
+\paragraph{The total spin of the system is zero}
+
+\subsection{Values of interest}
+
+The Hamiltonian for a two- electron system with electron- electron repulsion is
+\begin{equation}
+\hat{H}_{N=2} = \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)+\frac{1}{r_{12}}
+\end{equation}
+With kinetic energy 
+\begin{equation}
+\hat{T} = - \frac{1}{2}\left( \nabla_1^2 + \nabla_2^2 \right) 
+\end{equation}
+and potential energy 
+\begin{equation}
+\hat{V}=  \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) +\frac{1}{r_{12}}.
+\end{equation}
+We are interested in obtaining the expectation value of the energy of the system:
+\begin{equation}
+\langle H \rangle = \frac{\int d{\bf
+R}\Psi^{\ast}_T({\bf R})\hat{H}({\bf R})\Psi_T({\bf R})}
+{\int d{\bf
+R}\Psi^{\ast}_T({\bf R})\Psi_T({\bf R})}
+\end{equation}
+which, since $\Psi_T({\bf R})$ are eigenfunctions of $\hat{H}$, can be written as 
+\begin{equation}\label{Energy_expectation_value}
+\langle H \rangle =\int P({\bf R})E_L({\bf R})d{\bf R},
+\end{equation}
+Where $E_L({\bf R})$ is the local energy of the system, and $P({\bf R})$ is the probability distribution function of the wave function.
+\paragraph{The Virial theorem}states that the expectation value of the total kinetic energy is proportional to the expectation value of the total potential energy, and that for a pure harmonic oscillator, the constant of proportionality is 1 \cite{Problem_set_5}. We wish to examine whether this is true of our system, and so we need expressions for the total potential- and kinetic energy.\\Thanks to the linearity of the expectation value operator, we have 
+\begin{equation}
+\hat{H}=\hat{T}+\hat{V},
+\end{equation}
+\begin{equation}
+\braket{H} = \braket{T} + \braket{V}.
+\end{equation}
+$\hat{V}$ is a linear operator. Acting on a wave function then, it give the same relation as \eqref{Energy_expectation_value}:
+\begin{equation}
+\braket{V} = \int P({\bf R})V({\bf R})d{\bf R}.
+\end{equation}
+We wish to have two different expressions for $\braket{T}$ and $\braket{V}$ depending on whether we include electron repulsion or have a pure harmonic oscillator. We get
+\begin{equation}
+\braket{V} = \int P({\bf R})\left( \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) +\frac{1}{r_{12}} \right)d{\bf R}
+\end{equation}
+when including electron repulsion and 
+\begin{equation}
+\braket{V} = \int P({\bf R})\left( \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) \right)d{\bf R}
+\end{equation}
+for the pure harmonic oscillator potential.\\$\hat{T}$, unlike $\hat{V}$ gives different values for its corresponding observable value depending on the wave function it acts on and its computation is a little more involved, and so we will obtain $\braket{T}$ simply, by the relation
+\begin{equation}
+\braket{T} = \braket{H}-\braket{V}.
+\end{equation}
+
+\paragraph{To find $E_L$}, as required in \eqref{Energy_expectation_value}, we apply $\hat{H}_{N=2}$ to its eigenfunctions:
+\begin{equation*}
+\hat{H}_{N=2}\Psi_{T1} = \left( \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)+\frac{1}{r_{12}} \right)C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+\end{equation*}
+The radially dependent part of the Laplace operator being
+\begin{equation}
+\nabla_i^2 = \frac{1}{r_i^2}\frac{d}{dr_i}\left( r_i^2 \frac{d}{dr_i} \right).
+\end{equation}
+The Laplacian $\nabla_i^2$ with respect to $r_i$ acting on the wave function $\Psi_{T1}$ gives
+\begin{equation}
+\nabla_i^2Ce^{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)} = -\alpha\omega \left( 3 -\alpha \omega r_i^2 \right)Ce^{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
+\end{equation}
+so that 
+\begin{equation}
+\nabla_i^2\Psi_{T1} = -\alpha\omega \left( 3 -\alpha \omega r_i^2 \right)\Psi_{T1}.
+\end{equation}
+Applying this for both $r_1$ and $r_2$, then gives
+\begin{equation}
+\left( \nabla_1^2 + \nabla_2^2 \right)\Psi_{T1} = \left( -6\alpha \omega+\alpha^2\omega^2\left( r_1^2+r_2^2 \right) \right)\Psi_{T1}
+\end{equation}
+while 
+\begin{equation}
+\hat{V}\Psi_{T1} = \left( \frac{1}{2} \omega^2   \left( r_1^2+r_2^2 \right) +\frac{1}{r_{12}} \right)\Psi_{T1}.
+\end{equation}
+We get
+\begin{equation}
+\hat{H}_{N=2}\Psi_{T1} = \left( \frac{1}{2}\omega^2\left( r_1^2+r_2^2\right)\left(1-\alpha^2\right) +3\alpha\omega+\frac{1}{r_{12}} \right)\Psi_{T1}
+\end{equation}
+which means the local energy expression is given by
+\begin{equation}
+E_{L1} =  \frac{1}{2}\omega^2\left( r_1^2+r_2^2\right)\left(1-\alpha^2\right) +3\alpha\omega+\frac{1}{r_{12}}.
+\end{equation}
+Similarly, when applied to the second trial wave function,
+\begin{equation*}
+\hat{H}_{N=2}\Psi_{T2} = \left( E_{L1}+\frac{1}{2(1+\beta r_{12})^2}\left\{\alpha\omega r_{12}-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+\frac{2\beta}{1+\beta r_{12}}\right\} \right)\Psi_{T2}
+\end{equation*}
+and so 
+\begin{equation}
+E_{L2} = E_{L1}+\frac{1}{2(1+\beta r_{12})^2}\left\{\alpha\omega r_{12}-\frac{1}{2(1+\beta r_{12})^2}-\frac{2}{r_{12}}+\frac{2\beta}{1+\beta r_{12}}\right\}
+\end{equation}
+\cite{Problem_set_5}.
+\section{Computational implementation}
+As there are several ways to implement the Variational principle, and because varying over more than one variable can turn out to be quite difficult, a lot of effort was put into making suitable programs.
+\subsection{Object orientation}
+The code was object oriented and consists of two main mother classes - one class implementing the actual Variational Monte Carlo, and one class implementing the trial wave functions. Each trial wave function  is a subclass inheriting from the general function-class \textit{System} and has a function for the wave function's value and the wave function's local energy each, for given positions and variational parameters.\\
+The Metropolis algorithm is also implemented as its own class, and takes a function class as parameter. Its \textit{sample} function will then update the expectation values for the physical quantities of interest. \\
+The main advantage of this approach is not computational speed, which is in fact reduced, but an improved readability of code.
+\subsection{Calculating expectation values}
+In order to find the system's average energy and other parameters of interest, the Metropolis algorithm has been implemented. 
+For given parameters $\beta$,$\omega$, the step length $dr$ where around 50\% of proposed, the trial wave function $\phi$, the amount of Monte Carlo samples $n$, and the amount of discarded values $m$, the following algorithm is implemented:\\
+\IncMargin{1em}
+\begin{algorithm}[H]
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+counter = 0\;
+initialise starting positions $R_1$, $R_2$\;
+initialise expectation values\;
+initialise $\psi_{old}$=$\psi$($R_1$,$R_2$)\;
+\While{$counter<n+m$}{
+    \For{Each Particle a}{
+        \For{Each dimension b}{
+            Let $rand$ be a random number between -0.5 and 0.5\;
+            Suggest new position $R'_{a,b}$= $R_{a,b}+dr\cdot rand$\;
+        }
+    }
+    Let $\psi_{new}$=$\psi$($R'_1$,$R'_2$)\;
+    Let $rand$ be a random number between 0 and 1\;
+   \uIf{$\frac{|\psi_{new}|^2}{|\psi_{old}|^2}>rand$}{
+    Update $R_{a}=R'_{a}$\;
+    Update $\psi_{old}$=$\psi_{new}$; 
+   }
+   \uIf{$counter>=m$}{
+   Update expectation values based on $\psi_{old}$\;
+   }
+   increase counter by one\;
+}
+Divide expectation values by n\; 
+\end{algorithm}
+\DecMargin{1em}
+
+\subsection{Finding the correct step size leading to $\sim$50\% acceptance}
+The ideal step size \textit{dr} leading to $\sim$50\% of the Monte Carlo steps accepted, depends on $\omega$ and is difficult to assess without deeper insight into the system. For that reason, we developed an algorithm to find the value. For a given value dr:\\
+\IncMargin{1em}
+\begin{algorithm}[H]  
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+\While{True}{
+    run 10,000 MC-cycles\;
+    \uIf{Less than 4,000 were accepted}{$dr=0.9dr$\;}
+    \uElseIf{More than 6,000 were accepted}{$dr=1.1dr$\;}
+    \uElse{dr remains unchanged\; Start sampling\; exit loop\;}
+}
+\end{algorithm}
+\DecMargin{1em}
+This way, sampling does not start before an appropriate parameter has been found. That also means that a user-defined amount of samples will be discarded, plus all those before equilibrium has been reached. The algorithm has been implemented to be a part of the sampling algorithm and is technically active all the time, however changes to $dr$ happen rarely after one value has been accepted. 
+\subsection{Equilibrating the system}
+Because the equilibrium position is not known in advance, the initial electron placement needs to be chosen randomly. The first electron was placed in the origin, while electron two was placed at (1,1,1). It is then necessary to let the system equilibrate before starting the sampling. Figure 1 shows the average energy of $\Psi_{T1}$ as a function of simulation steps. 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{Energy_variation.pdf}
+\caption[<E> as function of simulation steps]{$\braket{E}$ of $\Psi_{T1}$ as function of simulation steps for $alpha$=0.88, $\omega=1.0$. Counting starts after a suitable value for the step size $dr$ has been found.}
+\end{figure}
+From that, we deduced that it takes roughly 200,000 simulation steps for the system to equilibrate. Depending on the initial guess of the step size $dr$, it takes some additional steps to find a suitable value for $dr$. Thus, we decided to discard 200,000 simulation steps before starting to sample, plus all the steps before a fitting $dr$ was found.
+\subsection{Finding values for $\alpha$ and $\beta$ for $\Psi_{T2}$}
+Finding right values for $\alpha$ and $\beta$ for $\Psi_{T2}$ is no easy task, as the ideal value, that is, the value yielding the lowest energy, of $\beta$ depends on the choice of $\alpha$. We developed an algorithm to find those values of beta and alpha that give the lowest energy. The requirement for the algorithm to work is that there exist no local minima, as these would be incorrectly recognized as the actual minimum, and that the amount of simulation steps is sufficient in order to ascertain that the average energies are calculated well enough and with a small enough standard deviation. 
+The algorithm works as follows:\\
+\IncMargin{1em}
+\begin{algorithm}[H]  
+\SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
+    Start with a guess for $\alpha$ and $\beta$\ and calculate $\braket{E}(\alpha,\beta$);
+    $\Delta\alpha=\Delta\beta=0.1$\;
+    \While{$\Delta\alpha>0.005$}{
+        Calculate $\braket{E}(\alpha+\Delta\alpha,\beta$) and $\braket{E}(\alpha-\Delta\alpha,\beta$)\;
+        \uIf{$\braket{E}(\alpha+\Delta\alpha,\beta)<\braket{E}(\alpha,\beta$)}{
+            Continue "going to the right" and find the integer X such that $\braket{E}(\alpha+(X+1)\Delta\alpha,\beta)<\braket{E}(\alpha+X\cdot\Delta\alpha,\beta$)\;
+            Update $\alpha=\alpha+X\cdot\Delta\alpha$\;
+        }
+        \uElseIf{\braket{E}($\alpha-\Delta\alpha,\beta)<\braket{E}(\alpha,\beta$)}{
+            Continue "going to the left" and find the integer X such that $\braket{E}(\alpha-(X+1)\Delta\alpha,\beta)<\braket{E}(\alpha-X\cdot\Delta\alpha,\beta$)\;
+            Update $\alpha=\alpha-X\cdot\Delta\alpha$\;
+        }
+        Do exactly the same for $\beta$\;
+        \uIf{$\alpha$ and $\beta$ remain unchanged}{
+        Decrease $\Delta\alpha$ and $\Delta\beta=0.1$ to a tenth their original values.
+        }
+    }
+\end{algorithm}
+\DecMargin{1em}
+In other words, $\alpha$ and $\beta$ are changed by a given step length until no lower energy is found  for that given step length. Then, the step length is decreased until the ideal values $\alpha$ and $\beta$ are found with two decimals accuracy.
+\section{Results}
+\subsection{Results using $\Psi_{T1}$}
+A visualisation of the average energy $\braket{E}$ and the standard deviation $\sigma$ for different values of $\omega$ can be found in figure 2. 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{function1_plot.pdf}
+\caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0\}$ with $10^8$ Monte Carlo cycles}
+\end{figure}
+A lot of information can be extracted from this. For all values of $\omega$, one can see clearly that both the standard deviation and $\braket{E}$ have one single minimum. That is, there exists an unambiguous value for $\alpha$, yielding the lowest average energy or the lowest standard deviation. The values are different depending on $\omega$, which does not happen when the electron repulsion is ignored. Another observation is that the minima for $\braket{E}$ and $\sigma$ are not identical. This can be explained by the fact that the local energy is not the real ground state energy, because the trial wave function is not the real wave function. This leads to different integrals being evaluated for $\braket{E}$ and $\braket{E^2}$, and the minima coinciding would simply be a coincidence. Nevertheless, the ideal $\alpha$-value for the energy is similar to the lowest $\sigma$-value for the standard deviation. It is also interesting to see that the standard deviation for $\omega=0.01$ is in the same magnitude as $\braket{E}$ itself, while it is about one magnitude lower for $\omega=1.0$. A possible explanation is that the harmonic oscillator potential is that the electron repulsion dominates for very weak harmonic oscillator potentials, something that is not well incorporated in the wave function, so that the wave function's value is similar for quite different local energies. This is based on our earlier observation that the repulsion potential is a more severe "disturbance" for lower harmonic oscillator potentials.\\
+The achieved results are qualitatively similar to the analytical results, as can be seen for $\omega=1.0$. The variational result is 6\% larger than the analytical solution, which is 3.558 au. However, that difference is too large to do more quantitative analysis on the system. One advantage of the Variational method is that we know that our energy is equal to or higher than the true ground state energy. In an earlier analysis done by us using matrix diagonalisation, we found that the ground state energy is $4.058/2+1.5$au=3.53au. Even though this value is much closer to the exact energy, the result is also lower. In general, this method gives no indication whether the real ground state energy is higher or lower.
+\section{Conclusion}
+
+\section{Critique}
+
+\section{Appendix}
+\subsection{Proof of the variational principle in quantum mechanics}\label{Proof_variational_principle}
+Given a normalized trial wave function $\ket{\psi}$. As any normalizable wave function can be expressed as a linear combination of energy eigenstates, we have that
+$$
+\ket{\psi} = \sum\limits_n C_n \ket{E_n}
+$$
+where $C_n$ is a complex coefficient, $\ket{E_n}$ is the energy eigenstate corresponding to the energy $E_n$ and $E_0=E_{gs}$. Now, calculating $\braket{H}$, 
+$$
+\braket{\psi|\hat{H}|\psi} = \sum\limits_{nm} \braket{E_m|C_m^*\hat{H}C_n|E_n}
+$$
+we get that 
+$$
+\braket{H}= \sum\limits_{nm} C_m^*C_n E_n \delta_{mn} =\sum\limits_{n} \big|  C_n \big|^2E_n
+$$
+where $\delta_{mn}$ is the Kronecker- delta.
+\begin{equation}
+\braket{H}=\sum\limits_{n} \big|  C_n \big|^2E_n \geq E_{gs}
+\end{equation}
+\subsection{Derivation of $E_{L2}$}
+\begin{equation}
+\nabla_i^2\Psi_{T2} = \nabla_i^2\left( \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} \right)
+\end{equation}
+\[
+\frac{d}{dr_i}\left(  \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} \right) = \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\frac{d}{dr_i}\Psi_{T1} + \Psi_{T1}\frac{d}{dr_i}\left( \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\right)
+\]
+\begin{equation*}
+\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\frac{d}{dr_i}\Psi_{T1} = -\alpha \omega r_i\Psi_{T2}
+\end{equation*}
+
+\begin{equation*}
+ \Psi_{T1}\frac{d}{dr_1}\left( \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}\right) = \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2}  \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} =  \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2}\Psi_{T2}
+\end{equation*}
+
+\[
+\frac{d}{dr_1}\Psi_{T2} = \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\Psi_{T2}
+\]
+
+\[
+\frac{d}{dr_2}\Psi_{T2} = -\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)\Psi_{T2}
+\]
+
+\[
+\frac{d}{dr_1}\left( r_1^2 \frac{d}{dr_1}\Psi_{T2}\right) =  \frac{d}{dr_1}\left( r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\Psi_{T2} \right)
+\]
+
+\[
+= r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)^2\Psi_{T2}+\Psi_{T2} \frac{d}{dr_1}\left( r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\right).
+\]
+\[
+\frac{d}{dr_1}\left( r_1^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)\right)=
+\]
+\[
+\dfrac{r_1}{2r_{12}\left(\beta r_{12}+1\right)^2}-\dfrac{r_1^2}{8r_{12}^3\left(\beta r_{12}+1\right)^2}-\dfrac{\beta r_1^2}{4r_{12}^2\left(\beta r_{12}+1\right)^3}-3\alpha \omega r_1^2
+\]
+
+\[
+\nabla_1^2\Psi_{T2} = \left( \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)^2 +\dfrac{1}{2r_1r_{12}\left(\beta r_{12}+1\right)^2}-\dfrac{1}{8r_{12}^3\left(\beta r_{12}+1\right)^2}-\dfrac{\beta}{4r_{12}^2\left(\beta r_{12}+1\right)^3}-3\alpha \omega \right)\Psi_{T2}
+\]
+\\\\
+\[
+\frac{d}{dr_2}\left( r_2^2 \frac{d}{dr_2}\Psi_{T2}\right) =  \frac{d}{dr_2}\left( -r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)\Psi_{T2} \right)
+\]
+\[
+= r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)^2\Psi_{T2} - \Psi_{T2}\frac{d}{dr_2}\left( r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right) \right)
+\]\\
+\[
+\frac{d}{dr_2}\left( r_2^2\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right) \right) = 
+\]
+\[
+\dfrac{r_2}{2r_{12}\left(\beta r_{12}+1\right)^2}-\dfrac{r_2^2}{8r_{12}^3\left(\beta r_{12}+1\right)^2}-\dfrac{r_2^2\beta}{4r_{12}^2\left(\beta r_{12}+1\right)^3}+3\alpha \omega r_2^2
+\]
+\[
+\nabla_2^2\Psi_{T2} = \left( \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)^2 -   \dfrac{1}{2r_2r_{12}\left(\beta r_{12}+1\right)^2}+\dfrac{1}{8r_{12}^3\left(\beta r_{12}+1\right)^2}+\dfrac{\beta}{4r_{12}^2\left(\beta r_{12}+1\right)^3}-3\alpha \omega \right)\Psi_{T2}
+\]
+
+\[
+\left( \nabla_1^2+\nabla_2^2 \right)\Psi_{T2} = \Bigg( \left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} +\alpha \omega r_2\right)^2 +\left( \frac{1}{4r_{12}\left( 1+\beta r_{12} \right)^2} -\alpha \omega r_1\right)^2- \cdots
+\]
+\[ 
+\cdots \dfrac{1}{2r_{12}\left(\beta r_{12}+1\right)^2}\left( \frac{1}{r_1}-\frac{1}{r_2} \right)-6\alpha \omega \Bigg)\Psi_{T2}
+\]
+\subsection{Figures}
+
+\subsection{Tables}
+
+\subsection{List of programs}\label{Listofprograms}
+All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} in the folder "Project5".
+
+
+\begin{itemize}
+\item[1.] b.cpp - Program with several options of writing to file, different matrices etc., for a given temperature and lattice size
+\item[2.] e\_not\_parallel.cpp - Like b, but can run over several lattices and temperatures, more efficient
+\item[3.] e.cpp - Same as above, but parallelized with openMPI
+\item[4.] vecop.hpp - Several functions
+\item[5.] vecop.cpp - Functions, out of which some are used.
+\item[6.] tests\_main.cpp - Unit testing.
+\item[7.] a.py - Analytical solution. Not properly up to date!
+\item[8.] plot\_cv.py - Creates $2\times2$ plot for the larger simulations, also calculates $T_C(L_{\rightarrow \infty})$
+\item[9.] plot\_distribution.py Plots the distribution histograms at different temperatures.
+\item[10.] plot\_energy\_simulation\_step.py Plots the  avg. energy, the avg. magnetisation and the amount of accepted steps as a function of simulation step.
+\item[11.] functions.hpp \& functions.cpp - Contains functions for parallelization, and all the integrands, and some more.
+\end{itemize}
+
+\bibliographystyle{Plain}
+
+
+
+\bibliography{citations}
+
+
+
+\begin{comment}
+
+$$
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 \\
+\end{bmatrix}
+$$
+
+\begin{lstlisting}[caption=insert caption]
+for (unsigned int i = 0; i<100;i++{
+}
+\end{lstlisting}
+
+\begin{figure}[h]
+\includegraphics[width=8cm]{}
+\caption{include caption}
+\end{figure}
+
+\end{comment}
+
+\end{document}
