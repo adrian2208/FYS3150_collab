@@ -16,14 +16,14 @@ fig=plt.figure(figsize=(30,20))
 colors=["blue","orange","green","red"]
 font = {'family' : 'normal',
         'weight' : 'normal',
-        'size'   : 22}
+        'size'   : 30}
 matplotlib.rc('font', **font)
 for i in range(len(omegas)):
     plt.subplot(len(omegas),2,2*i+1)
     plt.plot(alpha,energies[i],label=r"$\omega=%.2f$"%omegas[i],color=colors[i])
     mini=np.argmin(energies[i])
     plt.plot(alpha[mini],energies[i][mini],"o",color=colors[i])
-    plt.text(alpha[mini],energies[i][mini],"Minimum at %.2f\n with E=%.2f"%(alpha[mini],energies[i][mini]))
+    #plt.text(alpha[mini],energies[i][mini],"Minimum at %.2f\n with E=%.2f"%(alpha[mini],energies[i][mini]))
     plt.xlabel(r"$\alpha$")
     plt.ylabel(r"$E_0$")
     plt.legend()
@@ -31,7 +31,7 @@ for i in range(len(omegas)):
     plt.plot(alpha,sigmas[i],label=r"$\omega=%.2f$"%omegas[i],color=colors[i])
     mini=np.argmin(sigmas[i])
     plt.plot(alpha[mini],sigmas[i][mini],"o",color=colors[i])
-    plt.text(alpha[mini],sigmas[i][mini],"Minimum at %.2f\n with $\sigma$=%.2f"%(alpha[mini],sigmas[i][mini]))
+    #plt.text(alpha[mini],sigmas[i][mini],"Minimum at %.2f\n with $\sigma$=%.2f"%(alpha[mini],sigmas[i][mini]))
     plt.xlabel(r"$\alpha$")
     plt.ylabel(r"$\sigma$")
     plt.legend()
