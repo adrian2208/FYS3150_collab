@@ -97,7 +97,7 @@ double * VRMonteCarlo::sample_detailed(double * energy, double * energysquared, 
   cout <<"accepted moves: " << accepted << endl;
   return e_avg;
 }
-void VRMonteCarlo::sample(double * energy, double * energysquared,double *distance_,double * time, double **posold){
+void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,double *distance_,double * time, double **posold){
   int original_skip=skip;
   int i,particle,dim;
   int accepted=0;
@@ -159,6 +159,7 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *distan
   *energy=*energy/(float)(amount);
   *energysquared=*energysquared/(float)(amount);
   *distance_=*distance_/(float)(amount);
+  *v=*v/(float)(amount);
   cout <<"accepted moves: " << accepted << "  Energy: " << *energy<< endl;
   skip=original_skip;
 }

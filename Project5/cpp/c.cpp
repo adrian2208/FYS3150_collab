@@ -13,7 +13,7 @@ void energy_equilibrium(){
   double energy=0,energysquared=0,time=0;
   double alpha=1.1;
   int skip=2e5;
-  int amount=1e7;
+  int amount=5e7;
   double dr=1.3;
   double beta=0;
   double omega=1.0;
@@ -39,7 +39,7 @@ int main(int argc, char** argv){
   double alpha_end=1.2;
   double d_alpha=0.01;
   int n=(int)((alpha_end-alpha_start)/d_alpha)+1;
-  double omega[3]={0.01,0.5,1.0};
+  double omega[3]={0.01,0.5,1.0,5.0};
   double * energy_list=new double[3*n];
   double * sigma_list=new double[3*n];
   double *distance_list=new double[3*n];
@@ -51,13 +51,13 @@ int main(int argc, char** argv){
   System1* per;//= new System1(0,0,0);
   VRMonteCarlo* vrc;///= new VRMonteCarlo(per, 0,0,0,0);
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
-  double energy=0,energysquared=0,time=0,distance=0;
+  double energy=0,energysquared=0,time=0,distance=0,V=0;
   double sigma;
   for (int j=0;j<3;j++){
     for (int i=0;i<n;i++){
       per=new System1(alpha_start+i*d_alpha,beta,omega[j]); // alpha, beta (not relevant for system1) and omega
       vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
-      vrc->sample(&energy,&energysquared,&distance,&time,pos);
+      vrc->sample(&energy,&energysquared,&V,&distance,&time,pos);
       sigma=sqrt(energysquared-energy*energy);
       energy_list[j*n+i]=energy;
       sigma_list[j*n+i]=sigma;

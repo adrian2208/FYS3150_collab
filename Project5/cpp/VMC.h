@@ -20,7 +20,7 @@ class VRMonteCarlo{
     double rand();
   public:
     VRMonteCarlo(System * system, double dr, int amount, int skip=2e5, int seed=0);
-    void sample(double * energy, double * energysquared,double *distance_, double * time, double **posold);
+    void sample(double * energy, double * energysquared,double *v,double *distance_, double * time, double **posold);
     double * sample_detailed(double * energy, double * energysquared,double *distance_, double * time, double **posold);
     void update(double alpha, double beta, double omega);
 };
