@@ -20,6 +20,9 @@ class System{
     virtual double energy(double r1, double r2, double r12)=0;
     virtual double function(double r1,double r2,double r12)=0;
     virtual void update(double alpha, double beta, double omega)=0;
+    double potentialCart(double x1, double y1, double z1, double x2, double y2, double z2);
+    double potentialCart(double **pos);
+    virtual double potential(double r1,double r2,double r12)=0;
 };
 class System1: public System{
   public:
@@ -27,6 +30,7 @@ class System1: public System{
     double energy(double r1, double r2,double r12);;
     double function(double r1, double r2, double r12);
     void update(double alpha, double beta, double omega);
+    double potential(double r1,double r2,double r12);
 };
 class System2: public System{
   public:
@@ -36,6 +40,7 @@ class System2: public System{
     double energy(double r1, double r2,double r12);
     double function(double r1, double r2, double r12);
     void update(double alpha, double beta, double omega);
+    double potential(double r1,double r2,double r12);
     //double energy(double ** pos);
     //double function(double ** pos);
 };
@@ -44,4 +49,6 @@ class Testsystem: public System{
   using System::System;
   double energy(double r1, double r2,double r12);
   double function(double r1, double r2, double r12);
+  void update(double alpha, double beta, double omega);
+  double potential(double r1,double r2,double r12);
 };

@@ -66,7 +66,7 @@ int main(int argc, char** argv){
   }
     for (int i=0;i<n;i++){
       per=new System1(alpha_start+i*d_alpha,beta,omega[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=new VRMonteCarlo(per, dr,samplings,skip,0); //System, dr, amount of samplings, how many skips
+      vrc=new VRMonteCarlo(per, dr,samplings,skip,my_rank); //System, dr, amount of samplings, how many skips
       vrc->sample(&energy,&energysquared,&V,&distance,&time,pos);
       sigma=sqrt(energysquared-energy*energy);
       energy_list[j*n+i]=energy;
