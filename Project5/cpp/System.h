@@ -11,6 +11,7 @@ class System{
     double alpha;
     double beta;
     double omega;
+    friend class VRMonteCarlo;
   public:
     System(double alpha1,double beta1, double omega1);
     double functionCart(double **pos);
@@ -22,7 +23,7 @@ class System{
     virtual void update(double alpha, double beta, double omega)=0;
     double potentialCart(double x1, double y1, double z1, double x2, double y2, double z2);
     double potentialCart(double **pos);
-    double potential(double r1,double r2,double r12);
+    virtual double potential(double r1,double r2,double r12)=0;
 };
 class System1: public System{
   public:

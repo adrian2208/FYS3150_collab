@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import sys
 infile=np.loadtxt("../results/function1.csv",delimiter=",",skiprows=1)
-omegas=[0.01,0.5,1.0,5.0]
+omegas=[0.05,0.15,1/3,0.7]
 alpha=infile[:int(len(infile)/len(omegas)),1]
 energies=[]
 sigmas=[]

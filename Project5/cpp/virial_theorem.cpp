@@ -12,8 +12,8 @@ int main(int argc, char** argv){
   int amount=4;
   double omegas[amount]={0.01,0.5,1.0,5.0};
   double alphas_1[amount]={0.45,1,0.88,1.00};
-  double alphas_2[amount]={1.32,1.23,0.88,1.00};
-  double betas[amount]={0.03,0.14,0.5,0.5};
+  double alphas_2[amount]={5,1.23,0.88,1.00};
+  double betas[amount]={0.01,0.14,0.5,0.5};
   double kintetic_energy=0, energy=0, energysquared=0, potential_energy=0, distance=0,time=0;
   int samplings=1e7;
   int skip=2e5;

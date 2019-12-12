@@ -10,6 +10,7 @@
 #include <iomanip>
 using namespace std;
 void energy_equilibrium(){
+  /*Creates the file "energy_distribution.csv" that contains the average energies for each 1000th iteration*/
   ofstream outfile;
   outfile.open("../results/energy_distribution.csv");
   double energy=0,energysquared=0,time=0;
@@ -34,12 +35,12 @@ void energy_equilibrium(){
   delete vrc;
 }
 int main(int argc, char** argv){
-  double alpha_start=0.21;
-  double alpha_end=1.20;
+  double alpha_start=0.4;
+  double alpha_end=1.0;
   double d_alpha=0.01;
   int n=(int)((alpha_end-alpha_start)/d_alpha)+1;
   int howmany=4;
-  double omega[howmany]={0.01,0.5,1.0,5.0};//;,5.0};
+  double omega[howmany]={0.05,0.15,1.0/3.0,0.7};//;,5.0};
   double * energy_list=new double[howmany*n];
   double * sigma_list=new double[howmany*n];
   double *distance_list=new double[howmany*n];
@@ -50,7 +51,7 @@ int main(int argc, char** argv){
   int skip=2e5;
   double dr=1.0;
   double beta=0;
-  double **pos=createNMatrix(2,3);pos[0][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
+  double **pos=createNMatrix(2,3);pos[1][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
   System1* per;//= new System1(0,0,0);
   VRMonteCarlo* vrc;///= new VRMonteCarlo(per, 0,0,0,0);
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){

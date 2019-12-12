@@ -26,10 +26,10 @@ VRMonteCarlo::VRMonteCarlo(System* system, double dr, int amount, int skip, int 
       mt_eng= mt19937(rd()+seed); //Each thread gets a different seed, as the rank is included
       prob_dist= uniform_real_distribution<double>(0.0,1.0);
     }
-void VRMonteCarlo::update(double alpha, double beta, double gamma){
+void VRMonteCarlo::update(double alpha, double beta, double omega){
   skip=skip_orig;
   dr=dr_orig;
-  system->update(alpha,beta,gamma);
+  system->update(alpha,beta,omega);
 }
 double * VRMonteCarlo::sample_detailed(double * energy, double * energysquared, double *distance_,double * time, double **posold){
   int original_skip=skip;
@@ -98,6 +98,7 @@ double * VRMonteCarlo::sample_detailed(double * energy, double * energysquared, 
   return e_avg;
 }
 void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,double *distance_,double * time, double **posold){
+  posold[1][0]=1;posold[1][1]=1;posold[1][2]=1;posold[0][0]=0;posold[0][1]=0;posold[0][2]=0;
   int original_skip=skip;
   int i,particle,dim;
   int accepted=0;
@@ -154,16 +155,16 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,doub
     }
     if (i>skip && equilibrium){
       *distance_+=distance(posold);
-      *energy+=local_energy;
-      *energysquared+=local_energy*local_energy;
-      *v+=potential;
+      *energy=*energy+local_energy;
+      *energysquared=*energysquared+local_energy*local_energy;
+      *v=*v+potential;
     }
   }
   *energy=*energy/(float)(amount);
   *energysquared=*energysquared/(float)(amount);
   *distance_=*distance_/(float)(amount);
   *v=*v/(float)(amount);
-  cout <<"accepted moves: " << accepted << "  Energy: " << *energy<< endl;
+  cout <<"accepted moves: " << accepted << "  Energy: " << *energy<<"Alpha: "<<system->alpha<<"Beta: "<<system->beta << endl;
   skip=original_skip;
 }
 double VRMonteCarlo::rand(){ // Returns a random number between -0.5 and 0.5

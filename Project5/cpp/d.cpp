@@ -7,6 +7,7 @@
 #include <fstream>
 #include <limits>
 using namespace std;
+/*Outdated, don't use*/
 void print(double alpha,double beta,double energy){
   cout << "alpha: "<< alpha <<endl<< "beta: "<< beta <<endl<< "energy: " << energy<<endl;
 }
@@ -26,7 +27,7 @@ int main(int argc, char** argv){
   int counter=0;
   double alpha,beta;
   double dalpha,dbeta; // Change in alpha and beta
-  double **pos=createNMatrix(2,3);pos[0][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
+  double **pos=createNMatrix(2,3);pos[1][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
   System2 *per=new System2(1,1,1);//=new System2(0,0,0);
   VRMonteCarlo *vrc=new VRMonteCarlo(per, dr,samplings,skip,0);//=new VRMonteCarlo(&per, 0,0,0,0);// double dr, int amount, int skip, int seed
   //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
@@ -93,6 +94,9 @@ int main(int argc, char** argv){
       if(j==2){
         print(alphas[j],betas[j],energies[j]);
       }
+      if(fabs(betas[j]-0.01)<1e-3){
+        dbeta=0.001;
+      }
       vrc->update(alphas[j],betas[j]+dbeta,omegas[j]); // alpha, beta (not relevant for system1) and omega
       vrc->sample(&energy,&energysquared,&V,&distance,&time,pos);
       energy_right=energy;
@@ -126,7 +130,6 @@ int main(int argc, char** argv){
       if(energy_old==energies[j]){ // In case the energy hasn't been updated, let the loop rn again
         energy_old=0;
         dalpha*=0.1;
-        dbeta*=0.1;
       }
     }while(fabs(energies[j]-energy_old)>sigmas[j]/sqrt(samplings));
   outfile << omegas[j]<<","<<alphas[j]<<","<<betas[j]<<energies[j]<<","<<sigmas[j]<<endl;
