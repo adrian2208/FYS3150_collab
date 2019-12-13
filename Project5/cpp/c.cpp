@@ -35,16 +35,16 @@ void energy_equilibrium(){
   delete vrc;
 }
 int main(int argc, char** argv){
-  double alpha_start=0.4;
-  double alpha_end=1.0;
-  double d_alpha=0.01;
-  int n=(int)((alpha_end-alpha_start)/d_alpha)+1;
-  int howmany=4;
+  double alpha_start=0.4; //Start_value for alpha
+  double alpha_end=1.0; //End_value for alpha
+  double d_alpha=0.01; //Step length
+  int n=(int)((alpha_end-alpha_start)/d_alpha)+1; //Amount of simulations
+  int howmany=4; //How many omega values there are
   double omega[howmany]={0.05,0.15,1.0/3.0,0.7};//;,5.0};
   double * energy_list=new double[howmany*n];
   double * sigma_list=new double[howmany*n];
   double *distance_list=new double[howmany*n];
-  double * energy_list_final=new double[howmany*n];
+  double * energy_list_final=new double[howmany*n]; //For use in MPI_reduce
   double * sigma_list_final=new double[howmany*n];
   double *distance_list_final=new double[howmany*n];
   int samplings=1e8;
@@ -52,22 +52,19 @@ int main(int argc, char** argv){
   double dr=1.0;
   double beta=0;
   double **pos=createNMatrix(2,3);pos[1][0]=1;pos[1][1]=1;pos[1][2]=1;pos[0][0]=0;pos[0][1]=0;pos[0][2]=0; //placement not based on anything
-  System1* per;//= new System1(0,0,0);
-  VRMonteCarlo* vrc;///= new VRMonteCarlo(per, 0,0,0,0);
-  //VRMonteCarlo(System* system, double dr, int amount, int skip, int seed=0){
-  double energy=0,energysquared=0,time=0,distance=0,V=0;
-  double sigma;
-  int numprocs,my_rank;
+  System1* per;
+  VRMonteCarlo* vrc;
+  double energy=0,energysquared=0,time=0,distance=0,V=0,sigma=0;
+  int numprocs,j;
   MPI_Init(&argc, &argv);
   MPI_Comm_size (MPI_COMM_WORLD, &numprocs);
-  MPI_Comm_rank (MPI_COMM_WORLD,&my_rank);
-  int j=my_rank;
-  if(j==0){
+  MPI_Comm_rank (MPI_COMM_WORLD,&j);
+  if(j==0){ //Only one thread needs to do this.
     energy_equilibrium();
   }
     for (int i=0;i<n;i++){
-      per=new System1(alpha_start+i*d_alpha,beta,omega[j]); // alpha, beta (not relevant for system1) and omega
-      vrc=new VRMonteCarlo(per, dr,samplings,skip,my_rank); //System, dr, amount of samplings, how many skips
+      per=new System1(alpha_start+i*d_alpha,beta,omega[j]);
+      vrc=new VRMonteCarlo(per, dr,samplings,skip,j);
       vrc->sample(&energy,&energysquared,&V,&distance,&time,pos);
       sigma=sqrt(energysquared-energy*energy);
       energy_list[j*n+i]=energy;
@@ -81,7 +78,7 @@ int main(int argc, char** argv){
   MPI_Reduce(energy_list,energy_list_final,n*howmany,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   MPI_Reduce(sigma_list,sigma_list_final,n*howmany,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
   MPI_Reduce(distance_list,distance_list_final,n*howmany,MPI_DOUBLE,MPI_SUM,0,MPI_COMM_WORLD);
-  if(my_rank==0){
+  if(j==0){
     ofstream outfile;
     outfile.open("../results/function1.csv",ios::out | ios::app); //Collected results (Numbers)
     for(int i=0;i<howmany;i++){

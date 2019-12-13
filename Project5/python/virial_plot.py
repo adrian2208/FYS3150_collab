@@ -14,6 +14,9 @@ for i in range(3):
 print(kinetic)
 labels=["No repulsion",r"$\Psi_{T1}$",r"$\Psi_{T2}$"]
 for i in range(3):
-    plt.plot(omegas,kinetic[i]/potential[i],label=labels[i])
+    plt.plot(omegas[:-1],(kinetic[i]/potential[i])[:-1],label=labels[i])
 plt.legend()
+plt.xlabel(r"$\omega$")
+plt.ylabel(r"$<T>/<V>$")
+
 plt.show()
