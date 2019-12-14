@@ -104,17 +104,21 @@ and
     C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
     \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
 \end{equation}
-with variational parameters $\alpha$ and $\beta$. 
+with variational parameters $\alpha$ and $\beta$.\\Equation \eqref{1sttrialwavefunction} ignores the added complication of electron- electron repulsion, but is still a valid trial wave function. We expect however that this first trial wave function will result in poorer approximations of the real ground state energy in the presence of electron- electron repulsion. The second trial wave function \eqref{2ndtrialwavefunction} is meant to take into account a system with electron- electron repulsion and therefore, is hopefully a better approximation for the real wave function, giving a more accurate estimate for the ground state energy. This is done by the addition of a so- called Jastrow factor, in our case 
+\[
+\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
+\]
+which attempts to model the interaction of electrons with a variational function that takes in the distance between electrons $r_{12}$ as an argument. This does however make this particular trial wave function unseperable and therefore much harder to solve analytically.\\\\The trial wave function \eqref{1sttrialwavefunction} solved for a Hamiltonian without electron- electron repulsion has the known analytical result of $3\omega$ \cite{Problem_set_5}. This will serve as a benchmark and a test condition in the implementation of our model.
 \subsubsection{The cusp condition}
-We examine the behaviour of the trial wave functions \eqref{1sttrialwavefunction} and \eqref{2ndtrialwavefunction} when $r_{12}\rightarrow 0$:
+It's important in the choice of trial wave function that the wave function reflects as many properties of the actual wave function as possible. One such condition is the behaviour of the system as the two electrons approach each other meaning $r_{12}\rightarrow 0$. The Cusp condition between two electrons, as defined in \cite{Lecture_Notes_Fall_2015} requires for two- electron systems with anti- parallel spins, that
 \begin{equation}
-\Psi_{T1}(\mathbf{r}_1,\mathbf{r}_2)_{r_{12}\rightarrow 0} = C\exp{\left(-\alpha\omega r_1^2\right)}
+\frac{1}{2}\Psi_{Ti} =\dfrac{d\Psi_{Ti}}{dr_{12}} \Bigg|_{r_{12}\rightarrow 0}.
 \end{equation}
+When applied to \eqref{1sttrialwavefunction}, this clearly doesn't hold true. Applied to \eqref{2ndtrialwavefunction}, we get
 \begin{equation}
-\Psi_{T2}(\mathbf{r}_1,\mathbf{r}_2)_{r_{12}\rightarrow 0} = C\exp{\left(-\alpha\omega r_1^2\right)}
+\dfrac{d\Psi_{T2}}{dr_{12}} \Bigg|_{r_{12}\rightarrow 0} = \lim_{r_{12}\rightarrow 0} \frac{\Psi_{T2}}{2\left(bx+1\right)^2} = \frac{1}{2}\Psi_{T2}.
 \end{equation}
-\paragraph{The total spin of the system is zero}
-
+So, the cusp condition holds for the second trial wave function.
 \subsection{Values of interest}
 
 The Hamiltonian for a two- electron system with electron- electron repulsion is
@@ -269,6 +273,7 @@ From that, we deduced that it takes roughly 200,000 simulation steps for the sys
 \subsection{Finding values for $\alpha$ and $\beta$ for $\Psi_{T2}$}
 Finding right values for $\alpha$ and $\beta$ for $\Psi_{T2}$ is no easy task, as the ideal value, that is, the value yielding the lowest energy, of $\beta$ depends on the choice of $\alpha$. We developed an algorithm to find those values of beta and alpha that give the lowest energy. The requirement for the algorithm to work is that there exist no local minima, as these would be incorrectly recognized as the actual minimum, and that the amount of simulation steps is sufficient in order to ascertain that the average energies are calculated well enough and with a small enough standard deviation. 
 The algorithm works as follows:\\
+\begin{comment}
 \IncMargin{1em}
 \begin{algorithm}[H]  
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
@@ -291,19 +296,20 @@ The algorithm works as follows:\\
     }
 \end{algorithm}
 \DecMargin{1em}
+\end{comment}
 In other words, $\alpha$ and $\beta$ are changed by a given step length until no lower energy is found  for that given step length. Then, the step length is decreased until the ideal values $\alpha$ and $\beta$ are found with two decimals accuracy. We also implemented some safeguards to make sure that $\alpha$ and $\beta$ always are positive.
 \subsection{Unit Testing}
 In order to test that the Monte Carlo sampling works as intended, unit tests were implemented. Because we know that $\Psi_{T1}$ is the correct wave function with $\alpha=1.0$ when the electron repulsion is ignored, we tested that the ground-state energy $\braket{E}$ is lowest (and equal to 3.0) for $\alpha=1.0$. We also tested that the standard deviation $\sigma$ is very small, and larger for other values of $\alpha$. \\
 In addition, we tested that the virial theorem for the pure harmonic oscillator  $\braket{V}$= $\braket{T}$ holds true when the electron repulsion is ignored.
 \section{Results}
 \subsection{Results using $\Psi_{T1}$}
-A visualisation of the average energy $\braket{E}$ and the standard deviation $\sigma$ for different values of $\omega$ can be found in figure 2. 
+A visualisation of the average energy $\braket{E}$ and the standard deviation $\sigma$ for different values of $\omega$ can be found in figure \ref{function1_plot}. 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{function1_plot.pdf}
+\includegraphics[width=\textwidth]{function1_plot.pdf}\label{function1_plot}
 \caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}
 \end{figure}
-Table 1 contains information about several observables and the ideal value for $\alpha$ for the different values of $\omega$.
+Table \ref{table1} contains information about several observables and the ideal value for $\alpha$ for the different values of $\omega$.
 \begin{table}[H]
 \centering
 \caption[$\braket{E},\sigma$, $\alpha$ and $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}
@@ -314,12 +320,12 @@ $\alpha$          & 0.45          & 0.84         & 0.88         & 0.95         \
 $\braket{E}$      & 0.0936        & 2.040        & 3.773        & 16.76        \\ \hline
 $\sigma$          & 0.0373        & 0.3692       & 0.5206       & 1.204        \\ \hline
 $\braket{r_{12}}$ & 23.78         & 2.462        & 1.701        & 0.733        \\ \hline
-\end{tabular}
+\end{tabular}\label{table1}
 \end{table}
 A lot of information can be extracted from this. For all values of $\omega$, one can see clearly that both the standard deviation and $\braket{E}$ have one single minimum. That is, there exists an unambiguous value for $\alpha$, yielding the lowest average energy or the lowest standard deviation. The values are different depending on $\omega$, which does not happen when the electron repulsion is ignored. Another observation is that the minima for $\braket{E}$ and $\sigma$ are not identical. This can be explained by the fact that the local energy is not the real ground state energy, because the trial wave function is not the real wave function. This leads to different integrals being evaluated for $\braket{E}$ and $\braket{E^2}$, and the minima coinciding would simply be a coincidence. Nevertheless, the ideal $\alpha$-value for the energy is similar to the lowest $\sigma$-value for the standard deviation. It is also interesting to see that the standard deviation for $\omega=0.01$ is in the same magnitude as $\braket{E}$ itself, while it is about one magnitude lower for $\omega=1.0$. A possible explanation is that the harmonic oscillator potential is that the electron repulsion dominates for very weak harmonic oscillator potentials, something that is not well incorporated in the wave function, so that the wave function's value is similar for quite different local energies. This is based on our earlier observation that the repulsion potential is a more severe "disturbance" for lower harmonic oscillator potentials.\\
 The expectation value $\braket{r_{12}}$ for the distance between the two electrons decreases as $\omega$ increases, which makes sense - for lower values of  $\omega$, the electron repulsion dominates, and the particles stay far away from each other. 
 \subsection{Varying $\alpha$ and $\beta$ for $\Psi_{T2}$}
-The algorithm described above tries to find the best results for $\alpha$ and $\beta$. A typical "path" is shown (in chronological order) in table 2, for the exemplary $\omega=0.7$. The results are similar when using different $\omega$s.
+The algorithm described above tries to find the best results for $\alpha$ and $\beta$. A typical "path" is shown (in chronological order) in table \ref{table2}, for the exemplary $\omega=0.7$. The results are similar when using different values of $\omega$.
 \begin{table}[H]
 \centering
 \caption[Varying $\alpha$ and $\beta$]{The "path" gone by  $\alpha$ and $\beta$ yielding gradually lower results for  $\braket{E}$, as well as  $\braket{r_{12}}$ and $\sigma$ for $\Psi_{T2}$ for $\omega=0.7$ with $10^7$ Monte Carlo cycles}
@@ -335,11 +341,11 @@ $\alpha$ & $\beta$ & $\braket{E}$ & $\sigma$ & $\braket{r_{12}}$ \\ \hline
 0.99     & 0.24    & 2.70160        & 0.014    & 2.22              \\ \hline
 0.99     & 0.25    & 2.70160        & 0.015    & 2.21              \\ \hline
 0.99     & 0.25    & 2.70162        & 0.014    & 2.21              \\ \hline
-\end{tabular}
+\end{tabular}\label{table2}
 \end{table}
 We see that the energy barely changes as soon as approximate values have been found, and that there is little room for improvement. However, the standard deviation decreases vastly when improving the parameters, and we see how energy reduction is correlated with reduction of $\sigma$, which seems to vary more intensely when varying $\alpha$ and $\beta$. This makes it feasible to find the lowest value for $\sigma$ instead of $\braket{E}$, however, it will not yield the lowest energy. It is also possible to see that $10^7$ Monte Carlo cycles simply is not enough to get reliable results, as the last row has an energy difference large enough to change the parameters $\alpha$ and $\beta$. However, using $10^7$ Monte Carlo cycles works nicely to get a general idea of the "true" lowest-energy parameters $\alpha$ and $\beta$, which we found are $\alpha=0.99$ and $\beta=0.24$.
 \subsection{Results using $\Psi_{T2}$}
-The results for different expectation values, and the optimal parameters $\alpha$ and $\beta$, are presented in table 3. 
+The results for different expectation values, and the optimal parameters $\alpha$ and $\beta$, are presented in table \ref{table3}. 
 \begin{table}[H]
 \centering
 \caption[$\braket{E},\sigma$, $\alpha$,$\beta$ and  $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ and $\beta$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T2}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles. The right range for $\alpha$ and $\beta$ was found using the approach described above using $10^7$ simulation steps, and the values were confirmed and refined using  $10^8$ simulation steps. }
@@ -352,14 +358,14 @@ $\beta$           & 0.05          & 0.14         & 0.27         & 0.59         \
 $\braket{E}$      & 0.0794        & 2.00         & 3.73         & 16.71        \\ \hline
 $\sigma$          & 0.0020        & 0.012        & 0.017        & 0.034        \\ \hline
 $\braket{r_{12}}$ & 28.69         & 2.68         & 1.81         & 0.758        \\ \hline
-\end{tabular}
+\end{tabular}\label{table3}
 \end{table}
 
 For all values of $\omega$ tested, $\braket{E}$ lies lower for $\Psi_{T2}$ than for $\Psi_{T1}$. The same observation can be made for the standard deviation $\sigma$. This shows that $\Psi_{T2}$ is a better approximation to the real wave function than $\Psi_{T1}$. For that reason, the expectation values from $\Psi_{T2}$ are, in general, more reliable than the ones gotten from $\Psi_{T1}$. However, this comes at the cost of having to find two non-independent parameters and increasingly complex expressions for both the function and the energy, making it more costly. 
 A very interesting observation is the importance of the Jastrow factor. For smaller values of $\omega$, the relative decrease in energy is much higher than for larger values of  $\omega$: $\braket{E}$  using $\Psi_{T2}$ is 15\% lower than using $\Psi_{T1}$ for $\omega=0.01$, while we only have a difference of 1\% for $\omega=1.0$. This simply means that incorporating the electron repulsion becomes more important when the electron repulsion is the dominating force/potential. This makes sense, as $\Psi_{T1}$ is based on a wave function with no electron repulsion incorporated. We also see that $\sigma$ when using $\Psi_{T2}$ is less than a $10^th$ the size of the one using  $\Psi_{T1}$. This also indicates that the wave function $\Psi_{T2}$ is closer to the system's real wave function. \\
 We make the same observation as for $\Psi_{T1}$ when it comes to the average electron distance $\braket{r_{12}}$, which decreases with an increasing energy, for the same reason. However, the values are slightly larger, thereby decreasing the potential energy, which also explains why $\Psi_{T2}$ yields better results.
 \subsection{Comparison to the matrix diagonalization approach and analysis}
-In an earlier numerical experiment conducted by us, we solved the same system numerically by finding its eigenvalues and eigenfunctions for the ground state and some excited states, using matrix diagonalisation. We also found the most likely distance between the two electrons. Table 4 repeats that information. 
+In an earlier numerical experiment conducted by us \cite{Project2}, we solved the same system numerically by finding its eigenvalues and eigenfunctions for the ground state and some excited states, using matrix diagonalisation. We also found the most likely distance between the two electrons. Table 4 repeats that information. 
 \begin{table}[H]
 \centering
 \caption[Energies and distances compared to diagonalisation]{$\braket{E}$ and $r_{12}$ for $\Psi_{T1}$ and $\Psi_{T2}$, as well as the system's lowest eigenvalue and the most likely distance $r_{12,max}$. All quantities are in atomic units.}
