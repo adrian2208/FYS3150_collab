@@ -57,7 +57,7 @@
 \clearpage
 
 \section{Abstract}
-
+Most quantum mechanical systems lack analytical solutions to the Schroedinger equation, so finding algorithms for approximating solutions is important. We explored the viability of variational Monte Carlo methods in approximating a simple quantum mechanical system. Using as the working example, two electrons in a three- dimensional harmonic oscillator potential, approximating the ground state energy, kinetic and potential energy for which there are known solutions\cite{Project2}, as well as the relative distance between electrons.\\ 
 
 \section{Introduction}
 The purpose of this article is to apply the Variational Monte Carlo (VMC) method to two electrons in a quantum dot, modelled by a 3- dimensional harmonic oscillator potential. This is in order to evaluate their ground state energy, relative distance, and the expectation values of their kinetic and potential energies.\\In order to benchmark the results of this method, we are comparing the results of the ground state energy with analytical solutions for specific harmonic oscillator frequencies (henceforth $\omega$) as found in M. Taut's \cite{PhysRevA.48.3561} and our previous article \cite{Project2} on the topic of electron confinement in 3- dimensional harmonic oscillator potentials.\\\\The idealized Hamiltonian used in this article, models the Coulombic interaction between electrons and the 3- dimensional harmonic oscillator potential: 
@@ -67,7 +67,7 @@ The purpose of this article is to apply the Variational Monte Carlo (VMC) method
 \end{equation}
 \cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively. The natural units ($\hbar = c = e = m_e =1$) are used, and energy is given in atomic units. \\\\The VMC method is implemented using C++ (see list of programs: \ref{Listofprograms}).
 \section{Methods}
-\subsection{VMC}
+The VMC method is a brute force method that consists in part of a random walker, individually moving the position of the two electrons and accepting or rejecting moves in accordance with the metropolis algorithm using the Hamiltonian and the probability distribution function derived from a trial wave function. At equilibrium, the algorithm samples values from the system with each Monte Carlo cycle, giving their expectation values, an example of which can be found in our paper on the Ising model \cite{Project4}.
 \subsection{Non- interacting system}
 The Hamiltonian for two non- interacting electrons in a harmonic oscillator potential is
 \begin{equation}
@@ -145,7 +145,7 @@ which, since $\Psi_T({\bf R})$ are eigenfunctions of $\hat{H}$, can be written a
 \langle H \rangle =\int P({\bf R})E_L({\bf R})d{\bf R},
 \end{equation}
 Where $E_L({\bf R})$ is the local energy of the system, and $P({\bf R})$ is the probability distribution function of the wave function.
-\paragraph{The Virial theorem}states that the expectation value of the total kinetic energy is proportional to the expectation value of the total potential energy, and that for a pure harmonic oscillator, the constant of proportionality is 1 \cite{Problem_set_5}. We wish to examine whether this is true of our system, and so we need expressions for the total potential- and kinetic energy.\\Thanks to the linearity of the expectation value operator, we have 
+\paragraph{The Virial theorem}states that the expectation value of the total kinetic energy is proportional to the expectation value of the total potential energy, and that for a pure harmonic oscillator, the constant of proportionality is 1 \cite{Problem_set_5}.The Virial theorem is a classical result, however by the virtue of the Ehrenfest theorem which states that the expectation values of quantum mechanical observables obey classical mechanics (at least for harmonic oscillator potentials)\cite{griffiths2018introduction}, this theorem is transferable to quantum mechanics. We wish to examine whether the virial theorem holds for our system, and so we need expressions for the total potential- and kinetic energy.\\Thanks to the linearity of the expectation value operator, we have 
 \begin{equation}
 \hat{H}=\hat{T}+\hat{V},
 \end{equation}
@@ -263,7 +263,7 @@ The ideal step size \textit{dr} leading to $\sim$50\% of the Monte Carlo steps a
 \DecMargin{1em}
 This way, sampling does not start before an appropriate parameter has been found. That also means that a user-defined amount of samples will be discarded, plus all those before equilibrium has been reached. The algorithm has been implemented to be a part of the sampling algorithm and is technically active all the time, however changes to $dr$ happen rarely after one value has been accepted. 
 \subsection{Equilibrating the system}
-Because the equilibrium position is not known in advance, the initial electron placement needs to be chosen randomly. The first electron was placed in the origin, while electron two was placed at (1,1,1). Successive simulations with different parameters start at the previous simulation's  final positions. It is then necessary to let the system equilibrate before starting the sampling. Figure 1 shows the average energy of $\Psi_{T1}$ as a function of simulation steps, starting from the starting positions.
+Because the equilibrium position is not known in advance, the initial electron placement needs to be chosen randomly. The first electron was placed in the origin, while electron two was placed at (1,1,1). It is then necessary to let the system equilibrate before starting the sampling. Figure 1 shows the average energy of $\Psi_{T1}$ as a function of simulation steps, starting from the starting positions.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{Energy_variation.pdf}
@@ -299,7 +299,11 @@ The algorithm works as follows:\\
 \end{comment}
 In other words, $\alpha$ and $\beta$ are changed by a given step length until no lower energy is found  for that given step length. Then, the step length is decreased until the ideal values $\alpha$ and $\beta$ are found with two decimals accuracy. We also implemented some safeguards to make sure that $\alpha$ and $\beta$ always are positive.
 \subsection{Unit Testing}
-In order to test that the Monte Carlo sampling works as intended, unit tests were implemented. Because we know that $\Psi_{T1}$ is the correct wave function with $\alpha=1.0$ when the electron repulsion is ignored, we tested that the ground-state energy $\braket{E}$ is lowest (and equal to 3.0) for $\alpha=1.0$. We also tested that the standard deviation $\sigma$ is very small, and larger for other values of $\alpha$. \\
+In order to test that the Monte Carlo sampling works as intended, unit tests were implemented. Because we know that $\Psi_{T1}$ is the correct wave function with $\alpha=1.0$ when the electron repulsion is ignored, we tested that the ground-state energy $\braket{E}$ is lowest (and equal to 3.0) for $\alpha=1.0$. We also tested that the standard deviation
+\begin{equation}
+\sigma_E^2 = \sqrt{\braket{E^2}-\braket{E}^2}
+\end{equation}
+is very small, and larger for other values of $\alpha$. \\
 In addition, we tested that the virial theorem for the pure harmonic oscillator  $\braket{V}$= $\braket{T}$ holds true when the electron repulsion is ignored.
 \section{Results}
 \subsection{Results using $\Psi_{T1}$}
@@ -309,7 +313,7 @@ A visualisation of the average energy $\braket{E}$ and the standard deviation $\
 \includegraphics[width=\textwidth]{function1_plot.pdf}\label{function1_plot}
 \caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}
 \end{figure}
-Table \ref{table1} contains information about several observables and the ideal value for $\alpha$ for the different values of $\omega$.
+Table \ref{table1} contains information about several expectation values and the ideal value for $\alpha$ for the different values of $\omega$.
 \begin{table}[H]
 \centering
 \caption[$\braket{E},\sigma$, $\alpha$ and $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}
@@ -378,11 +382,23 @@ $\omega$ & $\braket{E}(\Psi_{T1})$ & $\braket{E}(\Psi_{T2})$ & $E_0$ & $\braket{
 5.0      & 16.76                  & 16.71                   & 16.22 & 0.733                        & 0.758                        & 0.471     \\ \hline
 \end{tabular}
 \end{table}
-All approaches yield qualitatively similar results, as can be seen for $\omega=1.0$. The variational result using $\Psi_{T1}$ is 6\% larger than the analytical solution, which is 3.558 au, and still 5\% larger using $\Psi_{T2}$. However, that difference is too large to do more quantitative analysis on the system, no matter which trial wave function we use.  One advantage of the variational principle is that we always know that the energy we found is equal to or higher than the true ground state energy. We can see that the numerical solution approach yields much better results, but at least for $\omega=1.0$, the result is lower than the analytical solution. In general, this method gives no indication whether the real ground state energy is higher or lower, which is an advantage of the variational principle. We also see that the relative difference between all thre approaches gets lower as $\omega$ is increased, which again reflects the fact that the electron repulsion gets less important for large values of $\omega$.\\
+All approaches yield qualitatively similar results, as can be seen for $\omega=1.0$. The variational result using $\Psi_{T1}$ is 6\% larger than the analytical solution, which is 3.558 au, and still 5\% larger using $\Psi_{T2}$. However, that difference is too large to do more quantitative analysis on the system, no matter which trial wave function we use.  One advantage of the variational principle is that we always know that the energy we found is equal to or higher than the true ground state energy. We can see that the numerical solution approach yields much better results, but at least for $\omega=1.0$, the result is lower than the analytical solution. In general, this method gives no indication whether the real ground state energy is higher or lower, which is an advantage of the variational principle. We also see that the relative difference between all three approaches gets lower as $\omega$ is increased, which again reflects the fact that the electron repulsion gets less important for large values of $\omega$.\\
 $r_{12,max}$ and $r_{12}$ are quite different and cannot be compared directly, because the real wave function is not symmetric, making the values nonidentical even for the same wave function. However, they scale similarly, and the same kind of observations can be taken from both. \\
-One advantage of the variational principle is that it gives us an analytical (but wrong) expression for the wave function, making it, at least sometimes, possible to get analytical expressions for the local energy and other observables, as we did here. Nevertheless, the matrix diagonalisation approach yields much better results. This shows that solving problems as analytically as possible, pays off by giving better results, and is the preferred way of solving quantum mechanical problems, given it is possible.  
+One advantage of the variational principle is that it gives us an analytical (but wrong) expression for the wave function, making it, at least sometimes, possible to get analytical expressions for the local energy and other expectation values, as we did here. Nevertheless, the matrix diagonalisation approach yields much better results. This shows that solving problems as analytically as possible, pays off by giving better results, and is the preferred way of solving quantum mechanical problems, given it is possible.  
+\subsection{Virial Theorem}
+As stated above, for a pure harmonic oscillator, $\braket{V}=\braket{T}$. This relation does not hold true for systems where the electron repulsion is included. Figure \ref{Virial} plots $\braket{V}/\braket{T}$ for several values of $\omega$.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{Virial.pdf}\label{Virial}
+\caption[$\braket{T}$/$0\braket{V}$ as function of $\omega$]{$\braket{T}$/$\braket{V}$ for different values of $\omega\in[0.01,1]$}
+\end{figure}
+This fits well with our earlier observations and explanations. Without electron repulsion, we see that $\braket{V}=\braket{T}$ holds true. However, with electron repulsion, $\braket{V}>\braket{T}$, but the difference gets smaller for increasing values of $\omega$. Again, this shows how the system starts resembling a harmonic oscillator more for larger values of $\omega$. The fact that $\braket{V}>\braket{T}$ also shows that the electron repulsion leads, relatively, to a decreased kinetic energy, an effect that is weaker for very strong harmonic potentials. It is very interesting to see that the quotient is larger using $\Psi_{T2}$ for all values, which can be related to the increased interelectronic distances. 
 \section{Conclusion}
-
+These simple simulations have shown that the variational theorem applied through Monte Carlo simulations is a feasible way to find the variationally lowest energy for a given wave function. Compared to values we found when we solved the system without approximations by solving the second derivative numerically, we managed to come as close as 15\% for very small values of $\omega$, and 5\% for larger values of $\omega$. Nevertheless, getting all the way down to the lowest energy, is no trivial task. Varying just two factors has not been enough, and reaching the real lowest energy wave function requires many more factors, something beyond the scope of this article. Despite not having the real wave function, we managed to replicate the qualitative observations from our earlier article. We also found that Monte Carlo simulation has the advantage that we can get many expectation values, such as $\braket{V}$, $\braket{E}$,$\braket{E^2}$ or $\braket{r_{12}}$, simply by by evaluating extra function while sampling. A clear advantage of using VMC methods for this class of quantum mechanical system is that conversion from Cartesian- to polar- coordinates is unnescessary. As opposed to the Jacobi eigenvalue algorithm, which for multiple- dimensional integrals become slow.\\The approaches taken here were rather simple, as the harmonic oscillator is a rather simple system, there was a function for the local energy, and, it was not necessary to pay closer attention to the Pauli principle, dealing with only two electrons in their singlet states. Varying through two parameters instead of one is no simple task, especially when the variational energies are quite close to one another. There is much room for improvement, and developing algorithms that manage finding minima with as few simulations as possible is crucial for larger systems.\\\\For the interacting system of electrons, the Jastrow factor has a diminishing effect on the energy of the system as $\omega$ increases. This is expected, as the kinetic energy of each electron will increase yielding more room for them to move in which ultimately means they spend less time in each others vicinity.\\\\The virial theorem was shown to hold for our model, both with and without electron- electron repulsion. In particular, the special case of the pure harmonic oscillator was proven and the proportionality constant $\alpha$ for
+\begin{equation}
+\braket{T} = \alpha \braket{V}
+\end{equation}
+was shown to increase as $\omega$ increases.
 \section{Critique}
 
 \section{Appendix}
@@ -403,6 +419,7 @@ where $\delta_{mn}$ is the Kronecker- delta.
 \begin{equation}
 \braket{H}=\sum\limits_{n} \big|  C_n \big|^2E_n \geq E_{gs}
 \end{equation}
+\begin{comment}
 \subsection{Derivation of $E_{L2}$}
 \begin{equation}
 \nabla_i^2\Psi_{T2} = \nabla_i^2\left( \Psi_{T1}\exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)} \right)
@@ -466,6 +483,8 @@ where $\delta_{mn}$ is the Kronecker- delta.
 \[ 
 \cdots \dfrac{1}{2r_{12}\left(\beta r_{12}+1\right)^2}\left( \frac{1}{r_1}-\frac{1}{r_2} \right)-6\alpha \omega \Bigg)\Psi_{T2}
 \]
+
+\end{comment}
 \subsection{Figures}
 
 \subsection{Tables}
