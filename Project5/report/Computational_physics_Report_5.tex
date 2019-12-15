@@ -58,7 +58,7 @@
 
 \section{Abstract}
 Most quantum mechanical systems lack analytical solutions to the Schroedinger equation, so finding algorithms for approximating solutions is important. We explored the viability of the variational Monte Carlo method in approximating a simple quantum mechanical system. Using as the working example, two electrons in a three- dimensional harmonic oscillator potential, approximating the ground state energy, kinetic and potential energy for which there are known solutions\cite{Project2}, as well as the relative distance between electrons.\\
-For small oscillator frequencies ($\omega$), the choice of trial wave function had a big impact on the accuracy of the energy expectation value, with \eqref{2ndtrialwavefunction} giving $15\%$ lower energy than \eqref{1sttrialwavefunction}, simply by the addition of the Jastrow factor \eqref{jastrow}, indicating that the inclusion of said factor is important to the accuracy of the model.\\Compared to eigenvalue solvers, as showcased in our earlier article \cite{Project2}, this stochastic method gives results $5\%$ and $6\%$ higher than the analytical results for the ground state energy depending on the trial wave function used,  making it an overall worse approximation for this system, with some caveats however. By using the variational method, our result is guaranteed to be an upper bound for the expectation value, which is in itself an incredibly useful result. In addition, the method of VMC scales more easily for more involved systems.
+For small oscillator frequencies ($\omega$), the choice of trial wave function had a big impact on the accuracy of the energy expectation value, with \eqref{2ndtrialwavefunction} giving $15\%$ lower energy than \eqref{1sttrialwavefunction}, simply by the addition of the Jastrow factor \eqref{jastrow}, indicating that the inclusion of said factor is important to the accuracy of the model.\\Compared to eigenvalue solvers, as showcased in our earlier article \cite{Project2}, this stochastic method gives results $5\%$ and $6\%$ higher than the analytical results for the ground state energy depending on the trial wave function used for $\omega=1.0$,  making it an overall worse approximation for this system, with some caveats however. By using the variational method, our result is guaranteed to be an upper bound for the expectation value, which is in itself an incredibly useful result. In addition, the method of VMC scales more easily for more involved systems.
 
 \section{Introduction}
 The purpose of this article is to apply the Variational Monte Carlo (VMC) method to two electrons in a quantum dot, modelled by a 3- dimensional harmonic oscillator potential. This is in order to evaluate their ground state energy, relative distance, and the expectation values of their kinetic and potential energies.\\In order to benchmark the results of this method, we are comparing the results of the ground state energy with analytical solutions for specific harmonic oscillator frequencies (henceforth $\omega$) as found in M. Taut's \cite{PhysRevA.48.3561} and our previous article \cite{Project2} on the topic of electron confinement in 3- dimensional harmonic oscillator potentials.\\\\The idealized Hamiltonian used in this article, models the Coulombic interaction between electrons and the 3- dimensional harmonic oscillator potential: 
@@ -82,7 +82,7 @@ with an exact energy of 3 atomic units (a.u) \cite{Problem_set_5}.\\The unpertur
 \begin{equation*}
 \hat{I}\Phi(\mathbf{r}_1,\mathbf{r}_2) = \Phi(\mathbf{r}_1,\mathbf{r}_2)
 \end{equation*}
-where $\hat{I}$ is the label- interchange operator. Electrons, being fermions are required to be anti- symmetric under the label- interchange operator which implies that their spins are necessarily oppositely oriented as to fulfil the requirement of anti- symmetry \cite{griffiths2018introduction}.
+where $\hat{I}$ is the label- interchange operator. Electrons, being fermions are required to be anti- symmetric under the label- interchange operator which implies that their spins are necessarily oppositely oriented as to fulfill the requirement of anti- symmetry \cite{griffiths2018introduction}, thus, we have a singlet state.
 \subsection{The variational principle}
 The variational principle in quantum mechanics gives rise to a method by which you can get an upper bound for the ground state energy of a (time- independent) Hamiltonian which you are otherwise unable to solve.\\ 
 By choosing any normalizable trial wave function $\ket{\psi}$, the expectation value of the Hamiltonian is certain to be equal to or greater than the ground state energy ($E_{gs}$) of the system.
@@ -219,7 +219,7 @@ The Metropolis algorithm is also implemented as its own class, and takes a funct
 The main advantage of this approach is not computational speed, which is in fact reduced, but an improved readability of code.
 \subsection{Calculating expectation values}
 In order to find the system's average energy and other parameters of interest, the Metropolis algorithm has been implemented. 
-For given parameters $\beta$,$\omega$, the step length $dr$ where around 50\% of proposed, the trial wave function $\phi$, the amount of Monte Carlo samples $n$, and the amount of discarded values $m$, the following algorithm is implemented:\\
+For given parameters $\alpha$,$\beta$,$\omega$, the step length $dr$ where around 50\% of proposed new positions are accepted, the trial wave function $\phi$, the amount of Monte Carlo samples $n$, and the amount of values to discard at start $m$, the following algorithm is implemented:\\
 \IncMargin{1em}
 \begin{algorithm}[H]
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
@@ -484,7 +484,6 @@ where $\delta_{mn}$ is the Kronecker- delta.
 \]
 
 \end{comment}
-\subsection{Figures}
 
 \subsection{Tables}
 \begin{table}[H]
@@ -513,17 +512,18 @@ All programs can be found on \url{https://github.com/adrian2208/FYS3150_collab} 
 
 
 \begin{itemize}
-\item[1.] b.cpp - Program with several options of writing to file, different matrices etc., for a given temperature and lattice size
-\item[2.] e\_not\_parallel.cpp - Like b, but can run over several lattices and temperatures, more efficient
-\item[3.] e.cpp - Same as above, but parallelized with openMPI
-\item[4.] vecop.hpp - Several functions
-\item[5.] vecop.cpp - Functions, out of which some are used.
+\item[1.] c.cpp - solve for $\Psi_{T1}$. Parallelized, so it runs for several values of $\omega$ at once.
+\item[2.] d\_parallel.cpp - solve for $\Psi_{T2}$.  Parallelized, so it runs for several values of $\omega$ at once.
+\item[3.]  virial\_theorem.cpp - Calculate $\braket{V}$ and $\braket{T}$ for  $\Psi_{T1}$,  $\Psi_{T2}$.
+\item[4.] catch.hpp - Unit testing
+\item[5.]unit\_testing.cpp - Unit testing
 \item[6.] tests\_main.cpp - Unit testing.
-\item[7.] a.py - Analytical solution. Not properly up to date!
-\item[8.] plot\_cv.py - Creates $2\times2$ plot for the larger simulations, also calculates $T_C(L_{\rightarrow \infty})$
-\item[9.] plot\_distribution.py Plots the distribution histograms at different temperatures.
-\item[10.] plot\_energy\_simulation\_step.py Plots the  avg. energy, the avg. magnetisation and the amount of accepted steps as a function of simulation step.
-\item[11.] functions.hpp \& functions.cpp - Contains functions for parallelization, and all the integrands, and some more.
+\item[7.] System.cpp/hpp - Contains the functions, and the function for the local energy / The potential.
+\item[8.] VMC.cpp - Contains the Metropolis algorithm solving the systems.
+\item[9.] functions.cpp - Useful functions.
+\item[10.] plot\_distribution.py - Used to create figure 1. 
+\item[11.]  plot\_energies.py - Used to create figure 2.
+\item[12.]  virial\_plot.py - Used to create figure 3.
 \end{itemize}
 
 \bibliographystyle{Plain}

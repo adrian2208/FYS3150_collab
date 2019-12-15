@@ -9,3 +9,22 @@ Other comments on object orientation:
 See OOExamples in doc/Programs
 Solar system - system class (planets) plus solver class (algorithms)
 
+
+Fixes done by me:
+1. Skrivefeil.
+2. Added "singlet state" as clarification.
+3. Added "for \omega=1.0" in the abstract.
+
+Thinks I ask you to fix:
+- Kan du skrive at også begge trial wave fuctions oppfyller Pauli-prinsippet / Er symmetriske?
+-"Equation 3 ignores electron-electron repulsion, but is still a valid trial wave function" - kan du kanskje utdype det (bare en setning "dvs. det oppfyller kvantemekanikkens aksiomer").
+-This makes the wave function unseperable and harder to solve analytically" - well, "løse" er kanskje et dårlig ord her. Kanskje heller "bruke"? Det er jo "løsningen"...
+-x i ligning 7 burde være r12, ikke sant?
+- Definisjonene for P(R) og EL(R) kan du kanskje ta med?
+- Liten feil i formel 27 - enten ta vekk kvadrat, eller ta vekk kvadratroten.
+- Feil figurhenvisning i 5.1 - figure 5.1 skal være figure 1 :D Samme for 5.5.
+- "The inclusion of the Jastrow factor lowered the energies' expectation value by 15% and so, for this system and especially systems with more electrons, closer together, the inclusion..." - Jeg tror denne setningen må du skrive på nytt, tror jeg...kanskje del det opp i to setninger? :D 
+- Dette er jeg selv usikker på: Men jeg tror ikke at vi kan si at "The virial theorem was shown to hold". Jeg tror at det i utgangspunktet skal si noe om hvordan, for mange-partikkel-systemer, <V> alltid er X ganger <T> - for molekyler har du f.eks. alltid at <U>= -1/2 <T> eller noe sånt, uavhengig antall partikler. Så jeg sier ikke at det du skrev er feil, men er du sikker det er lov...?
+- Kan du legge til litt mer i introduksjonen, aka, at vi testet tu funksjoner, en av dem med Jastrow-faktor og en uten? Bare sånn to setninger. 
+
+
