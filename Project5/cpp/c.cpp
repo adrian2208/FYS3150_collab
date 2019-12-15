@@ -35,12 +35,12 @@ void energy_equilibrium(){
   delete vrc;
 }
 int main(int argc, char** argv){
-  double alpha_start=0.4; //Start_value for alpha
-  double alpha_end=1.0; //End_value for alpha
+  double alpha_start=0.2; //Start_value for alpha
+  double alpha_end=1.4; //End_value for alpha
   double d_alpha=0.01; //Step length
   int n=(int)((alpha_end-alpha_start)/d_alpha)+1; //Amount of simulations
   int howmany=4; //How many omega values there are
-  double omega[howmany]={0.05,0.15,1.0/3.0,0.7};//;,5.0};
+  double omega[howmany]={0.01,0.5,1.0,5.0};
   double * energy_list=new double[howmany*n];
   double * sigma_list=new double[howmany*n];
   double *distance_list=new double[howmany*n];

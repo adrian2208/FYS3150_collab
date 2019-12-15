@@ -99,6 +99,7 @@ double * VRMonteCarlo::sample_detailed(double * energy, double * energysquared, 
 }
 void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,double *distance_,double * time, double **posold){
   posold[1][0]=1;posold[1][1]=1;posold[1][2]=1;posold[0][0]=0;posold[0][1]=0;posold[0][2]=0;
+
   int original_skip=skip;
   int i,particle,dim;
   int accepted=0;
@@ -113,6 +114,7 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,doub
   if (skip<check_size){
     skip=check_size;
   }
+  double time_start=clock();
   for(i=0;i<amount+skip;i++){ // For each iteration
     /** Suggest new position**/
     for (particle=0;particle<2;particle++){ // For each particle step
@@ -160,6 +162,8 @@ void VRMonteCarlo::sample(double * energy, double * energysquared,double *v,doub
       *v=*v+potential;
     }
   }
+  double time_end=clock();
+  *time=(time_end-time_start)/(float)CLOCKS_PER_SEC;
   *energy=*energy/(float)(amount);
   *energysquared=*energysquared/(float)(amount);
   *distance_=*distance_/(float)(amount);

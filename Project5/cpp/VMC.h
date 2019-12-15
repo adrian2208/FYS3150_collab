@@ -7,7 +7,6 @@
 #include <string>
 #include "System.h"
 #include "functions.h"
-
 #include <ctime>
 class VRMonteCarlo{
   private:

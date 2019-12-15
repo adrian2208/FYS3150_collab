@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import sys
 infile=np.loadtxt("../results/function1.csv",delimiter=",",skiprows=1)
-omegas=[0.05,0.15,1/3,0.7]
+omegas=[0.01,0.5,1.0,5.0]
 alpha=infile[:int(len(infile)/len(omegas)),1]
 energies=[]
 sigmas=[]
@@ -26,7 +26,7 @@ for i in range(len(omegas)):
     #plt.text(alpha[mini],energies[i][mini],"Minimum at %.3f\n with E=%.3f"%(alpha[mini],energies[i][mini]))
     print("Omega: %.4f Alpha: %.4f Energy: %.4f Sigma: %.4f Distance: %.4f"%(omegas[i],alpha[mini],energies[i][mini],sigmas[i][mini],distances[i][mini]))
     plt.xlabel(r"$\alpha$")
-    plt.ylabel(r"$E_0$")
+    plt.ylabel(r"$<E>$")
     plt.legend()
     plt.subplot(len(omegas),2,2*i+2)
     plt.plot(alpha,sigmas[i],label=r"$\omega=%.2f$"%omegas[i],color=colors[i])
