@@ -66,7 +66,7 @@ The purpose of this article is to apply the Variational Monte Carlo (VMC) method
   \label{eq:finalH}
   \hat{H}=\sum_{i=1}^{N} \left(  -\frac{1}{2} \nabla_i^2 + \frac{1}{2} \omega^2r_i^2  \right)+\sum_{i<j}\frac{1}{r_{ij}}
 \end{equation}
-\cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively. The natural units ($\hbar = c = e = m_e =1$) are used, and energy is given in atomic units. \\\\The VMC method is implemented using C++ (see list of programs: \ref{Listofprograms}).
+\cite{Problem_set_5} with $r_{ij}$ being the distance between electrons $i$ and $j$ with position moduli $r_i$ and $r_j$ respectively. The natural units ($\hbar = c = e = m_e =1$) are used, and energy is given in atomic units. In order to gauge the importance of the so called Jastrow factor, two different trial wave functions are attempted one with and one without the Jastrow factor.\\\\The VMC method is implemented using C++ (see list of programs: \ref{Listofprograms}).
 \section{Methods}
 The VMC method is a brute force method that consists in part of a random walker, individually moving the position of the two electrons and accepting or rejecting moves in accordance with the metropolis algorithm using the Hamiltonian and the probability distribution function derived from a trial wave function. At equilibrium, the algorithm samples values from the system with each Monte Carlo cycle, giving their expectation values, an example of which can be found in our paper on the Ising model \cite{Project4}.
 \subsection{Non- interacting system}
@@ -105,11 +105,11 @@ and
     C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
     \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
 \end{equation}
-with variational parameters $\alpha$ and $\beta$.\\Equation \eqref{1sttrialwavefunction} ignores the added complication of electron- electron repulsion, but is still a valid trial wave function. We expect however that this first trial wave function will result in poorer approximations of the real ground state energy in the presence of electron- electron repulsion. The second trial wave function \eqref{2ndtrialwavefunction} is meant to take into account a system with electron- electron repulsion and therefore, is hopefully a better approximation for the real wave function, giving a more accurate estimate for the ground state energy. This is done by the addition of a so- called Jastrow factor, in our case 
+with variational parameters $\alpha$ and $\beta$. Both wave functions obey the Pauli- principle for fermions.\\Equation \eqref{1sttrialwavefunction} ignores the added complication of electron- electron repulsion, but is still a valid trial wave function as it's normalizable. We expect however that this first trial wave function will result in poorer approximations of the real ground state energy in the presence of electron- electron repulsion. The second trial wave function \eqref{2ndtrialwavefunction} is meant to take into account a system with electron- electron repulsion and therefore, is hopefully a better approximation for the real wave function, giving a more accurate estimate for the ground state energy. This is done by the addition of a so- called Jastrow factor, in our case 
 \begin{equation}\label{jastrow}
 \exp{\left(\frac{r_{12}}{2(1+\beta r_{12})}\right)}
 \end{equation}
-which attempts to model the interaction of electrons with a variational function that takes in the distance between electrons $r_{12}$ as an argument. This does however make this particular trial wave function unseperable and therefore much harder to solve analytically.\\\\The trial wave function \eqref{1sttrialwavefunction} solved for a Hamiltonian without electron- electron repulsion has the known analytical result of $3\omega$ \cite{Problem_set_5}. This will serve as a benchmark and a test condition in the implementation of our model.
+which attempts to model the interaction of electrons with a variational function that takes in the distance between electrons $r_{12}$ as an argument. This does however make this particular trial wave function unseperable and therefore more difficoult to use.\\\\The trial wave function \eqref{1sttrialwavefunction} solved for a Hamiltonian without electron- electron repulsion has the known analytical result of $3\omega$ \cite{Problem_set_5}. This will serve as a benchmark and a test condition in the implementation of our model.
 \subsubsection{The cusp condition}
 It's important in the choice of trial wave function that the wave function reflects as many properties of the actual wave function as possible. One such condition is the behaviour of the system as the two electrons approach each other meaning $r_{12}\rightarrow 0$. The Cusp condition between two electrons, as defined in \cite{Lecture_Notes_Fall_2015} requires for two- electron systems with anti- parallel spins, that
 \begin{equation}
@@ -117,7 +117,7 @@ It's important in the choice of trial wave function that the wave function refle
 \end{equation}
 When applied to \eqref{1sttrialwavefunction}, this clearly doesn't hold true. Applied to \eqref{2ndtrialwavefunction}, we get
 \begin{equation}
-\dfrac{d\Psi_{T2}}{dr_{12}} \Bigg|_{r_{12}\rightarrow 0} = \lim_{r_{12}\rightarrow 0} \frac{\Psi_{T2}}{2\left(bx+1\right)^2} = \frac{1}{2}\Psi_{T2}.
+\dfrac{d\Psi_{T2}}{dr_{12}} \Bigg|_{r_{12}\rightarrow 0} = \lim_{r_{12}\rightarrow 0} \frac{\Psi_{T2}}{2\left(br_{12}+1\right)^2} = \frac{1}{2}\Psi_{T2}.
 \end{equation}
 So, the cusp condition holds for the second trial wave function.
 \subsection{Values of interest}
@@ -145,7 +145,14 @@ which, since $\Psi_T({\bf R})$ are eigenfunctions of $\hat{H}$, can be written a
 \begin{equation}\label{Energy_expectation_value}
 \langle H \rangle =\int P({\bf R})E_L({\bf R})d{\bf R},
 \end{equation}
-Where $E_L({\bf R})$ is the local energy of the system, and $P({\bf R})$ is the probability distribution function of the wave function.
+Where $E_L({\bf R})$ is the local energy of the system, from the solution of the time- independent Schroedinger equation:
+\begin{equation}
+\hat{H}\Psi = E_L\Psi
+\end{equation}
+and $P({\bf R})$ is the normalized probability distribution function derived from the wave function:
+\begin{equation}
+P({\bf R})=\frac{\big| \Psi({\bf R}) \big|^2}{\int\limits_{-\infty}^\infty\big| \Psi({\bf R}) \big|^2 d{\bf R}}.
+\end{equation}
 \paragraph{The Virial theorem}states that the expectation value of the total kinetic energy is proportional to the expectation value of the total potential energy, and that for a pure harmonic oscillator, the constant of proportionality is 1 \cite{Problem_set_5}.The Virial theorem is a classical result, however by the virtue of the Ehrenfest theorem which states that the expectation values of quantum mechanical observables obey classical mechanics (at least for harmonic oscillator potentials)\cite{griffiths2018introduction}, this theorem is transferable to quantum mechanics. We wish to examine whether the virial theorem holds for our system, and so we need expressions for the total potential- and kinetic energy.\\Thanks to the linearity of the expectation value operator, we have 
 \begin{equation}
 \hat{H}=\hat{T}+\hat{V},
@@ -300,7 +307,7 @@ In other words, $\alpha$ and $\beta$ are changed by a given step length until no
 \subsection{Unit Testing}
 In order to test that the Monte Carlo sampling works as intended, unit tests were implemented. Because we know that $\Psi_{T1}$ is the correct wave function with $\alpha=1.0$ when the electron repulsion is ignored, we tested that the ground-state energy $\braket{E}$ is lowest (and equal to 3.0) for $\alpha=1.0$. We also tested that the standard deviation
 \begin{equation}
-\sigma_E^2 = \sqrt{\braket{E^2}-\braket{E}^2}
+\sigma_E = \sqrt{\braket{E^2}-\braket{E}^2}
 \end{equation}
 is very small, and larger for other values of $\alpha$. \\
 In addition, we tested that the virial theorem for the pure harmonic oscillator  $\braket{V}$= $\braket{T}$ holds true when the electron repulsion is ignored.
@@ -309,8 +316,8 @@ In addition, we tested that the virial theorem for the pure harmonic oscillator 
 A visualisation of the average energy $\braket{E}$ and the standard deviation $\sigma$ for different values of $\omega$ can be found in figure \ref{function1_plot}. 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{function1_plot.pdf}\label{function1_plot}
-\caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}
+\includegraphics[width=\textwidth]{function1_plot.pdf}
+\caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}\label{function1_plot}
 \end{figure}
 Table \ref{table1} contains information about several expectation values and the ideal value for $\alpha$ for the different values of $\omega$.
 \begin{table}[H]
@@ -388,12 +395,12 @@ One advantage of the variational principle is that it gives us an analytical (bu
 As stated above, for a pure harmonic oscillator, $\braket{V}=\braket{T}$. This relation does not hold true for systems where the electron repulsion is included. Figure \ref{Virial} plots $\braket{V}/\braket{T}$ for several values of $\omega$.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.7\textwidth]{Virial.pdf}\label{Virial}
-\caption[$\braket{T}$/$0\braket{V}$ as function of $\omega$]{$\braket{T}$/$\braket{V}$ for different values of $\omega\in[0.01,1]$}
+\includegraphics[width=0.7\textwidth]{Virial.pdf}
+\caption[$\braket{T}$/$0\braket{V}$ as function of $\omega$]{$\braket{T}$/$\braket{V}$ for different values of $\omega\in[0.01,1]$}\label{Virial}
 \end{figure}
 This fits well with our earlier observations and explanations. Without electron repulsion, we see that $\braket{V}=\braket{T}$ holds true. However, with electron repulsion, $\braket{V}>\braket{T}$, but the difference gets smaller for increasing values of $\omega$. Again, this shows how the system starts resembling a harmonic oscillator more for larger values of $\omega$. The fact that $\braket{V}>\braket{T}$ also shows that the electron repulsion leads, relatively, to a decreased kinetic energy, an effect that is weaker for very strong harmonic potentials. It is very interesting to see that the quotient is larger using $\Psi_{T2}$ for all values, which can be related to the increased interelectronic distances. 
 \section{Conclusion}
-These simple simulations have shown that the variational theorem applied through Monte Carlo simulations is a feasible way to find the variationally lowest energy for a given wave function. Compared to values we found when we solved the system without approximations by solving the second derivative numerically, we managed to come as close as 15\% for very small values of $\omega$, and 5\% for larger values of $\omega$. Nevertheless, getting all the way down to the lowest energy, is no trivial task. Varying just two factors has not been enough, and reaching the real lowest energy wave function requires many more factors, something beyond the scope of this article. Despite not having the real wave function, we managed to replicate the qualitative observations from our earlier article. We also found that Monte Carlo simulation has the advantage that we can get many expectation values, such as $\braket{V}$, $\braket{E}$,$\braket{E^2}$ or $\braket{r_{12}}$, simply by evaluating extra functions while sampling. A clear advantage of using VMC methods for this class of quantum mechanical system is that conversion from Cartesian- to polar- coordinates is unnecessary. As opposed to the Jacobi eigenvalue algorithm, which for multiple- dimensional integrals become slow.\\The approaches taken here were rather simple, as the harmonic oscillator is a rather simple system, there was a function for the local energy, and, it was not necessary to pay closer attention to the Pauli principle, dealing with only two electrons in their singlet states. Varying through two parameters instead of one is no simple task, especially when the variational energies are quite close to one another. There is much room for improvement, and developing algorithms that manage finding minima with as few simulations as possible is crucial for larger systems.\\\\For the interacting system of electrons, the Jastrow factor has a diminishing effect on the energy of the system as $\omega$ increases. This is expected, as the kinetic energy of each electron will increase yielding more room for them to move in which ultimately means they spend less time in each others vicinity. For low values of $\omega$ however, the inclusion of the Jastrow factor lowered the energies expectation value by $15\%$ and so, for this system and especially systems with more electrons, closer together, the inclusion of this factor in the trial wave function will be essential to better approximations.\\\\The virial theorem was shown to hold for our model, both with and without electron- electron repulsion. In particular, the special case of the pure harmonic oscillator was proven and the proportionality constant $\alpha$ for
+These simple simulations have shown that the variational theorem applied through Monte Carlo simulations is a feasible way to find the variationally lowest energy for a given wave function. Compared to values we found when we solved the system without approximations by solving the second derivative numerically, we managed to come as close as 15\% for very small values of $\omega$, and 5\% for larger values of $\omega$. Nevertheless, getting all the way down to the lowest energy, is no trivial task. Varying just two factors has not been enough, and reaching the real lowest energy wave function requires many more factors, something beyond the scope of this article. Despite not having the real wave function, we managed to replicate the qualitative observations from our earlier article. We also found that Monte Carlo simulation has the advantage that we can get many expectation values, such as $\braket{V}$, $\braket{E}$,$\braket{E^2}$ or $\braket{r_{12}}$, simply by evaluating extra functions while sampling. A clear advantage of using VMC methods for this class of quantum mechanical system is that conversion from Cartesian- to polar- coordinates is unnecessary. As opposed to the Jacobi eigenvalue algorithm, which for multiple- dimensional integrals become slow.\\The approaches taken here were rather simple, as the harmonic oscillator is a rather simple system, there was a function for the local energy, and, it was not necessary to pay closer attention to the Pauli principle, dealing with only two electrons in their singlet states. Varying through two parameters instead of one is no simple task, especially when the variational energies are quite close to one another. There is much room for improvement, and developing algorithms that manage finding minima with as few simulations as possible is crucial for larger systems.\\\\For the interacting system of electrons, the Jastrow factor has a diminishing effect on the energy of the system as $\omega$ increases. This is expected, as the kinetic energy of each electron will increase yielding more room for them to move in which ultimately means they spend less time in each others vicinity. For low values of $\omega$ however, the inclusion of the Jastrow factor lowered the energies' expectation value by $15\%$. This system therefore, and especially systems with more electrons closer together, warrant the inclusion of the Jastrow factor in the trial wave function to better approximations.\\\\The virial theorem was shown to hold for our model, both with and without electron- electron repulsion. In particular, the special case of the pure harmonic oscillator was proven and the proportionality constant $\alpha$ for
 \begin{equation}
 \braket{T} = \alpha \braket{V}
 \end{equation}
