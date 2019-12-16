@@ -28,3 +28,5 @@ Thinks I ask you to fix:
 - Kan du legge til litt mer i introduksjonen, aka, at vi testet tu funksjoner, en av dem med Jastrow-faktor og en uten? Bare sånn to setninger. 
 
 
+- En setning i abstracten.
+- En setning i Konklusjonen.
