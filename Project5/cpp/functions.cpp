@@ -1,5 +1,5 @@
 #include "functions.h"
-double** createNMatrix(int n,int m){
+double** createNMatrix(int n,int m){ //Create n*m integer matrix
   double** A;
   A = new double*[n];
   for (int i = 0; i < n; i++){

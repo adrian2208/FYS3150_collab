@@ -1,3 +1,9 @@
+/*
+Compile and run as
+ c++ -c virial_theorem.cpp
+ c++ -o virial_theorem.exe virial_theorem.o VMC.o functions.o System.o
+./virial_theorem.exe
+*/
 #include <iostream>
 #include <cmath>
 #include <fstream>

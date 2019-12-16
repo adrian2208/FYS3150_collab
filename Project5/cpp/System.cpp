@@ -4,7 +4,7 @@ System::System(double alpha1,double beta1, double omega1){
       beta = beta1;
       omega = omega1;
     }
-double System::potentialCart(double ** pos){
+double System::potentialCart(double ** pos){ //Potential in cartesian coordinates
       return potentialCart(pos[0][0],pos[0][1],pos[0][2],pos[1][0],pos[1][1],pos[1][2]);
     }
 double System::potentialCart(double x1, double y1, double z1, double x2, double y2, double z2){
@@ -64,6 +64,7 @@ void Testsystem::update(double alpha, double beta, double omega){
   this->omega=omega;
 }
 void System2::update(double alpha, double beta, double omega){
+  /*updates both itself and it's inner system 1*/
   this->alpha=alpha;
   this->beta=beta;
   this->omega=omega;

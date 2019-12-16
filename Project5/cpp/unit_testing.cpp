@@ -1,3 +1,9 @@
+/*
+compile as:
+c++ -c unit_testing.cpp
+c++ -o test.exe unit_testing.o VMC.o System.o functions.o tests_main.o
+./test.exe
+*/
 #include <iostream>
 #include <cmath>
 #include <fstream>

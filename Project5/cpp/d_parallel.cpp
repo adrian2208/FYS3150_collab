@@ -1,3 +1,11 @@
+/*
+Compile and run as
+ mpic++ -c d.cpp
+ mpic++ -o d.exe c.o VMC.o functions.o System.o
+ mpirun -n 4 d.exe
+*/
+/*Only works with 4 omegas at once*/
+/*Pay attention to "bad start"*/
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -15,7 +23,7 @@ void print(double omega,double alpha,double beta,double energy, double sigma, do
   *outfile<<setprecision(8)  << omega<<","<<alpha <<","<< beta<<","<<energy<<","<<sigma<<","<<distance<<endl;
 }
 int main(int argc, char** argv){
-
+  bool bad_start=false; //this is important: If bad_start is true, an approximate value for beta between 0.1 and 2.0 will be found. If it's false, the beta from the list will be taken.
   double omegas[4]={0.05,0.15,1.0/3.0,0.7}; //Original setup
   double alphas[4]={0.95,0.98,0.99,0.99}; //Either guesses from psi_T1, or "improved" results
   double betas[4]={0.09,0.13,0.18,0.25}; //Can be zero if guessed from psi_T2, otherwise: Best guess (or anything)
@@ -42,7 +50,6 @@ int main(int argc, char** argv){
   VRMonteCarlo *vrc=new VRMonteCarlo(per, dr,samplings,skip,j);
   double energy=0,energysquared=0,time=0,distance=0,V=0,sigma=0; //
   double direction=1; //1 represents "right", -1 represents left
-  bool bad_start=false; //this is important: If bad_start is true, an approximate value for beta between 0.1 and 2.0 will be found. If it's false, the beta from the list will be taken.
     if(bad_start){
     alpha=alphas[j];
       for(beta=0.1;beta<=1;beta+=0.1){

@@ -1,3 +1,9 @@
+/*
+Compile and run as
+ mpic++ -c c.cpp
+ mpic++ -o c.exe c.o VMC.o functions.o System.o
+ mpirun -n 4 c.exe //same amount as "howmany"
+*/
 #include <iostream>
 #include <cmath>
 #include <fstream>
@@ -31,6 +37,7 @@ void energy_equilibrium(){
   for(int i=1000;i<amount;i+=1000){
     outfile << i << ","<<energies[i]<<","<<omega<<","<<alpha<<endl;
   }
+  outfile.close();
   delete per;
   delete vrc;
 }
