@@ -57,7 +57,7 @@
 \clearpage
 
 \section{Abstract}
-Most quantum mechanical systems lack analytical solutions to the Schroedinger equation, so finding algorithms for approximating solutions is important. We explored the viability of the variational Monte Carlo method in approximating a simple quantum mechanical system. Using as the working example, two electrons in a three- dimensional harmonic oscillator potential, approximating the ground state energy, kinetic and potential energy for which there are known solutions\cite{Project2}, as well as the relative distance between electrons.\\
+Most quantum mechanical systems lack analytical solutions to the Schroedinger equation, so finding algorithms for approximating solutions is important. We explored the viability of the variational Monte Carlo method in approximating a simple quantum mechanical system. Using as the working example; two electrons in a three- dimensional harmonic oscillator potential that approximates the ground state energy, kinetic and potential energy. There are known solutions for these\cite{Project2}. In addition, the relative distance between electrons is examined.\\
 For small oscillator frequencies ($\omega$), the choice of trial wave function had a big impact on the accuracy of the energy expectation value, with \eqref{2ndtrialwavefunction} giving $15\%$ lower energy than \eqref{1sttrialwavefunction}, simply by the addition of the Jastrow factor \eqref{jastrow}, indicating that the inclusion of said factor is important to the accuracy of the model.\\Compared to eigenvalue solvers, as showcased in our earlier article \cite{Project2}, this stochastic method gives results $5\%$ and $6\%$ higher than the analytical results for the ground state energy depending on the trial wave function used for $\omega=1.0$,  making it an overall worse approximation for this system, with some caveats however. By using the variational method, our result is guaranteed to be an upper bound for the expectation value, which is in itself an incredibly useful result. In addition, the method of VMC scales more easily for more involved systems.
 
 \section{Introduction}
@@ -141,13 +141,13 @@ R}\Psi^{\ast}_T({\bf R})\hat{H}({\bf R})\Psi_T({\bf R})}
 {\int d{\bf
 R}\Psi^{\ast}_T({\bf R})\Psi_T({\bf R})}
 \end{equation}
-which, since $\Psi_T({\bf R})$ are eigenfunctions of $\hat{H}$, can be written as 
+which, since $\Psi_T({\bf R})$ are trial wave functions of $\hat{H}$, can be written as 
 \begin{equation}\label{Energy_expectation_value}
 \langle H \rangle =\int P({\bf R})E_L({\bf R})d{\bf R},
 \end{equation}
-Where $E_L({\bf R})$ is the local energy of the system, from the solution of the time- independent Schroedinger equation:
+Where $E_L({\bf R})$ is the local energy of the system:
 \begin{equation}
-\hat{H}\Psi = E_L\Psi
+E_L = \frac{\hat{H}\Psi({\bf R})}{\Psi({\bf R})}
 \end{equation}
 and $P({\bf R})$ is the normalized probability distribution function derived from the wave function:
 \begin{equation}
@@ -177,7 +177,7 @@ for the pure harmonic oscillator potential.\\$\hat{T}$, unlike $\hat{V}$ gives d
 \braket{T} = \braket{H}-\braket{V}.
 \end{equation}
 
-\paragraph{To find $E_L$}, as required in \eqref{Energy_expectation_value}, we apply $\hat{H}_{N=2}$ to its eigenfunctions:
+\paragraph{To find $E_L$}, as required in \eqref{Energy_expectation_value}, we apply $\hat{H}_{N=2}$ to its trial wave function:
 \begin{equation*}
 \hat{H}_{N=2}\Psi_{T1} = \left( \frac{1}{2}\left( \omega^2   \left( r_1^2+r_2^2 \right)-\left( \nabla_1^2 + \nabla_2^2 \right)  \right)+\frac{1}{r_{12}} \right)C\exp{\left(-\alpha\omega(r_1^2+r_2^2)/2\right)}
 \end{equation*}
@@ -257,7 +257,7 @@ Divide expectation values by n\;
 \DecMargin{1em}
 
 \subsection{Finding the correct step size leading to $\sim$50\% acceptance}
-The ideal step size \textit{dr} leading to $\sim$50\% of the Monte Carlo steps accepted, depends on $\omega$ and is difficult to assess without deeper insight into the system. For that reason, we developed an algorithm to find the value. For a given value dr:\\
+The ideal step size \textit{dr} leading to $\sim$50\% of the Monte Carlo cycles accepted, depends on $\omega$ and is difficult to assess without deeper insight into the system. For that reason, we developed an algorithm to find the value. For a given value dr:\\
 \IncMargin{1em}
 \begin{algorithm}[H]  
 \SetKwData{Left}{left}\SetKwData{This}{this}\SetKwData{Up}{up}
@@ -271,15 +271,15 @@ The ideal step size \textit{dr} leading to $\sim$50\% of the Monte Carlo steps a
 \DecMargin{1em}
 This way, sampling does not start before an appropriate parameter has been found. That also means that a user-defined amount of samples will be discarded, plus all those before equilibrium has been reached. The algorithm has been implemented to be a part of the sampling algorithm and is technically active all the time, however changes to $dr$ happen rarely after one value has been accepted. 
 \subsection{Equilibrating the system}
-Because the equilibrium position is not known in advance, the initial electron placement needs to be chosen randomly. The first electron was placed in the origin, while electron two was placed at (1,1,1). It is then necessary to let the system equilibrate before starting the sampling. Figure 1 shows the average energy of $\Psi_{T1}$ as a function of simulation steps, starting from the starting positions.
+Because the equilibrium position is not known in advance, the initial electron placement needs to be chosen randomly. The first electron was placed in the origin, while electron two was placed at (1,1,1). It is then necessary to let the system equilibrate before starting the sampling. Figure 1 shows the average energy of $\Psi_{T1}$ as a function of Monte Carlo cycles, starting from the starting positions.
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{Energy_variation.pdf}
-\caption[<E> as function of simulation steps]{$\braket{E}$ of $\Psi_{T1}$ as function of simulation steps for $\alpha$=0.88, $\omega=1.0$. Counting starts after a suitable value for the step size $dr$ has been found.}
+\caption[<E> as function of Monte Carlo cycles]{$\braket{E}$ of $\Psi_{T1}$ as function of Monte Carlo cycles for $\alpha$=0.88, $\omega=1.0$. Counting starts after a suitable value for the step size $dr$ has been found.}
 \end{figure}
-From that, we deduced that it takes roughly 200,000 simulation steps for the system to equilibrate. Depending on the initial guess of the step size $dr$, it takes some additional steps to find a suitable value for $dr$. Thus, we decided to discard 200,000 simulation steps before starting to sample, plus all the steps before a fitting $dr$ was found.
+From that, we deduced that it takes roughly 200,000 Monte Carlo cycles for the system to equilibrate. Depending on the initial guess of the step size $dr$, it takes some additional steps to find a suitable value for $dr$. Thus, we decided to discard 200,000 Monte Carlo cycles before starting to sample, plus all the steps before a fitting $dr$ was found.
 \subsection{Finding values for $\alpha$ and $\beta$ for $\Psi_{T2}$}
-Finding right values for $\alpha$ and $\beta$ for $\Psi_{T2}$ is no easy task, as the ideal value, that is, the value yielding the lowest energy, of $\beta$ depends on the choice of $\alpha$. We developed an algorithm to find those values of beta and alpha that give the lowest energy. The requirement for the algorithm to work is that there exist no local minima, as these would be incorrectly recognized as the actual minimum, and that the amount of simulation steps is sufficient in order to ascertain that the average energies are calculated well enough and with a small enough standard deviation. 
+Finding right values for $\alpha$ and $\beta$ for $\Psi_{T2}$ is no easy task, as the ideal value, that is, the value yielding the lowest energy, of $\beta$ depends on the choice of $\alpha$. We developed an algorithm to find those values of beta and alpha that give the lowest energy. The requirement for the algorithm to work is that there exist no local minima, as these would be incorrectly recognized as the actual minimum, and that the amount of Monte Carlo cycles is sufficient in order to ascertain that the average energies are calculated well enough and with a small enough standard deviation. 
 The algorithm works as follows:\\
 \IncMargin{1em}
 \begin{algorithm}[H]  
@@ -317,12 +317,12 @@ A visualisation of the average energy $\braket{E}$ and the standard deviation $\
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{function1_plot.pdf}
-\caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}\label{function1_plot}
+\caption[$\braket{E},\sigma$ as function of $\alpha$]{$\braket{E},\sigma$ as function of the variational parameter $\alpha$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles.}\label{function1_plot}
 \end{figure}
-Table \ref{table1} contains information about several expectation values and the ideal value for $\alpha$ for the different values of $\omega$.
+Table \ref{table1} contains information about several expectation values and the ideal value for $\alpha$ for the different values of $\omega$. Table \ref{Table5} contains the ideal parameter $\alpha$ for a variety of values for $\omega$.
 \begin{table}[H]
 \centering
-\caption[$\braket{E},\sigma$, $\alpha$ and $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles}
+\caption[$\braket{E},\sigma$, $\alpha$ and $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T1}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles.}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
                   & $\omega=0.01$ & $\omega=0.5$ & $\omega=1.0$ & $\omega=5.0$ \\ \hline
@@ -333,12 +333,12 @@ $\braket{r_{12}}$ & 23.78         & 2.462        & 1.701        & 0.733        \
 \end{tabular}\label{table1}
 \end{table}
 A lot of information can be extracted from this. For all values of $\omega$, one can see clearly that both the standard deviation and $\braket{E}$ have one single minimum. That is, there exists an unambiguous value for $\alpha$, yielding the lowest average energy or the lowest standard deviation. The values are different depending on $\omega$, which does not happen when the electron repulsion is ignored. Another observation is that the minima for $\braket{E}$ and $\sigma$ are not identical. This can be explained by the fact that the local energy is not the real ground state energy, because the trial wave function is not the real wave function. This leads to different integrals being evaluated for $\braket{E}$ and $\braket{E^2}$, and the minima coinciding would simply be a coincidence. Nevertheless, the ideal $\alpha$-value for the energy is similar to the lowest $\sigma$-value for the standard deviation. It is also interesting to see that the standard deviation for $\omega=0.01$ is in the same magnitude as $\braket{E}$ itself, while it is about one magnitude lower for $\omega=1.0$. A possible explanation is that the harmonic oscillator potential is that the electron repulsion dominates for very weak harmonic oscillator potentials, something that is not well incorporated in the wave function, so that the wave function's value is similar for quite different local energies. This is based on our earlier observation that the repulsion potential is a more severe "disturbance" for lower harmonic oscillator potentials.\\
-The expectation value $\braket{r_{12}}$ for the distance between the two electrons decreases as $\omega$ increases, which makes sense - for lower values of  $\omega$, the electron repulsion dominates, and the particles stay far away from each other. 
+The expectation value $\braket{r_{12}}$ for the distance between the two electrons decreases as $\omega$ increases, which makes sense - for lower values of  $\omega$, the electron repulsion dominates, and the particles stay far away from each other. Finally it's observed that for small values of $\omega$, the standard deviation was somewhat erratic, which might be remedied by more Monte Carlo cycles if desired.
 \subsection{Varying $\alpha$ and $\beta$ for $\Psi_{T2}$}
 The algorithm described above tries to find the best results for $\alpha$ and $\beta$. A typical "path" is shown (in chronological order) in table \ref{table2}, for the exemplary $\omega=0.7$. The results are similar when using different values of $\omega$.
 \begin{table}[H]
 \centering
-\caption[Varying $\alpha$ and $\beta$]{The "path" gone by  $\alpha$ and $\beta$ yielding gradually lower results for  $\braket{E}$, as well as  $\braket{r_{12}}$ and $\sigma$ for $\Psi_{T2}$ for $\omega=0.7$ with $10^7$ Monte Carlo cycles}
+\caption[Varying $\alpha$ and $\beta$]{The "path" gone by  $\alpha$ and $\beta$ yielding gradually lower results for  $\braket{E}$, as well as  $\braket{r_{12}}$ and $\sigma$ for $\Psi_{T2}$ for $\omega=0.7$ with $10^7$ Monte Carlo cycles.}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
 $\alpha$ & $\beta$ & $\braket{E}$ & $\sigma$ & $\braket{r_{12}}$ \\ \hline
@@ -355,10 +355,10 @@ $\alpha$ & $\beta$ & $\braket{E}$ & $\sigma$ & $\braket{r_{12}}$ \\ \hline
 \end{table}
 We see that the energy barely changes as soon as approximate values have been found, and that there is little room for improvement. However, the standard deviation decreases vastly when improving the parameters, and we see how energy reduction is correlated with reduction of $\sigma$, which seems to vary more intensely when varying $\alpha$ and $\beta$. This makes it feasible to find the lowest value for $\sigma$ instead of $\braket{E}$, however, it will not yield the lowest energy. It is also possible to see that $10^7$ Monte Carlo cycles simply is not enough to get reliable results, as the last row has an energy difference large enough to change the parameters $\alpha$ and $\beta$. However, using $10^7$ Monte Carlo cycles works nicely to get a general idea of the "true" lowest-energy parameters $\alpha$ and $\beta$, which we found are $\alpha=0.99$ and $\beta=0.24$.
 \subsection{Results using $\Psi_{T2}$}
-The results for different expectation values, and the optimal parameters $\alpha$ and $\beta$, are presented in table \ref{table3}. 
+The results for different expectation values, and the optimal parameters $\alpha$ and $\beta$, are presented in table \ref{table3}. Table \ref{Table6} contains the ideal parameter $\alpha$ and $\beta$ for a variety of values for $\omega$.
 \begin{table}[H]
 \centering
-\caption[$\braket{E},\sigma$, $\alpha$,$\beta$ and  $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ and $\beta$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T2}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles. The right range for $\alpha$ and $\beta$ was found using the approach described above using $10^7$ simulation steps, and the values were confirmed and refined using  $10^8$ simulation steps. }
+\caption[$\braket{E},\sigma$, $\alpha$,$\beta$ and  $\braket{r_{12}}$]{$\braket{E},\sigma$, the $\alpha$ and $\beta$ yielding the lowest result for  $\braket{E}$, and $\braket{r_{12}}$ for $\Psi_{T2}$ for $\omega\in\{0.01,0.5,1.0,5.0\}$ with $10^8$ Monte Carlo cycles. The right range for $\alpha$ and $\beta$ was found using the approach described above using $10^7$ Monte Carlo cycles, and the values were confirmed and refined using  $10^8$ Monte Carlo cycles. }
 
 \begin{tabular}{|l|l|l|l|l|}
 \hline
@@ -378,7 +378,7 @@ We make the same observation as for $\Psi_{T1}$ when it comes to the average ele
 In an earlier numerical experiment conducted by us \cite{Project2}, we solved the same system numerically by finding its eigenvalues and eigenfunctions for the ground state and some excited states, using matrix diagonalisation. We also found the most likely distance between the two electrons. Table 4 repeats that information. 
 \begin{table}[H]
 \centering
-\caption[Energies and distances compared to diagonalisation]{$\braket{E}$ and $r_{12}$ for $\Psi_{T1}$ and $\Psi_{T2}$, as well as the system's lowest eigenvalue and the most likely distance $r_{12,max}$. All quantities are in atomic units.}
+\caption[Energies and distances compared to diagonalisation]{$\braket{E}$ and $r_{12}$ for $\Psi_{T1}$ and $\Psi_{T2}$, as well as the system's lowest eigenvalue ($E_0$)and the most likely distance $r_{12,max}$.}
 \begin{tabular}{|l|l|l|l|l|l|l|}
 \hline
 $\omega$ & $\braket{E}(\Psi_{T1})$ & $\braket{E}(\Psi_{T2})$ & $E_0$ & $\braket{r_{12}}(\Psi_{T1})$ & $\braket{r_{12}}(\Psi_{T2})$ & $r_{12,max}$ \\ \hline
@@ -396,7 +396,7 @@ As stated above, for a pure harmonic oscillator, $\braket{V}=\braket{T}$. This r
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{Virial.pdf}
-\caption[$\braket{T}$/$0\braket{V}$ as function of $\omega$]{$\braket{T}$/$\braket{V}$ for different values of $\omega\in[0.01,1]$}\label{Virial}
+\caption[$\braket{T}$/$0\braket{V}$ as function of $\omega$]{$\braket{T}$/$\braket{V}$ for different values of $\omega\in[0.01,1]$.}\label{Virial}
 \end{figure}
 This fits well with our earlier observations and explanations. Without electron repulsion, we see that $\braket{V}=\braket{T}$ holds true. However, with electron repulsion, $\braket{V}>\braket{T}$, but the difference gets smaller for increasing values of $\omega$. Again, this shows how the system starts resembling a harmonic oscillator more for larger values of $\omega$. The fact that $\braket{V}>\braket{T}$ also shows that the electron repulsion leads, relatively, to a decreased kinetic energy, an effect that is weaker for very strong harmonic potentials. It is very interesting to see that the quotient is larger using $\Psi_{T2}$ for all values, which can be related to the increased interelectronic distances. 
 \section{Conclusion}
@@ -406,7 +406,9 @@ These simple simulations have shown that the variational theorem applied through
 \end{equation}
 was shown to increase as $\omega$ increases.
 \section{Critique}
-
+We got the impression that other projects were lent better resources and help in lectures, but also in terms of the information available online and example files on Morten's github. Especially for the virial theorem, the information that was available, was sparse and unavailable for the uninitiated, even in the texts recommended as supplementary reading.\\\\
+A clearer contrast between background information and task in this project would alleviate the fear of forgetting something.\\\\
+At the risk of repeating a platitude, receiving  feedback before the next assignment is really integral to the learning process, as after a succeeding project is finished, the impact of receiving feedback looses much of its purpose.\\\\ All of this said, we're really nitpicking, and simply critiquing for the sake of feedback. We're super happy about having taken this course and generally regard the lectures, projects, the help received as well as the people involved as being top notch.
 \section{Appendix}
 \subsection{Proof of the variational principle in quantum mechanics}\label{Proof_variational_principle}
 Given a normalized trial wave function $\ket{\psi}$. As any normalizable wave function can be expressed as a linear combination of energy eigenstates, we have that
@@ -495,23 +497,23 @@ where $\delta_{mn}$ is the Kronecker- delta.
 \subsection{Tables}
 \begin{table}[H]
 \centering
-\caption[$\alpha$ yielding the best $\braket{E}$ for given $\omega$]{$\alpha$ yielding the best $\braket{E}$ for given $\omega$ for $\Psi_{T1}$ for different values of $\omega$ with $10^8$ simulation steps }
+\caption[$\alpha$ yielding the best $\braket{E}$ for given $\omega$]{$\alpha$ yielding the best $\braket{E}$ for given $\omega$ for $\Psi_{T1}$ for different values of $\omega$ with $10^8$ Monte Carlo cycles. }
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|}
 \hline
 $\omega$ & 0.01 & 0.05 & 0.15 & 1/3  & 0.5  & 0.7  & 1.0  & 5.0  \\ \hline
 $\alpha$ & 0.45 & 0.63 & 0.74 & 0.81 & 0.84 & 0.87 & 0.88 & 0.95 \\ \hline
-\end{tabular}
+\end{tabular}\label{Table5}
 \end{table}
 \begin{table}[H]
 \centering
-\caption[$\alpha$ and $\beta$ yielding the best $\braket{E}$ for given $\omega$]{$\alpha$ and $\beta$ yielding the best $\braket{E}$ for given $\omega$ for $\Psi_{T2}$ for different values of $\omega$ with $10^8$ simulation steps }
+\caption[$\alpha$ and $\beta$ yielding the best $\braket{E}$ for given $\omega$]{$\alpha$ and $\beta$ yielding the best $\braket{E}$ for given $\omega$ for $\Psi_{T2}$ for different values of $\omega$ with $10^8$ Monte Carlo cycles. }
 \begin{tabular}{|l|l|l|l|l|l|l|l|l|}
 \hline
 $\omega$ & 0.01 & 0.05 & 0.15 & 1/3  & 0.5  & 0.7  & 1.0  & 5.0  \\ \hline
 $\alpha$ & 0.89 & 0.95 & 0.98 & 0.99 & 0.99 & 0.99 & 1.00 & 1.00 \\ \hline
 $\beta$ & 0.05 & 0.09 & 0.13 & 0.14 & 0.17 & 0.24 & 0.27 & 0.59 \\ \hline
 
-\end{tabular}
+\end{tabular} contains the ideal parameter $\alpha$ for a variety of values for $\omega$.
 \end{table}
 
 \subsection{List of programs}\label{Listofprograms}
